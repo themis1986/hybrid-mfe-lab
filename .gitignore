@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output (apps and packages/ui)
+dist/
+*.tsbuildinfo
+
+# Turborepo cache and task logs
+.turbo/
+
+# Module Federation temp files
+.__mf__temp/
+
+# Local env files (e.g. apps/shell/.env.local with VITE_TODO_REMOTE_URL)
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editors and OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
