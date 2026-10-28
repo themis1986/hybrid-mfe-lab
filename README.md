@@ -5,7 +5,10 @@ components from a shared UI package: the shell renders them directly, and the Vu
 custom elements. Placeholder content only; this skeleton just proves the pieces fit together.
 
 For a step-by-step explanation of how everything connects at build time and at runtime, see
-[documents/how-it-works.md](documents/how-it-works.md).
+[documents/how-it-works.md](documents/how-it-works.md). If Module Federation is new to you, start with
+[documents/module-federation-explained.md](documents/module-federation-explained.md), a beginner's guide
+to the federation configuration. For what the `.d.ts` files are for, see
+[documents/typescript-declaration-files.md](documents/typescript-declaration-files.md).
 
 ## Architecture
 
