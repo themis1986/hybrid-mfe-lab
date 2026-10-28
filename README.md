@@ -1,8 +1,8 @@
 # Microfrontends monorepo skeleton
 
-A React shell that loads a Vue microfrontend at runtime with Module Federation. Both apps use one
-React `Button` from a shared UI package: the shell renders it directly, and the Vue app renders it as
-a custom element. Placeholder content only; this skeleton just proves the pieces fit together.
+A React shell that loads a Vue microfrontend at runtime with Module Federation. Both apps use React
+components from a shared UI package: the shell renders them directly, and the Vue app renders them as
+custom elements. Placeholder content only; this skeleton just proves the pieces fit together.
 
 For a step-by-step explanation of how everything connects at build time and at runtime, see
 [documents/how-it-works.md](documents/how-it-works.md).
@@ -13,7 +13,7 @@ For a step-by-step explanation of how everything connects at build time and at r
                       browser: http://localhost:5173
 ┌──────────────────────────────────────────────────────────────────────┐
 │ apps/shell  (@repo/shell)            React 19 + React Router 8       │
-│   /            HomePage ── <Button> from @repo/ui (plain React)      │
+│   own routes   React components from @repo/ui (plain React)          │
 │   /todo-app/*  TodoMfeHost                                           │
 │                  └─ import('todo/mount') ─────────────┐ runtime,     │
 │                     mount(div, { basePath })          │ federation   │
@@ -23,10 +23,10 @@ For a step-by-step explanation of how everything connects at build time and at r
 ┌──────────────────────────────────────────────────────────────────────┐
 │ apps/todo-mfe  (@repo/todo-mfe)      Vue 3 + Vue Router 5            │
 │   exposes "./mount" → src/mount.ts                                   │
-│   HomePage.vue ── <ui-button> from @repo/ui/register (custom element)│
+│   Vue components ── ui-* custom elements from @repo/ui/register      │
 └──────────────────────────────────────────────────────────────────────┘
 
-packages/ui      (@repo/ui)      React Button, plus a "register" entry that defines <ui-button>
+packages/ui      (@repo/ui)      shared React components, plus a "register" entry that defines them as ui-* custom elements
 packages/config  (@repo/config)  shared tsconfig presets (base, react, vue, node)
 ```
 
@@ -101,27 +101,30 @@ Vue can't render React components, so `@repo/ui` ships two entry points:
 
 | Import | For | What it is |
 |---|---|---|
-| `@repo/ui` | React apps | the plain `Button` component |
-| `@repo/ui/register` | any framework | defines `<ui-button>` with `@r2wc/react-to-web-component` |
+| `@repo/ui` | React apps | the plain React components |
+| `@repo/ui/register` | any framework | defines each component as a `ui-*` custom element with `@r2wc/react-to-web-component` |
 
-The MFE imports `@repo/ui/register` once, in `mount.ts`, and uses the tag in templates:
-
-```vue
-<ui-button label="Vue click" @click="clicks++"></ui-button>
-```
+The MFE imports `@repo/ui/register` once, in `mount.ts`, and then uses the `ui-*` tags in its Vue templates
+like native elements.
 
 - **Vue compiler:** `isCustomElement: (tag) => tag.startsWith('ui-')` in `apps/todo-mfe/vite.config.ts`
   makes Vue treat `ui-*` tags as native elements.
-- **Props:** declared r2wc props are available both as attributes and as DOM properties (`label: 'string'`).
-- **Events:** the native `click` from the inner `<button>` bubbles out of `<ui-button>`, so `@click` just works.
-  r2wc's `events` option is deliberately not used for `onClick`: it would dispatch a second, synthetic `click`.
-  Use `events` for non-native events (e.g. `onSelect` → `select`).
-- **Text:** content goes through the `label` prop. The element uses light DOM, where React replaces any child
-  nodes, so `<ui-button>Text</ui-button>` won't show the text. Slot support would need `shadow: 'open'` and a
+- **Props:** only the props declared in `r2wc(Component, { props })` reach the React component. Each one is
+  available both as an attribute and as a DOM property.
+- **Events:** native DOM events (such as `click`) from inside the element bubble out of it, so Vue's `@click`
+  just works. Don't map a native event's React handler (e.g. `onClick`) in r2wc's `events` option: it would
+  dispatch a second, synthetic event. Use `events` for non-native events (e.g. `onSelect` → `select`).
+- **Content:** text and other content go through props. The elements use light DOM, where React replaces any
+  child nodes, so anything placed between the tags won't show. Slot support would need `shadow: 'open'` and a
   `<slot>` in the wrapper.
-- **Registration:** guarded with `customElements.get`, so a double import (HMR, several MFEs) doesn't throw.
+- **Registration:** each definition is guarded with `customElements.get`, so a double import (HMR, several MFEs)
+  doesn't throw.
 - **Bundling:** `@repo/ui` keeps React external. The MFE has `react`/`react-dom` as dependencies, so **the MFE
-  bundles its own copy of React** (about 300 kB of the remote's chunk). This is accepted for now (see next steps).
+  bundles its own copy of React** into the remote's chunk. This is accepted for now.
+
+To expose a new component to non-React apps, export it from `packages/ui/src/index.ts`, then wrap it with
+`r2wc` in `packages/ui/src/register.ts`, declare its props, and define it under a `ui-*` tag behind the
+`customElements.get` guard.
 
 ### Build details
 

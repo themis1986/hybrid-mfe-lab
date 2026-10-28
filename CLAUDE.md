@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A pnpm + Turborepo microfrontends skeleton:
 - **`apps/shell`** (`@repo/shell`, React 19 + React Router 8) loads **`apps/todo-mfe`** (`@repo/todo-mfe`, Vue 3 + Vue Router 5) at runtime through Module Federation (`@module-federation/vite`).
-- Both apps render one React `Button` from **`packages/ui`** (`@repo/ui`).
+- Both apps render React components from **`packages/ui`** (`@repo/ui`).
 - **`packages/config`** (`@repo/config`) holds the shared tsconfig presets.
 
 All content is placeholder; the repo exists to prove the wiring.
@@ -14,11 +14,13 @@ All content is placeholder; the repo exists to prove the wiring.
 - `documents/how-it-works.md`: the full build-time and runtime walkthrough.
 
 Current scope limits:
-- one UI component (`Button`) only: no design system, styling layer or Storybook;
+- placeholder UI components only: no design system, styling layer or Storybook;
 - no todo functionality;
 - no state management, auth, testing framework, linting, CI or Docker.
 
 Don't add these unless asked.
+
+The markdown docs (README.md, `documents/`, this file) describe the wiring and patterns, never the placeholder content. Don't name specific components, pages, props or UI text in them: that content is about to change.
 
 ## Commands
 
@@ -55,13 +57,13 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 
 **React UI inside Vue (custom-element bridge).**
 - `@repo/ui` has two entries:
-  - `.` exports the React `Button`;
-  - `./register` defines `<ui-button>` with `@r2wc/react-to-web-component`.
+  - `.` exports the React components;
+  - `./register` defines them as `ui-*` custom elements with `@r2wc/react-to-web-component`.
 - The MFE imports `@repo/ui/register` once (in `mount.ts`). Vue's `isCustomElement` treats `ui-*` tags as custom elements (`apps/todo-mfe/vite.config.ts`).
-- Props are declared in `r2wc(..., { props })`.
-- Clicks rely on the **native** `click` bubbling out of the element. Don't map `onClick` in r2wc `events`: it would dispatch a second `click`.
-- Text must come through the `label` prop: in light DOM, React replaces child nodes, so slots don't work.
-- New custom elements go in `register.ts` behind the existing `customElements.get` guard.
+- Props are declared in `r2wc(..., { props })`; undeclared props never reach the component.
+- Native events (e.g. `click`) just bubble out of the element. Don't map their React handlers (e.g. `onClick`) in r2wc `events`: it would dispatch a second event.
+- Text and content must come through props: in light DOM, React replaces child nodes, so slots don't work.
+- New custom elements go in `register.ts`, each behind a `customElements.get` guard.
 
 **`@repo/ui` is consumed from `dist/`, not source.**
 - Apps resolve it through the package `exports` (`dist/*.js` + `dist/*.d.ts`). A change in `packages/ui/src` reaches the apps only after a rebuild; `pnpm dev` keeps a watcher running for that.
