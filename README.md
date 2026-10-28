@@ -1,8 +1,9 @@
 # Microfrontends monorepo skeleton
 
 A React shell that loads a Vue microfrontend at runtime with Module Federation. Both apps use React
-components from a shared UI package: the shell renders them directly, and the Vue app renders them as
-custom elements. Placeholder content only; this skeleton just proves the pieces fit together.
+components from a shared UI package, a small token-based design system (Tailwind v4 + Radix). The shell
+renders them directly, and the Vue app renders them as custom elements. Placeholder content only; this
+skeleton just proves the pieces fit together.
 
 For a step-by-step explanation of how everything connects at build time and at runtime, see
 [documents/how-it-works.md](documents/how-it-works.md). If Module Federation is new to you, start with
@@ -10,7 +11,10 @@ For a step-by-step explanation of how everything connects at build time and at r
 to the federation configuration. For what the `.d.ts` files are for, see
 [documents/typescript-declaration-files.md](documents/typescript-declaration-files.md). New to the repo?
 [documents/monorepo-tooling.md](documents/monorepo-tooling.md) explains pnpm, Turborepo and what
-`pnpm dev` actually runs.
+`pnpm dev` actually runs. The design system (tokens, Tailwind, the component recipe) is described in
+[documents/design-system.md](documents/design-system.md), and the custom-element bridge that brings it to
+Vue, with the reasoning behind that choice, in
+[documents/react-components-in-vue.md](documents/react-components-in-vue.md).
 
 ## Architecture
 
@@ -28,10 +32,11 @@ to the federation configuration. For what the `.d.ts` files are for, see
 ┌──────────────────────────────────────────────────────────────────────┐
 │ apps/todo-mfe  (@repo/todo-mfe)      Vue 3 + Vue Router 5            │
 │   exposes "./mount" → src/mount.ts                                   │
-│   Vue components ── ui-* custom elements from @repo/ui/register      │
+│   Vue components ── t-* custom elements from @repo/ui/register       │
 └──────────────────────────────────────────────────────────────────────┘
 
-packages/ui      (@repo/ui)      shared React components, plus a "register" entry that defines them as ui-* custom elements
+packages/ui      (@repo/ui)      design system: tokens + Tailwind styles + T-prefixed React components (Radix),
+                                  a "register" entry that defines them as t-* custom elements, and styles.css
 packages/config  (@repo/config)  shared tsconfig presets (base, react, vue, node)
 ```
 
@@ -102,43 +107,52 @@ export function mount(el: HTMLElement, props: { basePath: string }): () => void
 
 ### React UI inside Vue: the custom-element bridge
 
-Vue can't render React components, so `@repo/ui` ships two entry points:
+Vue can't render React components, so `@repo/ui` ships three entry points:
 
 | Import | For | What it is |
 |---|---|---|
-| `@repo/ui` | React apps | the plain React components |
-| `@repo/ui/register` | any framework | defines each component as a `ui-*` custom element with `@r2wc/react-to-web-component` |
+| `@repo/ui` | React apps | the `T`-prefixed React components |
+| `@repo/ui/styles.css` | React apps | the design system's stylesheet: tokens + the Tailwind utilities the components use (no Preflight) |
+| `@repo/ui/register` | any framework | injects that stylesheet as one `<style>` and defines each component as a `t-*` custom element with `@r2wc/react-to-web-component` |
 
-The MFE imports `@repo/ui/register` once, in `mount.ts`, and then uses the `ui-*` tags in its Vue templates
-like native elements.
+The shell imports `@repo/ui/styles.css` once, in `main.tsx`. The MFE imports `@repo/ui/register` once, in
+`mount.ts`, and then uses the `t-*` tags in its Vue templates like native elements. A component `T<Name>`
+becomes the tag `<t-<name>>`.
 
-- **Vue compiler:** `isCustomElement: (tag) => tag.startsWith('ui-')` in `apps/todo-mfe/vite.config.ts`
-  makes Vue treat `ui-*` tags as native elements.
+- **Vue compiler:** `isCustomElement: (tag) => tag.startsWith('t-')` in `apps/todo-mfe/vite.config.ts`
+  makes Vue treat `t-*` tags as native elements.
 - **Props:** only the props declared in `r2wc(Component, { props })` reach the React component. Each one is
-  available both as an attribute and as a DOM property.
+  available both as an attribute and as a DOM property. Bind booleans (`:flag="true"`): a bare attribute is an
+  empty string, which r2wc reads as `false`.
 - **Events:** native DOM events (such as `click`) from inside the element bubble out of it, so Vue's `@click`
   just works. Don't map a native event's React handler (e.g. `onClick`) in r2wc's `events` option: it would
   dispatch a second, synthetic event. Use `events` for non-native events (e.g. `onSelect` → `select`).
 - **Content:** text and other content go through props. The elements use light DOM, where React replaces any
-  child nodes, so anything placed between the tags won't show. Slot support would need `shadow: 'open'` and a
-  `<slot>` in the wrapper.
+  child nodes, so anything placed between the tags won't show. Light DOM is deliberate: the page's stylesheet
+  reaches inside, and Radix portals keep working.
+- **Styles:** `register` carries the CSS inline, because a federated remote can't count on its host or on the
+  federation runtime to load a CSS file for it. On the shell's page the stylesheet is therefore present twice
+  (identical when both sides use the same ui version).
 - **Registration:** each definition is guarded with `customElements.get`, so a double import (HMR, several MFEs)
-  doesn't throw.
-- **Bundling:** `@repo/ui` keeps React external. The MFE has `react`/`react-dom` as dependencies, so **the MFE
-  bundles its own copy of React** into the remote's chunk. This is accepted for now.
+  doesn't throw. A small `bridge()` wrapper strips the `container` prop that r2wc adds.
+- **Bundling:** `@repo/ui` keeps React and its other runtime dependencies external. The MFE has
+  `react`/`react-dom` as dependencies, so **the MFE bundles its own copy of React** into the remote's chunk.
+  This is accepted for now.
 
-To expose a new component to non-React apps, export it from `packages/ui/src/index.ts`, then wrap it with
-`r2wc` in `packages/ui/src/register.ts`, declare its props, and define it under a `ui-*` tag behind the
-`customElements.get` guard.
+The full rules and trade-offs are in [documents/react-components-in-vue.md](documents/react-components-in-vue.md).
+To add a component, follow the checklist in [documents/design-system.md](documents/design-system.md#8-adding-a-component).
 
 ### Build details
 
 - `@repo/ui` is built with Vite library mode (ESM, entries `index` and `register`), and `tsc` emits its `.d.ts`
   files. Apps consume `dist/` through the package `exports`.
-- `sideEffects` marks `register.js`, so the bare `import '@repo/ui/register'` survives tree-shaking.
+- `@tailwindcss/vite` compiles `src/styles/index.css` twice: imported by `index.ts`, it becomes `dist/styles.css`
+  (`build.lib.cssFileName`); imported with `?inline` by `register.ts`, it becomes a string inside `register.js`.
+- `sideEffects` marks `register.js` and `styles.css`, so the bare imports survive tree-shaking.
 - `pnpm dev` builds ui once, then keeps `vite build --watch` running (`packages/ui/turbo.json` makes the watcher
-  wait for the first build). `emptyOutDir: false` stops the watcher from deleting the `.d.ts` files, and chunk
-  names carry no hashes, so stale files don't pile up.
+  wait for the first build). The watcher also rebuilds the CSS when a class changes in a component.
+  `emptyOutDir: false` stops it from deleting the `.d.ts` files, and chunk names carry no hashes, so stale
+  files don't pile up.
 
 ## Adding another microfrontend
 
@@ -147,7 +161,8 @@ To expose a new component to non-React apps, export it from `packages/ui/src/ind
 2. Add `@module-federation/vite` with a unique `name`, `filename: 'remoteEntry.js'`, `exposes: { './mount': … }`,
    and a fixed port with `server.origin` set to that port.
 3. Implement the same `mount(el, { basePath }) => unmount` contract in any framework. To use UI components
-   outside React, import `@repo/ui/register`.
+   outside React, import `@repo/ui/register` (it brings the stylesheet too), and tell the framework that
+   `t-*` tags are custom elements.
 4. In the shell:
    - add the remote to `remotes` in `apps/shell/vite.config.ts` (with its own `VITE_*_REMOTE_URL` variable);
    - declare its module in `apps/shell/src/remotes.d.ts`;
@@ -167,7 +182,9 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 | react / react-dom | 19.3.1 | | @vitejs/plugin-react | 6.1.2 |
 | react-router | 8.5.0 | | @module-federation/vite | 1.23.6 |
 | @types/react(-dom) | 19.3.0 | | @r2wc/react-to-web-component | 2.1.1 |
-| @types/node | 22.20.5 | | | |
+| @types/node | 22.20.5 | | tailwindcss / @tailwindcss/vite | 4.3.3 |
+| @radix-ui/react-slot | 1.5.0 | | class-variance-authority | 0.7.1 |
+| clsx | 2.1.1 | | tailwind-merge | 3.7.0 |
 
 ### Deviations from the original brief, and why
 

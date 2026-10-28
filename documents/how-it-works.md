@@ -23,7 +23,7 @@ For setup and commands, see the [README](../README.md).
 |---|---|---|
 | `apps/shell` (`@repo/shell`) | Host app: owns the URL, the layout and the navigation. | React 19, React Router 8 |
 | `apps/todo-mfe` (`@repo/todo-mfe`) | Remote app: built and served on its own, loaded by the shell at runtime. | Vue 3, Vue Router 5 |
-| `packages/ui` (`@repo/ui`) | Component library: React components, usable from React directly and from any framework as `ui-*` custom elements. | React |
+| `packages/ui` (`@repo/ui`) | Design system: tokens, Tailwind styles and `T`-prefixed React components, usable from React directly and from any framework as `t-*` custom elements. | React, Radix, Tailwind v4 |
 | `packages/config` (`@repo/config`) | Shared tsconfig presets. | TypeScript 6 |
 
 There are two kinds of dependency, and keeping them apart is the key to the architecture.
@@ -81,35 +81,43 @@ So `pnpm dev` resolves to this sequence:
 ## 3. The UI package and its two entry points
 
 ```
-packages/ui/src/*.tsx         the React components
-packages/ui/src/index.ts      entry ".":          re-exports the components
-packages/ui/src/register.ts   entry "./register": customElements.define('ui-…', r2wc(Component, …)) for each component
+packages/ui/src/T<Name>.tsx         the React components (Radix + Tailwind classes)
+packages/ui/src/styles/tokens.css   design tokens (--t-* CSS variables)
+packages/ui/src/styles/index.css    the library stylesheet: Tailwind utilities + tokens
+packages/ui/src/index.ts            entry ".":          re-exports the components (and pulls in the stylesheet)
+packages/ui/src/register.ts         entry "./register": injects the stylesheet, then
+                                    customElements.define('t-…', r2wc(bridge(Component), …)) for each component
 ```
 
-**Build.** `vite build` (library mode, ESM) plus `tsc --emitDeclarationOnly` produce:
+The tokens, the Tailwind setup and the component recipe are described in [design-system.md](design-system.md).
+
+**Build.** `vite build` (library mode, ESM, with `@tailwindcss/vite`) plus `tsc --emitDeclarationOnly` produce:
 
 ```
 dist/index.js      dist/index.d.ts      entry "."
-dist/register.js   dist/register.d.ts   entry "./register"
+dist/register.js   dist/register.d.ts   entry "./register" (the stylesheet is inlined in it as a string)
+dist/styles.css                         the stylesheet as a file, export "./styles.css"
 dist/*.js          dist/*.d.ts          chunks for code both entries share, and a .d.ts for every other module
 ```
 
-`react`, `react-dom` and `@r2wc/*` are **external**: the library doesn't bundle them. Each consuming app bundles them from its own dependencies.
+React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `class-variance-authority`, `clsx`, `tailwind-merge`) are **external**: the library doesn't bundle them. Each consuming app bundles them, resolving the non-React ones from ui's own dependencies.
 
 **Consumption.** `package.json#exports` maps `@repo/ui` → `dist/index.js` and `@repo/ui/register` → `dist/register.js`, each with its `.d.ts`. Apps therefore use the **built** files, which is why ui has to be built before the apps can start or typecheck (Turbo handles this).
 
 | Consumer | Import | What it gets |
 |---|---|---|
 | shell (React) | `import { … } from '@repo/ui'` | The plain React components, rendered by the shell's own React. |
-| todo-mfe (Vue) | `import '@repo/ui/register'` | A side effect: the `ui-*` custom elements are registered with the browser. |
+| shell (React) | `import '@repo/ui/styles.css'` (once, in `main.tsx`) | The stylesheet, bundled into the shell's CSS. |
+| todo-mfe (Vue) | `import '@repo/ui/register'` | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
 
-`"sideEffects": ["./dist/register.js"]` tells bundlers that this bare import must not be tree-shaken away, even though it exports nothing.
+`"sideEffects": ["./dist/register.js", "./dist/styles.css"]` tells bundlers that these bare imports must not be tree-shaken away, even though they export nothing.
 
-**How the `ui-*` custom elements work.**
-- `r2wc(Component, { props })` returns a custom element class, which `register.ts` defines under a `ui-*` tag.
+**How the `t-*` custom elements work.**
+- `r2wc(bridge(Component), { props })` returns a custom element class, which `register.ts` defines under a `t-*` tag (`T<Name>` → `<t-<name>>`). `bridge()` strips the `container` prop r2wc adds.
 - When the browser inserts such an element into the page, the class creates a React root *inside that element* and renders the component into it, passing the element's props.
 - Each declared prop is observed both as an attribute (`prop="…"`) and as a DOM property (`el.prop = …`). A change re-renders the React tree. Undeclared props never reach the component.
-- Vue's compiler is told to leave `ui-*` tags alone (`isCustomElement` in `apps/todo-mfe/vite.config.ts`). Otherwise it would try to resolve them as Vue components.
+- Vue's compiler is told to leave `t-*` tags alone (`isCustomElement` in `apps/todo-mfe/vite.config.ts`). Otherwise it would try to resolve them as Vue components.
+- The rules for props, booleans, events and content, and why the stylesheet is inlined, are in [react-components-in-vue.md](react-components-in-vue.md).
 
 ## 4. Runtime walkthrough: from `/` to the Vue app and back
 
@@ -119,7 +127,7 @@ dist/*.js          dist/*.d.ts          chunks for code both entries share, and 
    - It starts the Module Federation runtime and registers one remote: `todo` → `VITE_TODO_REMOTE_URL` (default `http://localhost:5174/remoteEntry.js`).
    - Nothing is downloaded from the remote yet.
 2. `main.tsx` renders `<StrictMode><BrowserRouter><App/></BrowserRouter></StrictMode>`.
-3. React Router matches the URL and renders the shell's own route. Components the shell imports from `@repo/ui` render as ordinary React components, with ordinary React props and event handlers.
+3. React Router matches the URL and renders the shell's own route. Components the shell imports from `@repo/ui` render as ordinary React components, with ordinary React props and event handlers. They are styled by `@repo/ui/styles.css`, which `main.tsx` imports, so the shell's build puts it in a `<link>`ed CSS file.
 
 ### 4.2 Navigating to `/todo-app`
 
@@ -131,7 +139,7 @@ sequenceDiagram
   participant MF as Federation runtime
   participant R as todo-mfe server :5174
   participant V as Vue app (MFE)
-  participant CE as ui-* elements
+  participant CE as t-* elements
 
   U->>RR: click a link to /todo-app
   RR->>RR: history.pushState('/todo-app')
@@ -142,37 +150,39 @@ sequenceDiagram
   MF->>R: GET the exposed module chunk(s)
   Note over MF,R: chunk contains Vue, Vue Router, React (MFE copy), r2wc, @repo/ui/register
   MF-->>H: module { mount }
-  Note over CE: evaluating the module ran register.js → customElements.define('ui-…') for each component
+  Note over CE: evaluating the module ran register.js → <style id="t-ui-styles"> injected, then customElements.define('t-…') for each component
   H->>H: render an empty container <div ref>, then useEffect runs
   H->>V: mount(div, { basePath: '/todo-app' })
   V->>V: createWebHistory('/todo-app'), createRouter, createApp(App).use(router).mount(div)
   V->>V: router reads URL /todo-app, strips base → "/" → the MFE's root route
-  V->>CE: render templates containing ui-* tags
+  V->>CE: render templates containing t-* tags
   CE->>CE: r2wc creates a React root inside each element and renders the component
   H-->>U: page shows the MFE's UI
 ```
 
 Details worth knowing:
 - **Lazy loading:** `React.lazy` caches the module promise, so the remote is downloaded only once per page load. Later visits to `/todo-app` reuse it and only call `mount` again.
-- **Ownership:** `TodoMfeHost` renders an empty container `<div>`, and React never renders children into it. Everything inside belongs to Vue, and everything inside each `ui-*` element belongs to the MFE's React.
+- **Ownership:** `TodoMfeHost` renders an empty container `<div>`, and React never renders children into it. Everything inside belongs to Vue, and everything inside each `t-*` element belongs to the MFE's React.
+- **Styles:** the remote's stylesheet arrives inside the JavaScript chunk, not as a CSS file, so nothing depends on the federation runtime loading CSS.
 
 ### 4.3 Events from a custom element inside the MFE
 
 ```
-<ui-…>        ← Vue's @click listener is attached here
+<t-…>         ← Vue's @click listener is attached here
   <button>    ← a native element the component renders; the user clicks here and "click" bubbles up
 ```
 
-- The elements use light DOM (no shadow root), so a native event such as `click` from inside the component bubbles to the `ui-*` element, where Vue's `@click` handler runs.
+- The elements use light DOM (no shadow root), so a native event such as `click` from inside the component bubbles to the `t-*` element, where Vue's `@click` handler runs.
+- Because the listener sits on the host, a disabled component relies on the native `disabled` attribute (which suppresses the click entirely), never on `pointer-events: none` (which would let the click land on the host).
 - No r2wc event mapping is involved. r2wc's `events` option would dispatch an extra `CustomEvent` named after the prop (`onClick` → `click`), so the handler would fire twice. Reserve `events` for non-native events (`onSelect` → `select`).
 
 ### 4.4 Leaving `/todo-app`
 
 1. React Router calls `pushState` with a shell route and renders it instead of `TodoMfeHost`.
 2. React runs the effect cleanup, which is the function `mount` returned:
-   - `app.unmount()`: Vue removes its DOM. Removing each `ui-*` element triggers its `disconnectedCallback`, which unmounts the React root inside it.
+   - `app.unmount()`: Vue removes its DOM. Removing each `t-*` element triggers its `disconnectedCallback`, which unmounts the React root inside it.
    - `history.destroy()`: removes Vue Router's `popstate` listener from `window`. `app.unmount()` alone does not.
-3. Nothing from the MFE is left in the DOM or on `window`. The downloaded module stays cached, ready for the next visit.
+3. Nothing from the MFE is left in the page body or on `window`. The one trace is the injected `<style id="t-ui-styles">` in `<head>`: it matches the shell's own stylesheet and is reused on the next visit. The downloaded module stays cached too.
 
 This was verified by counting `popstate` listeners on `window`: 1 on a shell route (React Router), 2 while the MFE is mounted, back to 1 after leaving, over repeated round trips.
 
@@ -202,9 +212,11 @@ The page has a single `window.history`, used by two routers:
 On `/todo-app`, two independent copies of React are loaded:
 
 1. **The shell's React** renders the layout, the nav and `TodoMfeHost`.
-2. **The MFE's React**, bundled into the remote's chunk, renders only inside the `ui-*` custom elements.
+2. **The MFE's React**, bundled into the remote's chunk, renders only inside the `t-*` custom elements.
 
 This works because each copy manages its own roots and never touches the other's DOM. The cost is download size: the remote's chunk carries a full extra copy of React and react-dom next to Vue.
+
+The design system's stylesheet is on the page twice for the same reason: the shell's `styles.css`, and the copy the remote injects. With the same ui version on both sides the two are identical. With different versions, the remote's copy wins where they differ, because it comes later (see [react-components-in-vue.md](react-components-in-vue.md#5-styles-across-the-boundary)).
 
 The fix is federation `shared` (React as a singleton provided by the shell). It's deliberately not enabled yet, and it brings one catch: the custom element's `root.unmount()` would then run on the *same* React instance while the shell is in the middle of its commit, which React warns about. The element's unmount would need deferring (e.g. `queueMicrotask`).
 
@@ -214,7 +226,7 @@ The fix is federation `shared` (React as a singleton provided by the shell). It'
 |---|---|---|
 | **todo-mfe** | Vite dev server on :5174 serves `remoteEntry.js` and unbundled modules (`/@id/virtual:mf-exposes…`, `/node_modules/.vite/deps/…`). `server.origin` makes those URLs absolute so they resolve from the shell's page. | `dist/remoteEntry.js` + `dist/assets/*`, served from any static host. Chunks are resolved relative to the remote entry's URL. |
 | **shell** | Vite dev server on :5173; remote URL taken from env at startup. | `dist/` with the remote URL **baked in** at build time. |
-| **@repo/ui** | `vite build --watch` rewrites `dist/` on change, and both apps reload with the new code. | Built once, before the apps. |
+| **@repo/ui** | `vite build --watch` rewrites `dist/` on change, and both apps reload with the new code. A new Tailwind class in a component also regenerates `styles.css` and the CSS inlined in `register.js`. | Built once, before the apps. |
 | **Cross-origin** | Vite's default CORS allows any `localhost` origin. | The remote's host must allow the shell's origin (CORS) for the module scripts. |
 
 Changing where the remote lives in production means rebuilding the shell with `VITE_TODO_REMOTE_URL=<url>`. Turbo includes that variable in the shell build's cache key, so a different value produces a fresh build.
@@ -223,7 +235,7 @@ Changing where the remote lives in production means rebuilding the shell with `V
 
 | Boundary | How types flow |
 |---|---|
-| ui → apps | `tsc` emits `.d.ts` files into `packages/ui/dist`, and `exports` points `types` at them. `@repo/ui/register` has an empty declaration (`export {}`): it's a side-effect import. |
+| ui → apps | `tsc` emits `.d.ts` files into `packages/ui/dist`, and `exports` points `types` at them. `@repo/ui/register` has an empty declaration (`export {}`): it's a side-effect import. Inside ui, `src/env.d.ts` loads Vite's types so the `.css` and `?inline` imports typecheck. |
 | MFE → shell | Nothing is generated. `apps/shell/src/remotes.d.ts` declares the module `todo/mount` by hand, mirroring `apps/todo-mfe/src/mount.ts`. Keep them in sync. Federation's automatic type generation is off (`dts: false`). |
 | `.vue` files | `vue-tsc` typechecks them. That's why the repo uses TypeScript 6: TypeScript 7 removed the compiler API `vue-tsc` builds on. |
 
@@ -234,4 +246,6 @@ Changing where the remote lives in production means rebuilding the shell with `V
 | The todo-mfe server is down or the URL is wrong | `import('todo/mount')` rejects (federation error `RUNTIME-008`). The error boundary shows its fallback, and the rest of the shell keeps working. Because `React.lazy` caches the failure, a reload is needed after the remote comes back. |
 | Port 5173 or 5174 is already in use | The dev or preview server exits (`strictPort`) instead of silently moving to another port, which would break the hard-coded remote URL. |
 | `@repo/ui` isn't built | The apps can't resolve `@repo/ui` (its `exports` point into `dist/`). Running through `pnpm dev`, `build` or `typecheck` avoids this because Turbo builds ui first. |
+| A running dev server reports that a `@repo/ui` subpath "is not exported" | ui's `package.json` `exports` changed after the server started, and Vite still uses the old copy it read. Restart `pnpm dev`. The ui watcher doesn't reload its own `vite.config.ts` either. |
+| The MFE's components render unstyled | `@repo/ui/register` wasn't imported. It is what injects the stylesheet, so a `t-*` element defined some other way has no styles. |
 | A dependency was published less than 24 h ago | pnpm refuses it (`minimumReleaseAge`) and picks an older version within the range, or fails if none fits. |

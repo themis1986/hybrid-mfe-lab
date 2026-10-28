@@ -253,6 +253,7 @@ This starts the shell and its dependencies' builds, but not the todo MFE. The sh
 | Stopping one process stopped everything | Expected: all `dev` tasks are persistent children of one Turbo run. |
 | An app cannot resolve `@repo/ui` | `packages/ui/dist` is missing. Run through `pnpm dev`, `build` or `typecheck`, which build ui first. |
 | An app shows old ui code or old ui types | ui has not been rebuilt since the change. `pnpm dev` keeps a watcher running for this. |
+| A dev server says a `@repo/ui` subpath "is not exported" | ui's `exports` changed while `pnpm dev` was running. Vite keeps the `package.json` it read at startup, and the ui watcher keeps its original `vite.config.ts`. Restart `pnpm dev` after changing either. |
 | The shell still points at an old remote URL | `VITE_TODO_REMOTE_URL` is read at build time. Rebuild the shell with the new value. |
 | `pnpm install` rejects a version | It was published less than 24 hours ago (`minimumReleaseAge`). |
 | `pnpm install` fails on a dependency's install script | `strictDepBuilds`: the script is not approved. |

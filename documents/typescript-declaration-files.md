@@ -42,7 +42,7 @@ export function add(a: number, b: number): number
 | File | Written by | Describes | Why it is needed |
 |---|---|---|---|
 | `apps/shell/src/remotes.d.ts` | Hand | The federated module the shell loads at runtime | The module does not exist on disk, so the compiler cannot find it. |
-| `apps/shell/src/env.d.ts` and `apps/todo-mfe/src/env.d.ts` | Hand | Vite's browser-side types | `types` is empty in the base config, so Vite's types must be pulled in explicitly. |
+| `apps/shell/src/env.d.ts`, `apps/todo-mfe/src/env.d.ts` and `packages/ui/src/env.d.ts` | Hand | Vite's browser-side types | `types` is empty in the base config, so Vite's types must be pulled in explicitly. |
 | `packages/ui/dist/*.d.ts` | `tsc` (generated) | The built `@repo/ui` package | The apps import the built JavaScript, which carries no types. |
 
 The first two kinds you maintain. The third is rebuilt automatically.
@@ -93,14 +93,14 @@ The shell's `tsconfig.json` has `"include": ["src"]`, so every `.d.ts` file unde
 
 ## 4. `env.d.ts`: types for the bundler's environment
 
-Each app has `src/env.d.ts` with one line:
+Each app, and `packages/ui`, has `src/env.d.ts` with one line:
 
 ```ts
 /// <reference types="vite/client" />
 ```
 
 - The `///` line is a **triple-slash directive**: it tells the compiler to load another set of declarations.
-- `vite/client` describes what Vite adds to browser code: `import.meta.env`, and imports of assets such as images and stylesheets.
+- `vite/client` describes what Vite adds to browser code: `import.meta.env`, and imports of assets such as images and stylesheets. In `packages/ui` it is what lets `import './styles/index.css'` (a side-effect import) and `import styles from './styles/index.css?inline'` (typed as `string`) typecheck.
 
 It is needed because `packages/config/base.json` sets `"types": []`. By default TypeScript automatically loads every `@types/*` package it finds, which pulls in globals nobody asked for. An empty list switches that off, so anything an app wants, here Vite's types, must be requested explicitly in a file like this.
 
@@ -132,16 +132,26 @@ The package's `exports` map points each entry at both files:
 ```json
 "exports": {
   ".":          { "types": "./dist/index.d.ts",    "import": "./dist/index.js" },
-  "./register": { "types": "./dist/register.d.ts", "import": "./dist/register.js" }
+  "./register": { "types": "./dist/register.d.ts", "import": "./dist/register.js" },
+  "./styles.css": "./dist/styles.css"
 }
 ```
 
 - The compiler follows `types`, and the bundler follows `import`.
+- `./styles.css` maps to a plain file with no conditions. It needs no declaration: in the apps, `vite/client` already declares `*.css` imports.
 - `types` is listed first on purpose: conditions are matched in order, and the compiler stops at the first one it understands.
 
 ### The empty one
 
-`dist/register.d.ts` contains only `export {};`. That is correct: `@repo/ui/register` is imported for its **side effect** (it defines the custom elements) and exports nothing, so there is nothing to describe.
+`dist/register.d.ts` contains only `export {};`. That is correct: `@repo/ui/register` is imported for its **side effects** (it injects the stylesheet and defines the custom elements) and exports nothing, so there is nothing to describe.
+
+### The leftover stylesheet import
+
+`dist/index.d.ts` starts with `import './styles/index.css';`. TypeScript keeps side-effect imports in declaration files, and `src/index.ts` has this import so that Vite emits `dist/styles.css`. The path doesn't exist inside `dist/`, but that is harmless:
+- the apps compile with `skipLibCheck: true`, so declaration files in dependencies aren't checked;
+- `vite/client` declares `*.css` imports anyway.
+
+A consumer without both would need its own `*.css` declaration.
 
 ### The consequence
 

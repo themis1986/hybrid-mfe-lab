@@ -169,7 +169,7 @@ The chunk contains `mount.ts` plus everything it imports: Vue, Vue Router, the M
 
 **Step 5: the host receives `{ mount }`.**
 
-1. The browser **executes** the chunk. Any top-level code runs at this moment. One example is `@repo/ui/register`, which defines the `ui-*` custom elements.
+1. The browser **executes** the chunk. Any top-level code runs at this moment. One example is `@repo/ui/register`, which injects the design system's stylesheet and defines the `t-*` custom elements. The stylesheet travels inside this JavaScript chunk, so the host doesn't have to load any CSS file for the remote.
 2. The catalog function returns the chunk's exports as a plain object.
 3. That object is what `await import('todo/mount')` produces in the host, so `const { mount } = …` works like any other import.
 
