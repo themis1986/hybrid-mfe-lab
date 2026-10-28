@@ -8,8 +8,8 @@ export default defineConfig({
   plugins: [
     vue({
       template: {
-        // <ui-*> tags are custom elements from @repo/ui/register, not Vue components.
-        compilerOptions: { isCustomElement: (tag) => tag.startsWith('ui-') },
+        // <t-*> tags are custom elements from @repo/ui/register, not Vue components.
+        compilerOptions: { isCustomElement: (tag) => tag.startsWith('t-') },
       },
     }),
     federation({

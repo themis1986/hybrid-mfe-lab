@@ -1,0 +1,65 @@
+/*
+ * The library stylesheet. Built twice from this one file:
+ *   - dist/styles.css            imported by React hosts:  import '@repo/ui/styles.css'
+ *   - inlined into register.js   injected by the custom-element entry (see register.ts)
+ */
+@layer theme, base, components, utilities;
+
+/* No Preflight: a component library must not reset the page it is loaded into. */
+@import 'tailwindcss/theme.css' layer(theme);
+/* Only scan this package's src/ for class names. */
+@import 'tailwindcss/utilities.css' layer(utilities) source('..');
+
+/* Layered, so a host can re-theme by overriding --t-* in plain (unlayered) CSS. */
+@import './tokens.css' layer(base);
+
+/* Tailwind bridge: utilities resolve to the semantic tokens (bg-accent, text-fg, rounded-md, ...). */
+@theme inline {
+  /* Only token colours exist: Tailwind's default palette is cleared. */
+  --color-*: initial;
+
+  --color-canvas: var(--t-color-canvas);
+  --color-surface: var(--t-color-surface);
+  --color-fg: var(--t-color-fg);
+  --color-fg-muted: var(--t-color-fg-muted);
+  --color-line: var(--t-color-line);
+  --color-line-strong: var(--t-color-line-strong);
+
+  --color-accent: var(--t-color-accent);
+  --color-accent-hover: var(--t-color-accent-hover);
+  --color-accent-contrast: var(--t-color-accent-contrast);
+  --color-accent-subtle: var(--t-color-accent-subtle);
+  --color-accent-subtle-hover: var(--t-color-accent-subtle-hover);
+  --color-accent-subtle-active: var(--t-color-accent-subtle-active);
+  --color-accent-line: var(--t-color-accent-line);
+  --color-accent-fg: var(--t-color-accent-fg);
+
+  --color-danger: var(--t-color-danger);
+  --color-danger-hover: var(--t-color-danger-hover);
+  --color-danger-contrast: var(--t-color-danger-contrast);
+
+  --color-focus: var(--t-color-focus);
+
+  /* Standard Tailwind names, so tailwind-merge resolves conflicts without extra config. */
+  --radius-sm: var(--t-radius-sm);
+  --radius-md: var(--t-radius-md);
+  --radius-lg: var(--t-radius-lg);
+
+  --font-sans: var(--t-font-sans);
+  --font-mono: var(--t-font-mono);
+
+  --shadow-sm: var(--t-shadow-sm);
+
+  --ease-out: var(--t-ease-out);
+}
+
+/* Applies the tokens to the page itself. */
+@layer base {
+  body {
+    font-family: var(--t-font-sans);
+    background-color: var(--t-color-canvas);
+    color: var(--t-color-fg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
