@@ -8,7 +8,9 @@ For a step-by-step explanation of how everything connects at build time and at r
 [documents/how-it-works.md](documents/how-it-works.md). If Module Federation is new to you, start with
 [documents/module-federation-explained.md](documents/module-federation-explained.md), a beginner's guide
 to the federation configuration. For what the `.d.ts` files are for, see
-[documents/typescript-declaration-files.md](documents/typescript-declaration-files.md).
+[documents/typescript-declaration-files.md](documents/typescript-declaration-files.md). New to the repo?
+[documents/monorepo-tooling.md](documents/monorepo-tooling.md) explains pnpm, Turborepo and what
+`pnpm dev` actually runs.
 
 ## Architecture
 

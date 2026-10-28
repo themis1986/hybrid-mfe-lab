@@ -14,6 +14,7 @@ All content is placeholder; the repo exists to prove the wiring.
 - `documents/how-it-works.md`: the full build-time and runtime walkthrough.
 - `documents/module-federation-explained.md`: beginner's guide to the federation config.
 - `documents/typescript-declaration-files.md`: what each `.d.ts` file is for and which are hand-written.
+- `documents/monorepo-tooling.md`: onboarding guide to pnpm, Turborepo and what `pnpm dev` runs.
 
 Current scope limits:
 - placeholder UI components only: no design system, styling layer or Storybook;
