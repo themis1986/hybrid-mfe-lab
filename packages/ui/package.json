@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "files": ["dist"],
-  "sideEffects": ["./dist/register.js"],
+  "sideEffects": ["./dist/register.js", "./dist/styles.css"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -13,7 +13,8 @@
     "./register": {
       "types": "./dist/register.d.ts",
       "import": "./dist/register.js"
-    }
+    },
+    "./styles.css": "./dist/styles.css"
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
@@ -21,7 +22,11 @@
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json"
   },
   "dependencies": {
-    "@r2wc/react-to-web-component": "catalog:"
+    "@r2wc/react-to-web-component": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "tailwind-merge": "catalog:"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -29,12 +34,14 @@
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   }
