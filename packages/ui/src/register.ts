@@ -1,7 +1,9 @@
 import r2wc from '@r2wc/react-to-web-component'
 import { type ComponentType, createElement } from 'react'
 import styles from './styles/index.css?inline'
-import { TButton } from './TButton'
+import { TButton } from './components/TButton'
+import { TField } from './components/TField'
+import { TInput } from './components/TInput'
 
 // Wraps the React components as custom elements so non-React apps (e.g. Vue) can use them:
 //   <t-button label="Save" variant="soft" @click="..."></t-button>
@@ -36,5 +38,25 @@ define(
   't-button',
   r2wc(bridge(TButton), {
     props: { label: 'string', variant: 'string', size: 'string', disabled: 'boolean' },
+  }),
+)
+
+// Inputs: the native `input` / `change` events bubble out of the element, and `$event.target` is
+// the inner <input> (light DOM). The value is a string prop: bind it and update it on `input`.
+const inputProps = {
+  value: 'string',
+  type: 'string',
+  name: 'string',
+  placeholder: 'string',
+  size: 'string',
+  invalid: 'boolean',
+  disabled: 'boolean',
+} as const
+
+define('t-input', r2wc(bridge(TInput), { props: inputProps }))
+define(
+  't-field',
+  r2wc(bridge(TField), {
+    props: { ...inputProps, label: 'string', description: 'string', error: 'string' },
   }),
 )
