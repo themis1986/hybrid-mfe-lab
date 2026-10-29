@@ -25,6 +25,7 @@ export default defineConfig({
         /^class-variance-authority$/,
         /^clsx$/,
         /^tailwind-merge$/,
+        /^uuid$/,
       ],
       output: {
         // Stable names, so stale chunks never pile up (see emptyOutDir below).

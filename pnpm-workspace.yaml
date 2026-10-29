@@ -22,6 +22,7 @@ catalog:
   tailwind-merge: ^3.7.0
   tailwindcss: ^4.3.3
   typescript: ^6.0.3
+  uuid: ^14.0.3
   vite: ^8.3.5
   vue: ^3.5.44
   vue-router: ^5.4.0
