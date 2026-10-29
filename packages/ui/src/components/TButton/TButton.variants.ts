@@ -1,13 +1,10 @@
-import { Slot } from '@radix-ui/react-slot'
-import { cva, type VariantProps } from 'class-variance-authority'
-import type { ComponentProps } from 'react'
-import { cn } from './lib/cn'
+import { cva } from 'class-variance-authority'
 
 // There is no Preflight (see styles/index.css), so the base classes also reset the browser's
 // default button look (border, font, cursor).
 // Disabled uses the native attribute, not `pointer-events: none`: that would let the click fall
 // through to the <t-button> host, where Vue's listener sits.
-const tButtonVariants = cva(
+export const tButtonVariants = cva(
   [
     'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap select-none',
     'rounded-md border border-transparent font-sans font-medium no-underline cursor-pointer',
@@ -33,24 +30,3 @@ const tButtonVariants = cva(
     defaultVariants: { variant: 'solid', size: 'md' },
   },
 )
-
-export interface TButtonProps extends ComponentProps<'button'>, VariantProps<typeof tButtonVariants> {
-  /** Text content. Custom elements can only pass text this way (see register.ts). */
-  label?: string
-  /** Render the single child element instead of a <button>, merging these props onto it (Radix Slot). */
-  asChild?: boolean
-}
-
-export function TButton({ label, children, variant, size, asChild = false, className, type, ...props }: TButtonProps) {
-  const Comp = asChild ? Slot : 'button'
-
-  return (
-    <Comp
-      type={asChild ? type : (type ?? 'button')}
-      className={cn(tButtonVariants({ variant, size }), className)}
-      {...props}
-    >
-      {children ?? label}
-    </Comp>
-  )
-}
