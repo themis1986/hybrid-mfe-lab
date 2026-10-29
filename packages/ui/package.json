@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@r2wc/react-to-web-component": "catalog:",
+    "@radix-ui/react-label": "catalog:",
     "@radix-ui/react-slot": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
