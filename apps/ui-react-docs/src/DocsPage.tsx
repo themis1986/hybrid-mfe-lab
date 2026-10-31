@@ -77,7 +77,7 @@ function Entry({ entry }: { entry: DocEntry }) {
   )
 }
 
-export function UiDocsPage() {
+export function DocsPage() {
   return (
     <TContainer className="py-8">
       <TStack gap={6}>
