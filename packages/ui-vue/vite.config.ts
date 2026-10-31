@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [tailwindcss(), vue()],
   build: {
     lib: {
-      entry: { index: 'src/index.ts' },
+      entry: { index: 'src/index.ts', icons: 'src/icons.ts' },
       formats: ['es'],
       // The CSS imported by src/index.ts becomes dist/styles.css (exported as '@repo/ui-vue/styles.css').
       cssFileName: 'styles',
@@ -14,7 +14,14 @@ export default defineConfig({
     rolldownOptions: {
       // Consumers bring their own Vue; the other runtime dependencies are resolved from this package's
       // dependencies.
-      external: [/^vue$/, /^reka-ui($|\/)/, /^class-variance-authority$/, /^clsx$/, /^tailwind-merge$/],
+      external: [
+        /^vue$/,
+        /^reka-ui($|\/)/,
+        /^@lucide\/vue($|\/)/,
+        /^class-variance-authority$/,
+        /^clsx$/,
+        /^tailwind-merge$/,
+      ],
       output: {
         // Stable names, so stale chunks never pile up (see emptyOutDir below).
         chunkFileNames: '[name].js',

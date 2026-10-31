@@ -8,6 +8,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: 'src/index.ts',
+        icons: 'src/icons.ts',
         register: 'src/register.ts',
       },
       formats: ['es'],
@@ -24,6 +25,7 @@ export default defineConfig({
         /^@radix-ui\//,
         /^class-variance-authority$/,
         /^clsx$/,
+        /^lucide-react($|\/)/,
         /^tailwind-merge$/,
         /^uuid$/,
       ],
