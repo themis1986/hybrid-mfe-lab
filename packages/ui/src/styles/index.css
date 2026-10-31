@@ -11,10 +11,10 @@
 @import 'tailwindcss/utilities.css' layer(utilities) source('..');
 
 /* Layered, so a host can re-theme by overriding --t-* in plain (unlayered) CSS. */
-@import './tokens.css' layer(base);
+@import '@repo/tokens/tokens.css' layer(base);
 
 /* Tailwind bridge: utilities resolve to the semantic tokens (bg-accent, text-fg, rounded-md, ...). */
-@import './theme.css';
+@import '@repo/tokens/theme.css';
 
 /* Applies the tokens to the page itself. */
 @layer base {

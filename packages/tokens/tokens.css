@@ -2,7 +2,7 @@
  * Design tokens, in two tiers. Plain CSS custom properties: usable with or without Tailwind.
  *
  *   1. Primitive scales  --t-<hue>-<step>   raw colours; components never use these directly.
- *   2. Semantic tokens   --t-color-<role>,  what components use (via the Tailwind bridge in index.css).
+ *   2. Semantic tokens   --t-color-<role>,  what components use (via the Tailwind bridge in theme.css).
  *                        --t-radius-*, ...
  *
  * The colour scales are Radix Colors (MIT, https://www.radix-ui.com/colors): Iris (accent),

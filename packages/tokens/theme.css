@@ -1,7 +1,7 @@
 /*
- * The token → utility bridge, shared by every Tailwind build that uses the design system: this
- * package's own stylesheet (index.css) and any app running Tailwind (`@import '@repo/ui/theme.css'`).
- * Theme only: the tokens and the library's utilities reach a page through '@repo/ui/styles.css'.
+ * The token → utility bridge, shared by every Tailwind build that uses the design system: the component
+ * libraries' stylesheets and any app running Tailwind (`@import '@repo/tokens/theme.css'`).
+ * Theme only: the tokens themselves (tokens.css) reach a page through a library's stylesheet.
  */
 @theme inline {
   /* Only token colours exist: Tailwind's default palette is cleared. */

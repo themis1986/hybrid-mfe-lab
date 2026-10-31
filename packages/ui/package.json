@@ -14,8 +14,7 @@
       "types": "./dist/register.d.ts",
       "import": "./dist/register.js"
     },
-    "./styles.css": "./dist/styles.css",
-    "./theme.css": "./src/styles/theme.css"
+    "./styles.css": "./dist/styles.css"
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
@@ -37,6 +36,7 @@
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
+    "@repo/tokens": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

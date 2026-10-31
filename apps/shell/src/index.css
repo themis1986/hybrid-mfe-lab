@@ -10,7 +10,7 @@
 @import 'tailwindcss/utilities.css' layer(utilities) source('.');
 
 /* The same token → utility mapping as the library (bg-surface, text-fg-muted, rounded-md, ...). */
-@import '@repo/ui/theme.css';
+@import '@repo/tokens/theme.css';
 
 @layer base {
   body {
