@@ -24,6 +24,8 @@ Normally one app is built into one bundle. Here there are two apps, built and se
 - the **shell** (`apps/shell`, React);
 - the **todo MFE** (`apps/todo-mfe`, Vue).
 
+The other remotes (the two docs apps, one Vue and one React) are wired exactly the same way; this guide follows the todo MFE.
+
 The shell must show the MFE's UI, but it must not copy the MFE's code in at build time. If it did, every change to the MFE would force a rebuild and redeploy of the shell, and the two apps would no longer be independent.
 
 Module Federation solves this: **at runtime, the browser fetches a piece of code from another app's server and runs it.**
@@ -208,9 +210,9 @@ The shell is also told about its remotes at startup: the plugin injects a small 
 
 "Shared" lets the host and the remote use **one copy** of a library, such as React, instead of each bundling its own. A shared config looks like `shared: { react: { singleton: true } }`, where `singleton` means "only ever one copy on the page".
 
-Both apps use an empty object, so **nothing is shared**:
+Every app uses an empty object, so **nothing is shared**:
 
-- **Cost:** the remote's chunk carries its own Vue and its own React, and the shell carries its own React. There is duplicate code in the browser.
+- **Cost:** each remote's chunk carries its own framework (Vue, React, or both for the todo MFE's bridge), and the shell carries its own React. There is duplicate code in the browser.
 - **Benefit:** no version conflicts and no coordination between teams. Each app is fully self-contained.
 
 Sharing React is a planned optimization with a known catch, described in [how-it-works.md section 6](how-it-works.md#6-two-copies-of-react-on-one-page).

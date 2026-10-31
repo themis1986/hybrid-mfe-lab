@@ -24,6 +24,7 @@ For setup and commands, see the [README](../README.md).
 | `apps/shell` (`@repo/shell`) | Host app: owns the URL, the layout and the navigation. | React 19, React Router 8 |
 | `apps/todo-mfe` (`@repo/todo-mfe`) | Remote app: built and served on its own, loaded by the shell at runtime. Uses `@repo/ui` as `t-*` custom elements, until it moves to `@repo/ui-vue`. | Vue 3, Vue Router 5 |
 | `apps/ui-vue-docs` (`@repo/ui-vue-docs`) | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`. | Vue 3, Vue Router 5 |
+| `apps/ui-react-docs` (`@repo/ui-react-docs`) | Remote app written in React: the React library's documentation, built on `@repo/ui`. | React 19 |
 | `packages/tokens` (`@repo/tokens`) | Design tokens and the token → Tailwind theme. CSS only, no build. | CSS, Tailwind v4 |
 | `packages/ui` (`@repo/ui`) | `T`-prefixed React components, usable from React directly and from any framework as `t-*` custom elements. | React, Radix, Tailwind v4 |
 | `packages/ui-vue` (`@repo/ui-vue`) | The same components natively in Vue, with the same look. | Vue, Reka UI, Tailwind v4 |
@@ -37,12 +38,14 @@ graph LR
     shell["@repo/shell"] -- "workspace:*" --> ui["@repo/ui"]
     mfe["@repo/todo-mfe"] -- "workspace:*" --> ui
     docs["@repo/ui-vue-docs"] -- "workspace:*" --> uivue["@repo/ui-vue"]
+    rdocs["@repo/ui-react-docs"] -- "workspace:*" --> ui
     ui -- "CSS at build time" --> tokens["@repo/tokens"]
     uivue -- "CSS at build time" --> tokens
     shell -. tsconfig .-> config["@repo/config"]
   end
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> mfe
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> docs
+  shell == "runtime: HTTP fetch of remoteEntry.js" ==> rdocs
 ```
 
 - **Build-time dependencies** are declared in `package.json`. pnpm links them through `node_modules`, and the bundler compiles them into the consumer's bundle. The apps depend on a component library this way, and the libraries (and the apps running Tailwind) on `@repo/tokens`. Every package also extends a `@repo/config` preset.
@@ -75,6 +78,7 @@ So `pnpm dev` resolves to this sequence:
 ```
 @repo/ui#build ──────► @repo/ui#dev            (vite build --watch)
                   ├──► @repo/todo-mfe#dev      (vite on :5174)
+                  ├──► @repo/ui-react-docs#dev (vite on :5176)
                   └──► @repo/shell#dev         (vite on :5173)
 @repo/ui-vue#build ──► @repo/ui-vue#dev        (vite build --watch)
                   └──► @repo/ui-vue-docs#dev   (vite on :5175)
@@ -118,6 +122,7 @@ React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `
 | shell (React) | `import '@repo/ui/styles.css'` (once, in `main.tsx`) | The stylesheet, bundled into the shell's CSS. |
 | shell (React) | `@import '@repo/tokens/theme.css'` (in its own `src/index.css`) | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens. |
 | ui-vue-docs (Vue) | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted. |
+| ui-react-docs (React) | `import { … } from '@repo/ui'`, and `@repo/ui/styles.css` inside its own `src/styles.css` | The React components, rendered by the remote's own React; the stylesheet is injected inline by `mount.tsx` while the app is mounted. |
 | todo-mfe (Vue) | `import '@repo/ui/register'` | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
 
 `"sideEffects": ["./dist/register.js", "./dist/styles.css"]` tells bundlers that these bare imports must not be tree-shaken away, even though they export nothing.
@@ -219,16 +224,16 @@ The page has a single `window.history`, used by two routers:
 
 ## 6. Two copies of React on one page
 
-On `/todo-app`, two independent copies of React are loaded:
+Whenever a remote that uses React is mounted, two independent copies of React are loaded:
 
-1. **The shell's React** renders the layout, the nav and `TodoMfeHost`.
-2. **The MFE's React**, bundled into the remote's chunk, renders only inside the `t-*` custom elements.
+1. **The shell's React** renders the layout, the nav and the remote's host component.
+2. **The remote's React**, bundled into its chunk, renders only inside the remote: into its own root (a React remote), or inside the `t-*` custom elements (the todo MFE).
 
-This works because each copy manages its own roots and never touches the other's DOM. The cost is download size: the remote's chunk carries a full extra copy of React and react-dom next to Vue.
+This works because each copy manages its own roots and never touches the other's DOM. The cost is download size: each such remote carries a full extra copy of React and react-dom.
 
 The design system's stylesheet is on the page twice for the same reason: the shell's `styles.css`, and the copy the remote injects. With the same ui version on both sides the two are identical. With different versions, the remote's copy wins where they differ, because it comes later (see [react-components-in-vue.md](react-components-in-vue.md#5-styles-across-the-boundary)).
 
-The fix is federation `shared` (React as a singleton provided by the shell). It's deliberately not enabled yet, and it brings one catch: the custom element's `root.unmount()` would then run on the *same* React instance while the shell is in the middle of its commit, which React warns about. The element's unmount would need deferring (e.g. `queueMicrotask`).
+The fix is federation `shared` (React as a singleton provided by the shell). It's deliberately not enabled yet, and it brings one catch: a remote's `root.unmount()` (a React remote's unmount, or the custom element's) would then run on the *same* React instance while the shell is in the middle of its commit, which React warns about. Those unmounts would need deferring (e.g. `queueMicrotask`).
 
 ## 7. Development vs. production
 

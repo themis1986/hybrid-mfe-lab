@@ -25,7 +25,7 @@ This repo is a **monorepo**: several packages in one git repository that depend 
 | Package | Role |
 |---|---|
 | `apps/shell` | The host app. |
-| `apps/todo-mfe`, `apps/ui-vue-docs` | Remote apps that the shell loads at runtime. |
+| `apps/todo-mfe`, `apps/ui-vue-docs`, `apps/ui-react-docs` | Remote apps that the shell loads at runtime. |
 | `packages/tokens` | Design tokens shared by both component libraries (CSS only, no build). |
 | `packages/ui` | React components (the shell, and the todo MFE through custom elements). |
 | `packages/ui-vue` | The same components natively in Vue (the Vue docs remote). |
@@ -86,6 +86,7 @@ This is the only link between `pnpm run dev` and Turbo. pnpm does not know Turbo
 | `@repo/ui`, `@repo/ui-vue` | `vite build --watch` | Rebuilds the library's `dist/` whenever its source changes. |
 | `@repo/todo-mfe` | `vite` | Dev server on `:5174`. |
 | `@repo/ui-vue-docs` | `vite` | Dev server on `:5175`. |
+| `@repo/ui-react-docs` | `vite` | Dev server on `:5176`. |
 | `@repo/shell` | `vite` | Dev server on `:5173`. |
 
 The output you see is prefixed with `package:task` (for example `@repo/ui:build:`), which is Turbo labelling interleaved logs from several processes.
@@ -183,6 +184,7 @@ Turbo only needs to be told about these relationships. It already knows the depe
 ```
 @repo/ui#build ──────► @repo/ui#dev            (vite build --watch)
                   ├──► @repo/todo-mfe#dev      (vite on :5174)
+                  ├──► @repo/ui-react-docs#dev (vite on :5176)
                   └──► @repo/shell#dev         (vite on :5173)
 @repo/ui-vue#build ──► @repo/ui-vue#dev        (vite build --watch)
                   └──► @repo/ui-vue-docs#dev   (vite on :5175)
@@ -256,7 +258,7 @@ This starts the shell and its dependencies' builds, but not the todo MFE. The sh
 
 | Symptom | Cause and fix |
 |---|---|
-| The dev server exits with a port error | `5173`, `5174` or `5175` is already in use. The ports are `strictPort`, so the server exits instead of moving. Free the port. |
+| The dev server exits with a port error | `5173`, `5174`, `5175` or `5176` is already in use. The ports are `strictPort`, so the server exits instead of moving. Free the port. |
 | Stopping one process stopped everything | Expected: all `dev` tasks are persistent children of one Turbo run. |
 | An app cannot resolve `@repo/ui` | `packages/ui/dist` is missing. Run through `pnpm dev`, `build` or `typecheck`, which build ui first. |
 | An app shows old ui code or old ui types | ui has not been rebuilt since the change. `pnpm dev` keeps a watcher running for this. |

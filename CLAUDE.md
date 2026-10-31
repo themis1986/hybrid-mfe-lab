@@ -5,9 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 A pnpm + Turborepo microfrontends skeleton:
-- **`apps/shell`** (`@repo/shell`, React 19 + React Router 8) is the host. At runtime it loads two remotes through Module Federation (`@module-federation/vite`):
+- **`apps/shell`** (`@repo/shell`, React 19 + React Router 8) is the host. At runtime it loads three remotes through Module Federation (`@module-federation/vite`):
   - **`apps/todo-mfe`** (`@repo/todo-mfe`, Vue 3 + Vue Router 5);
-  - **`apps/ui-vue-docs`** (`@repo/ui-vue-docs`, Vue 3 + Vue Router 5), the Vue library's documentation.
+  - **`apps/ui-vue-docs`** (`@repo/ui-vue-docs`, Vue 3 + Vue Router 5), the Vue library's documentation;
+  - **`apps/ui-react-docs`** (`@repo/ui-react-docs`, React 19), the React library's documentation.
+  The shell itself renders only the frame (header, menu, theme choice) and the home page.
 - Two component libraries with the same `T`-prefixed components and the same look ("Option B": two native libraries sharing the tokens):
   - **`packages/ui`** (`@repo/ui`): React + Radix + Tailwind v4;
   - **`packages/ui-vue`** (`@repo/ui-vue`): Vue 3 + Reka UI + Tailwind v4.
@@ -39,7 +41,7 @@ Requirements: Node ≥ 22.22 and pnpm 12. The repo pins `packageManager: pnpm@12
 
 ```sh
 pnpm install
-pnpm dev         # turbo: ui + ui-vue `vite build --watch`, todo-mfe (:5174), ui-vue-docs (:5175), shell (:5173)
+pnpm dev         # turbo: ui + ui-vue `vite build --watch`, todo-mfe (:5174), ui-vue-docs (:5175), ui-react-docs (:5176), shell (:5173)
 pnpm build       # turbo; builds the libraries first (^build)
 pnpm typecheck   # tsc in shell/ui, vue-tsc in ui-vue and the Vue apps; needs the libraries built first (turbo handles it)
 pnpm preview     # production builds served by `vite preview` on the same ports
@@ -48,7 +50,7 @@ pnpm --filter @repo/todo-mfe dev   # any single package/task
 
 **No tests or linter.** To verify, run the apps:
 - the shell at http://localhost:5173 (its own routes and each remote's route);
-- each remote standalone: http://localhost:5174 and http://localhost:5175.
+- each remote standalone: http://localhost:5174, :5175 and :5176.
 
 The ports are `strictPort`: if one is already taken, the server exits instead of moving to another port. Stopping one persistent turbo task stops the whole `pnpm dev`/`pnpm preview` run.
 
@@ -63,14 +65,16 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
   - it stays safe under StrictMode's double effects because unmount fully tears the app down.
 - One small file per remote (`TodoMfeHost.tsx`, …) creates its host and exports its base path.
 - Each remote has a splat route (`<basePath>/*`). A Vue remote uses `createWebHistory(basePath)`, so its own routes are relative to its base path.
-- The shell must never import Vue or remote source; it only knows the contract.
+- The shell must never import a remote's source (Vue or React); it only knows the contract.
 - The contract's types are hand-written in `apps/shell/src/remotes.d.ts` (federation `dts` is off). **Keep that file in sync with each `mount.ts`.**
 - A Vue remote's unmount calls `app.unmount()` **and** `history.destroy()`. The second call is required: `app.unmount()` leaves Vue Router's `popstate` listener on `window`.
 - Each Vue remote sets its own `app.config.idPrefix`: `useId()` is unique only within one app, and several Vue apps share the page.
+- A React remote creates its own root, `createRoot(el, { identifierPrefix: '<app>-' })` (React's counterpart of `idPrefix`), and its unmount calls `root.unmount()`. That synchronous unmount from the shell's effect cleanup is safe only because the remote bundles its own React (see `shared` below).
+- **Dev mode, React remote:** inside the shell, its component modules pass `@vitejs/plugin-react`'s preamble check thanks to the shell's own preamble. Editing one of its files while it's hosted reloads the page instead of hot-updating; standalone, Fast Refresh works normally. Don't add `reactRefreshHost` unless hosted HMR becomes necessary: it makes the remote's standalone dev server depend on the shell's.
 
 **Styles of a federated remote.**
 - A remote can't rely on its host, or on federation (`bundleAllCSS` is off), to load a CSS file. Its CSS travels inside its JavaScript.
-- A Vue remote on `@repo/ui-vue` has one stylesheet, `src/styles.css`: `@repo/ui-vue/styles.css` plus its own Tailwind (no Preflight, `@repo/tokens/theme.css`). `mount.ts` imports it with `?inline`, injects it as `<style id="<app>-styles">` and removes it on unmount. Don't use SFC `<style>` blocks or CSS file imports in a remote.
+- A remote on a component library has one stylesheet, `src/styles.css`: the library's stylesheet (`@repo/ui-vue/styles.css` or `@repo/ui/styles.css`) plus its own Tailwind (no Preflight, `@repo/tokens/theme.css`). Its mount module imports it with `?inline`, injects it as `<style id="<app>-styles">` and removes it on unmount. Don't use SFC `<style>` blocks or CSS file imports in a remote. A React remote's copy of `@repo/ui`'s rules duplicates the shell's; they are identical, so that's harmless.
 - The todo MFE gets the `@repo/ui` stylesheet from `@repo/ui/register` (below).
 
 **React UI inside Vue (custom-element bridge, todo MFE only, being phased out).**
@@ -126,10 +130,10 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - A running `pnpm dev` doesn't pick up changes to a library's `package.json` `exports` or `vite.config.ts`, or new workspace packages: restart it.
 
 **Federation config.**
-- `shared: {}` everywhere, so each remote bundles its own Vue (and the todo MFE its own React). This is a known, accepted duplication; sharing is a planned optimization. If React becomes a shared singleton, the custom element's `root.unmount()` would run during the shell's commit and must be deferred.
+- `shared: {}` everywhere, so each remote bundles its own framework (Vue, or React for a React remote; the todo MFE also bundles React for the bridge). This is a known, accepted duplication; sharing is a planned optimization. If React becomes a shared singleton, every `root.unmount()` run from the shell (a React remote's unmount, the custom element's) would run during the shell's commit and must be deferred.
 - Remotes must use `type: 'module'` in the shell's `remotes`.
 - Each remote sets `server.origin` so its dev-server URLs resolve when loaded from the shell.
-- The shell reads each remote's URL from a `VITE_*_REMOTE_URL` variable at **build time** (defaults: `http://localhost:5174/remoteEntry.js`, `http://localhost:5175/remoteEntry.js`). Each variable is listed in the root `turbo.json` `build.env`, so it is part of the cache key.
+- The shell reads each remote's URL from a `VITE_*_REMOTE_URL` variable at **build time** (defaults: `http://localhost:5174/remoteEntry.js`, `:5175/…`, `:5176/…`). Each variable is listed in the root `turbo.json` `build.env`, so it is part of the cache key.
 
 ## Toolchain constraints (non-obvious, don't "fix" these)
 
@@ -146,7 +150,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 ## Adding another microfrontend
 
 Follow the steps in README.md ("Adding another microfrontend"):
-1. A new `apps/<name>` exposing the same `mount` contract, with a unique federation `name` and a fixed port. A Vue remote uses `@repo/ui-vue`, injects its stylesheet inline, and sets `app.config.idPrefix`.
+1. A new `apps/<name>` exposing the same `mount` contract, with a unique federation `name` and a fixed port. A Vue remote uses `@repo/ui-vue` and sets `app.config.idPrefix`; a React remote uses `@repo/ui` and creates its root with an `identifierPrefix`. Either injects its stylesheet inline.
 2. In the shell:
    - a `remotes` entry with its own `VITE_*_REMOTE_URL` variable (also added to the root `turbo.json` `build.env`);
    - a declaration in `remotes.d.ts`;

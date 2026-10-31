@@ -22,20 +22,19 @@ first brought it to Vue, with the reasoning behind moving to two libraries, in
                       browser: http://localhost:5173
 ┌──────────────────────────────────────────────────────────────────────┐
 │ apps/shell  (@repo/shell)            React 19 + React Router 8       │
-│   frame, menu, own routes: React components from @repo/ui            │
+│   frame, menu, home page: React components from @repo/ui             │
 │   /<base>/*   a host per remote (createRemoteHost)                   │
 │                 └─ import('<remote>/mount') ──────────┐ runtime,     │
 │                    mount(div, { basePath })           │ federation   │
 └───────────────────────────────────────────────────────┼──────────────┘
-                         ┌──────────────────────────────┴──────────┐
-                         ▼                                         ▼
-  :5174/remoteEntry.js (served separately)  :5175/remoteEntry.js (served separately)
-┌──────────────────────────────────┐  ┌──────────────────────────────────┐
-│ apps/todo-mfe   Vue 3            │  │ apps/ui-vue-docs   Vue 3         │
-│   exposes "./mount"              │  │   exposes "./mount"              │
-│   t-* custom elements from       │  │   components from @repo/ui-vue   │
-│   @repo/ui/register (for now)    │  │   stylesheet injected inline     │
-└──────────────────────────────────┘  └──────────────────────────────────┘
+                                                        ▼
+  each remote serves its own remoteEntry.js and exposes "./mount":
+┌─────────────────────────────────────────────────────────────────────┐
+│ :5174  apps/todo-mfe        Vue 3   t-* custom elements from        │
+│                                     @repo/ui/register (for now)     │
+│ :5175  apps/ui-vue-docs     Vue 3   @repo/ui-vue, stylesheet inline │
+│ :5176  apps/ui-react-docs   React   @repo/ui, stylesheet inline     │
+└─────────────────────────────────────────────────────────────────────┘
 
 packages/tokens  (@repo/tokens)  design tokens + the token → Tailwind theme (CSS only)
 packages/ui      (@repo/ui)      T-prefixed React components (Radix + Tailwind), styles.css, and a
@@ -44,7 +43,7 @@ packages/ui-vue  (@repo/ui-vue)  the same components natively in Vue (Reka UI + 
 packages/config  (@repo/config)  shared tsconfig presets (base, react, vue, node)
 ```
 
-- The shell imports no Vue code. It only knows the `mount` contract (typed in `apps/shell/src/remotes.d.ts`).
+- The shell imports no remote code, Vue or React. It only knows the `mount` contract (typed in `apps/shell/src/remotes.d.ts`).
 - A remote imports nothing from the shell or from another remote. No app imports another's source.
 - Each remote is independently buildable and servable, and also runs standalone.
 
@@ -64,6 +63,8 @@ pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell
 | Todo MFE remote entry | http://localhost:5174/remoteEntry.js |
 | Vue UI docs MFE standalone | http://localhost:5175 |
 | Vue UI docs MFE remote entry | http://localhost:5175/remoteEntry.js |
+| React UI docs MFE standalone | http://localhost:5176 |
+| React UI docs MFE remote entry | http://localhost:5176/remoteEntry.js |
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
 
@@ -83,8 +84,9 @@ server, so no `build --watch` + `preview` workaround is needed. `pnpm preview` i
 ### Remote URLs
 
 The shell reads one variable per remote when it **builds**: `VITE_TODO_REMOTE_URL` (default
-`http://localhost:5174/remoteEntry.js`) and `VITE_UI_VUE_DOCS_REMOTE_URL` (default
-`http://localhost:5175/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
+`http://localhost:5174/remoteEntry.js`), `VITE_UI_VUE_DOCS_REMOTE_URL` (default
+`http://localhost:5175/remoteEntry.js`) and `VITE_UI_REACT_DOCS_REMOTE_URL` (default
+`http://localhost:5176/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
 
 ```sh
 VITE_TODO_REMOTE_URL=https://cdn.example.com/todo/remoteEntry.js pnpm build
@@ -195,7 +197,9 @@ To add a component, follow the checklist in [documents/design-system.md](documen
    and a fixed port with `server.origin` set to that port.
 3. Implement the same `mount(el, { basePath }) => unmount` contract. A Vue remote uses `@repo/ui-vue`,
    puts its styles in one `src/styles.css` injected inline from `mount.ts` (and removed on unmount), and sets
-   `app.config.idPrefix`. A React remote would use `@repo/ui` the same way.
+   `app.config.idPrefix`. A React remote does the same with `@repo/ui`: one inline stylesheet, and
+   `createRoot(el, { identifierPrefix })` so its `useId()` values stay unique on the page; its unmount calls
+   `root.unmount()`.
 4. In the shell:
    - add the remote to `remotes` in `apps/shell/vite.config.ts` with its own `VITE_*_REMOTE_URL` variable, and
      list that variable in the root `turbo.json` `build.env`;
