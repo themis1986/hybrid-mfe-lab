@@ -13,6 +13,8 @@
   --color-fg-muted: var(--t-color-fg-muted);
   --color-line: var(--t-color-line);
   --color-line-strong: var(--t-color-line-strong);
+  --color-control: var(--t-color-control);
+  --color-control-thumb: var(--t-color-control-thumb);
 
   --color-accent: var(--t-color-accent);
   --color-accent-hover: var(--t-color-accent-hover);
