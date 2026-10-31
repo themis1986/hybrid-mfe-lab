@@ -6,6 +6,7 @@ import { UI_DOCS_PATH } from './navigation'
 import { Sidebar } from './Sidebar'
 import { TODO_BASE_PATH, TodoMfeHost } from './TodoMfeHost'
 import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './UiVueDocsHost'
+import { ThemeSwitch } from './ThemeSwitch'
 import { UiDocsPage } from './ui-docs/UiDocsPage'
 
 export function App() {
@@ -15,6 +16,7 @@ export function App() {
         <Logo />
         <TSpacer />
         <span className="text-sm text-fg-muted max-sm:hidden">Microfrontends playground</span>
+        <ThemeSwitch />
       </TAppShellHeader>
       <TAppShellSidebar>
         <Sidebar />
