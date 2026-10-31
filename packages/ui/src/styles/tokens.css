@@ -140,6 +140,14 @@
     'Helvetica Neue', Arial, sans-serif;
   --t-font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
 
+  /* Layout: sizes Tailwind's scale doesn't have. Spacing and type sizes use Tailwind's own scale. */
+  --t-container-sm: 640px;
+  --t-container-md: 960px;
+  --t-container-lg: 1200px;
+  --t-layout-sidebar-width: 16rem;
+  --t-layout-sidebar-collapsed-width: 4rem;
+  --t-layout-header-height: 3.5rem;
+
   /* Depth */
   --t-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.1);
 
