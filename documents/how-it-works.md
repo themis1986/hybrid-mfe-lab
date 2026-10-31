@@ -22,8 +22,11 @@ For setup and commands, see the [README](../README.md).
 | Package | Role | Tech |
 |---|---|---|
 | `apps/shell` (`@repo/shell`) | Host app: owns the URL, the layout and the navigation. | React 19, React Router 8 |
-| `apps/todo-mfe` (`@repo/todo-mfe`) | Remote app: built and served on its own, loaded by the shell at runtime. | Vue 3, Vue Router 5 |
-| `packages/ui` (`@repo/ui`) | Design system: tokens, Tailwind styles and `T`-prefixed React components, usable from React directly and from any framework as `t-*` custom elements. | React, Radix, Tailwind v4 |
+| `apps/todo-mfe` (`@repo/todo-mfe`) | Remote app: built and served on its own, loaded by the shell at runtime. Uses `@repo/ui` as `t-*` custom elements, until it moves to `@repo/ui-vue`. | Vue 3, Vue Router 5 |
+| `apps/ui-vue-docs` (`@repo/ui-vue-docs`) | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`. | Vue 3, Vue Router 5 |
+| `packages/tokens` (`@repo/tokens`) | Design tokens and the token → Tailwind theme. CSS only, no build. | CSS, Tailwind v4 |
+| `packages/ui` (`@repo/ui`) | `T`-prefixed React components, usable from React directly and from any framework as `t-*` custom elements. | React, Radix, Tailwind v4 |
+| `packages/ui-vue` (`@repo/ui-vue`) | The same components natively in Vue, with the same look. | Vue, Reka UI, Tailwind v4 |
 | `packages/config` (`@repo/config`) | Shared tsconfig presets. | TypeScript 6 |
 
 There are two kinds of dependency, and keeping them apart is the key to the architecture.
@@ -33,15 +36,17 @@ graph LR
   subgraph "Build time (pnpm workspace links)"
     shell["@repo/shell"] -- "workspace:*" --> ui["@repo/ui"]
     mfe["@repo/todo-mfe"] -- "workspace:*" --> ui
+    docs["@repo/ui-vue-docs"] -- "workspace:*" --> uivue["@repo/ui-vue"]
+    ui -- "CSS at build time" --> tokens["@repo/tokens"]
+    uivue -- "CSS at build time" --> tokens
     shell -. tsconfig .-> config["@repo/config"]
-    mfe -. tsconfig .-> config
-    ui -. tsconfig .-> config
   end
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> mfe
+  shell == "runtime: HTTP fetch of remoteEntry.js" ==> docs
 ```
 
-- **Build-time dependencies** are declared in `package.json`. pnpm links them through `node_modules`, and the bundler compiles them into the consumer's bundle. Both apps depend on `@repo/ui` this way.
-- **The runtime dependency** (shell → todo-mfe) is not in any `package.json`. The shell knows only a URL and a function signature. The MFE is a separate deployable that the browser downloads when the user navigates to it. That's why the shell can be built, typechecked and deployed without the MFE existing, and the other way round.
+- **Build-time dependencies** are declared in `package.json`. pnpm links them through `node_modules`, and the bundler compiles them into the consumer's bundle. The apps depend on a component library this way, and the libraries (and the apps running Tailwind) on `@repo/tokens`. Every package also extends a `@repo/config` preset.
+- **The runtime dependencies** (shell → each remote) are not in any `package.json`. The shell knows only a URL and a function signature per remote. Each remote is a separate deployable that the browser downloads when the user navigates to it. That's why the shell can be built, typechecked and deployed without the remotes existing, and the other way round.
 
 ## 2. Workspace and tooling layer
 
@@ -58,18 +63,21 @@ graph LR
 
 | Task | Definition (in `turbo.json`) | Consequence |
 |---|---|---|
-| `build` | `dependsOn: ["^build"]`, outputs `dist/**` | `@repo/ui` builds before both apps; results are cached. |
-| `typecheck` | `dependsOn: ["^build"]` | The apps typecheck against `@repo/ui`'s emitted `.d.ts` files, so ui is built first. |
-| `dev` | `dependsOn: ["^build"]`, persistent | ui is built once, then all three dev processes run together. |
-| `dev` in `packages/ui` | `packages/ui/turbo.json` adds `dependsOn: ["build"]` | The ui watcher starts after the initial build, so the two never write `dist/` at once. |
+| `build` | `dependsOn: ["^build"]`, outputs `dist/**` | The libraries build before the apps; results are cached. |
+| `typecheck` | `dependsOn: ["^build"]` | The apps typecheck against the libraries' emitted `.d.ts` files, so the libraries are built first. |
+| `dev` | `dependsOn: ["^build"]`, persistent | The libraries are built once, then all the dev processes run together. |
+| `dev` in each library | the library's `turbo.json` adds `dependsOn: ["build"]` | Its watcher starts after the initial build, so the two never write `dist/` at once. |
+| `build` in each library | the library's `turbo.json` adds `$TURBO_ROOT$/packages/tokens/**` to `inputs` | `@repo/tokens` has no build task, so its files are listed as inputs: a token change invalidates the cache. |
 | `preview` | `dependsOn: ["build"]`, persistent | Builds everything, then serves the production output. |
 
 So `pnpm dev` resolves to this sequence:
 
 ```
-@repo/ui#build ──► @repo/ui#dev        (vite build --watch)
-              ├──► @repo/todo-mfe#dev  (vite on :5174)
-              └──► @repo/shell#dev     (vite on :5173)
+@repo/ui#build ──────► @repo/ui#dev            (vite build --watch)
+                  ├──► @repo/todo-mfe#dev      (vite on :5174)
+                  └──► @repo/shell#dev         (vite on :5173)
+@repo/ui-vue#build ──► @repo/ui-vue#dev        (vite build --watch)
+                  └──► @repo/ui-vue-docs#dev   (vite on :5175)
 ```
 
 **TypeScript presets.**
@@ -108,7 +116,8 @@ React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `
 |---|---|---|
 | shell (React) | `import { … } from '@repo/ui'` | The plain React components, rendered by the shell's own React. |
 | shell (React) | `import '@repo/ui/styles.css'` (once, in `main.tsx`) | The stylesheet, bundled into the shell's CSS. |
-| shell (React) | `@import '@repo/ui/theme.css'` (in its own `src/index.css`) | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens. |
+| shell (React) | `@import '@repo/tokens/theme.css'` (in its own `src/index.css`) | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens. |
+| ui-vue-docs (Vue) | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted. |
 | todo-mfe (Vue) | `import '@repo/ui/register'` | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
 
 `"sideEffects": ["./dist/register.js", "./dist/styles.css"]` tells bundlers that these bare imports must not be tree-shaken away, even though they export nothing.
@@ -163,7 +172,7 @@ sequenceDiagram
 
 Details worth knowing:
 - **Lazy loading:** `React.lazy` caches the module promise, so the remote is downloaded only once per page load. Later visits to `/todo-app` reuse it and only call `mount` again.
-- **Ownership:** `TodoMfeHost` renders an empty container `<div>`, and React never renders children into it. Everything inside belongs to Vue, and everything inside each `t-*` element belongs to the MFE's React.
+- **Ownership:** `TodoMfeHost` (built with `createRemoteHost`, like every remote's host) renders an empty container `<div>`, and React never renders children into it. Everything inside belongs to Vue, and everything inside each `t-*` element belongs to the MFE's React.
 - **Styles:** the remote's stylesheet arrives inside the JavaScript chunk, not as a CSS file, so nothing depends on the federation runtime loading CSS.
 
 ### 4.3 Events from a custom element inside the MFE

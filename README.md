@@ -1,9 +1,9 @@
 # Microfrontends monorepo skeleton
 
-A React shell that loads a Vue microfrontend at runtime with Module Federation. Both apps use React
-components from a shared UI package, a small token-based design system (Tailwind v4 + Radix). The shell
-renders them directly, and the Vue app renders them as custom elements. Placeholder content only; this
-skeleton just proves the pieces fit together.
+A React shell that loads Vue microfrontends at runtime with Module Federation, on one token-based design
+system (Tailwind v4) delivered as two native component libraries: React (Radix) and Vue (Reka UI), sharing
+the tokens. One remote still renders the React library as custom elements, until it moves to the Vue
+library. Placeholder content only; this skeleton just proves the pieces fit together.
 
 For a step-by-step explanation of how everything connects at build time and at runtime, see
 [documents/how-it-works.md](documents/how-it-works.md). If Module Federation is new to you, start with
@@ -11,9 +11,9 @@ For a step-by-step explanation of how everything connects at build time and at r
 to the federation configuration. For what the `.d.ts` files are for, see
 [documents/typescript-declaration-files.md](documents/typescript-declaration-files.md). New to the repo?
 [documents/monorepo-tooling.md](documents/monorepo-tooling.md) explains pnpm, Turborepo and what
-`pnpm dev` actually runs. The design system (tokens, Tailwind, the component recipe) is described in
-[documents/design-system.md](documents/design-system.md), and the custom-element bridge that brings it to
-Vue, with the reasoning behind that choice, in
+`pnpm dev` actually runs. The design system (tokens, Tailwind, the React and Vue component recipes) is
+described in [documents/design-system.md](documents/design-system.md), and the custom-element bridge that
+first brought it to Vue, with the reasoning behind moving to two libraries, in
 [documents/react-components-in-vue.md](documents/react-components-in-vue.md).
 
 ## Architecture
@@ -22,27 +22,31 @@ Vue, with the reasoning behind that choice, in
                       browser: http://localhost:5173
 ┌──────────────────────────────────────────────────────────────────────┐
 │ apps/shell  (@repo/shell)            React 19 + React Router 8       │
-│   own routes   React components from @repo/ui (plain React)          │
-│   /todo-app/*  TodoMfeHost                                           │
-│                  └─ import('todo/mount') ─────────────┐ runtime,     │
-│                     mount(div, { basePath })          │ federation   │
+│   frame, menu, own routes: React components from @repo/ui            │
+│   /<base>/*   a host per remote (createRemoteHost)                   │
+│                 └─ import('<remote>/mount') ──────────┐ runtime,     │
+│                    mount(div, { basePath })           │ federation   │
 └───────────────────────────────────────────────────────┼──────────────┘
-                                                        ▼
-            http://localhost:5174/remoteEntry.js  (served separately)
-┌──────────────────────────────────────────────────────────────────────┐
-│ apps/todo-mfe  (@repo/todo-mfe)      Vue 3 + Vue Router 5            │
-│   exposes "./mount" → src/mount.ts                                   │
-│   Vue components ── t-* custom elements from @repo/ui/register       │
-└──────────────────────────────────────────────────────────────────────┘
+                         ┌──────────────────────────────┴──────────┐
+                         ▼                                         ▼
+  :5174/remoteEntry.js (served separately)  :5175/remoteEntry.js (served separately)
+┌──────────────────────────────────┐  ┌──────────────────────────────────┐
+│ apps/todo-mfe   Vue 3            │  │ apps/ui-vue-docs   Vue 3         │
+│   exposes "./mount"              │  │   exposes "./mount"              │
+│   t-* custom elements from       │  │   components from @repo/ui-vue   │
+│   @repo/ui/register (for now)    │  │   stylesheet injected inline     │
+└──────────────────────────────────┘  └──────────────────────────────────┘
 
-packages/ui      (@repo/ui)      design system: tokens + Tailwind styles + T-prefixed React components (Radix),
-                                  a "register" entry that defines them as t-* custom elements, and styles.css
+packages/tokens  (@repo/tokens)  design tokens + the token → Tailwind theme (CSS only)
+packages/ui      (@repo/ui)      T-prefixed React components (Radix + Tailwind), styles.css, and a
+                                  "register" entry that defines them as t-* custom elements
+packages/ui-vue  (@repo/ui-vue)  the same components natively in Vue (Reka UI + Tailwind), styles.css
 packages/config  (@repo/config)  shared tsconfig presets (base, react, vue, node)
 ```
 
 - The shell imports no Vue code. It only knows the `mount` contract (typed in `apps/shell/src/remotes.d.ts`).
-- The MFE imports nothing from the shell. Neither app imports the other's source.
-- The MFE is independently buildable and servable, and also runs standalone.
+- A remote imports nothing from the shell or from another remote. No app imports another's source.
+- Each remote is independently buildable and servable, and also runs standalone.
 
 ## Running it
 
@@ -50,7 +54,7 @@ Requirements: Node ≥ 22.22 and pnpm 12 (`npm install -g pnpm@12.16.0`; Node 25
 
 ```sh
 pnpm install
-pnpm dev         # ui (vite build --watch) + todo-mfe dev server + shell dev server
+pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell's dev servers
 ```
 
 | What | URL |
@@ -58,13 +62,15 @@ pnpm dev         # ui (vite build --watch) + todo-mfe dev server + shell dev ser
 | Shell (open this) | http://localhost:5173 |
 | Todo MFE standalone | http://localhost:5174 |
 | Todo MFE remote entry | http://localhost:5174/remoteEntry.js |
+| Vue UI docs MFE standalone | http://localhost:5175 |
+| Vue UI docs MFE remote entry | http://localhost:5175/remoteEntry.js |
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
 
 Other root scripts:
 
 ```sh
-pnpm build       # build every package (ui first, via turbo ^build)
+pnpm build       # build every package (the libraries first, via turbo ^build)
 pnpm typecheck   # tsc / vue-tsc in every package
 pnpm preview     # production builds served by `vite preview` on the same ports
 ```
@@ -74,52 +80,68 @@ Single packages: `pnpm --filter @repo/todo-mfe dev`, `pnpm --filter @repo/ui bui
 Module Federation's dev mode works with Vite 8: the remote is served straight by its Vite dev
 server, so no `build --watch` + `preview` workaround is needed. `pnpm preview` is the production-like check.
 
-### Remote URL
+### Remote URLs
 
-The shell reads `VITE_TODO_REMOTE_URL` when it **builds**. The default is
-`http://localhost:5174/remoteEntry.js`. Set it in the environment or in `apps/shell/.env.local`:
+The shell reads one variable per remote when it **builds**: `VITE_TODO_REMOTE_URL` (default
+`http://localhost:5174/remoteEntry.js`) and `VITE_UI_VUE_DOCS_REMOTE_URL` (default
+`http://localhost:5175/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
 
 ```sh
 VITE_TODO_REMOTE_URL=https://cdn.example.com/todo/remoteEntry.js pnpm build
 ```
 
-Turborepo includes this variable in the shell build's cache key.
+Turborepo includes these variables (root `turbo.json`, `build.env`) in the shell build's cache key.
 
 ## How it works
 
 ### Mount contract
 
-`apps/todo-mfe/src/mount.ts` is exposed as `todo/mount`:
+Each remote's `src/mount.ts` is exposed as `<remote>/mount`:
 
 ```ts
 export function mount(el: HTMLElement, props: { basePath: string }): () => void
 ```
 
-- `mount` creates a Vue app plus a router on `createWebHistory(basePath)`, so MFE routes are relative to
-  `/todo-app`, and mounts the app into `el`.
+- `mount` creates a Vue app plus a router on `createWebHistory(basePath)`, so the remote's routes are
+  relative to its base path, and mounts the app into `el`.
 - The returned function calls `app.unmount()` and `history.destroy()`. The second call matters:
   `app.unmount()` doesn't remove Vue Router's `popstate` listener on `window`.
-- In the shell, `TodoMfeHost` lazy-loads the module with `React.lazy`.
+- Each Vue remote sets `app.config.idPrefix`: `useId()` is unique only within one app, and several apps share
+  the page.
+- In the shell, `createRemoteHost(load, basePath, appName)` (`apps/shell/src/RemoteMfeHost.tsx`) builds each
+  remote's host component, which lazy-loads the module with `React.lazy`.
   - `<Suspense>` shows a loading state, and an error boundary shows a fallback if the remote can't be loaded.
   - A `useEffect` calls `mount` on a container ref and returns the unmount function as its cleanup.
   - React StrictMode's dev-only mount → unmount → mount is therefore harmless.
-- `/todo-app/*` is a splat route, so the MFE can own deeper URLs without the shell knowing about them.
+- Each remote's route is a splat (`<base>/*`), so the remote can own deeper URLs without the shell knowing
+  about them.
 
-### React UI inside Vue: the custom-element bridge
-
-Vue can't render React components, so `@repo/ui` ships three entry points:
+### Two libraries on shared tokens
 
 | Import | For | What it is |
 |---|---|---|
-| `@repo/ui` | React apps | the `T`-prefixed React components |
-| `@repo/ui/styles.css` | React apps | the design system's stylesheet: tokens + the Tailwind utilities the components use (no Preflight) |
-| `@repo/ui/theme.css` | apps running Tailwind | the token → utility theme (`@theme inline`), so an app's own utilities use the same tokens. It points at the source file on purpose: it is Tailwind input, not built output |
-| `@repo/ui/register` | any framework | injects that stylesheet as one `<style>` and defines each component as a `t-*` custom element with `@r2wc/react-to-web-component` |
+| `@repo/tokens/tokens.css` | the libraries' stylesheets | the design tokens (CSS custom properties) |
+| `@repo/tokens/theme.css` | any Tailwind build on the design system | the token → utility theme (`@theme inline`) |
+| `@repo/ui` + `@repo/ui/styles.css` | React apps | the `T`-prefixed React components and their stylesheet (tokens + utilities, no Preflight) |
+| `@repo/ui-vue` + `@repo/ui-vue/styles.css` | Vue apps | the same components natively in Vue, and their stylesheet |
 
-The shell imports `@repo/ui/styles.css` once, in `main.tsx`, followed by its own Tailwind stylesheet
-(`src/index.css`: theme and utilities, no Preflight, plus `@repo/ui/theme.css`). The MFE imports `@repo/ui/register` once, in
-`mount.ts`, and then uses the `t-*` tags in its Vue templates like native elements. A component `T<Name>`
-becomes the tag `<t-<name>>`.
+- The shell imports `@repo/ui/styles.css` once, in `main.tsx`, followed by its own Tailwind stylesheet
+  (`src/index.css`: theme and utilities, no Preflight, plus `@repo/tokens/theme.css`).
+- A Vue remote on `@repo/ui-vue` bundles `@repo/ui-vue/styles.css` and its own Tailwind utilities into one
+  stylesheet, imports it with `?inline`, and injects it as a `<style>` while it is mounted. A federated remote
+  can't count on its host or on the federation runtime to load a CSS file for it.
+- Both libraries use identical class strings for their variants, so they look the same; a change goes in both.
+
+### React UI inside Vue: the custom-element bridge (being phased out)
+
+The todo MFE still renders the React library through a third entry point, until it moves to `@repo/ui-vue`:
+
+| Import | For | What it is |
+|---|---|---|
+| `@repo/ui/register` | any framework | injects the `@repo/ui` stylesheet as one `<style>` and defines each component as a `t-*` custom element with `@r2wc/react-to-web-component` |
+
+The MFE imports `@repo/ui/register` once, in `mount.ts`, and then uses the `t-*` tags in its Vue templates
+like native elements. A component `T<Name>` becomes the tag `<t-<name>>`.
 
 - **Vue compiler:** `isCustomElement: (tag) => tag.startsWith('t-')` in `apps/todo-mfe/vite.config.ts`
   makes Vue treat `t-*` tags as native elements.
@@ -147,12 +169,15 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 ### Build details
 
 - `@repo/ui` is built with Vite library mode (ESM, entries `index` and `register`), and `tsc` emits its `.d.ts`
-  files. Apps consume `dist/` through the package `exports`.
+  files. `@repo/ui-vue` is built the same way (entry `index`), with `vue-tsc` emitting the `.d.ts` files.
+  Apps consume `dist/` through the package `exports`.
+- `@repo/tokens` has no build: each library's Tailwind compiles it into its `dist/styles.css`. Each library's
+  `turbo.json` lists the tokens as a `build` input, so a token change invalidates the cached build.
 - `@tailwindcss/vite` compiles `src/styles/index.css` twice: imported by `index.ts`, it becomes `dist/styles.css`
   (`build.lib.cssFileName`); imported with `?inline` by `register.ts`, it becomes a string inside `register.js`.
 - `sideEffects` marks `register.js` and `styles.css`, so the bare imports survive tree-shaking.
-- `pnpm dev` builds ui once, then keeps `vite build --watch` running (`packages/ui/turbo.json` makes the watcher
-  wait for the first build). The watcher also rebuilds the CSS when a class changes in a component.
+- `pnpm dev` builds each library once, then keeps `vite build --watch` running (each library's `turbo.json`
+  makes its watcher wait for the first build). The watcher also rebuilds the CSS when a class changes in a component.
   `emptyOutDir: false` stops it from deleting the `.d.ts` files, and chunk names carry no hashes, so stale
   files don't pile up.
 
@@ -162,13 +187,14 @@ To add a component, follow the checklist in [documents/design-system.md](documen
    and `typecheck`. Extend the matching `@repo/config` tsconfig preset.
 2. Add `@module-federation/vite` with a unique `name`, `filename: 'remoteEntry.js'`, `exposes: { './mount': … }`,
    and a fixed port with `server.origin` set to that port.
-3. Implement the same `mount(el, { basePath }) => unmount` contract in any framework. To use UI components
-   outside React, import `@repo/ui/register` (it brings the stylesheet too), and tell the framework that
-   `t-*` tags are custom elements.
+3. Implement the same `mount(el, { basePath }) => unmount` contract. A Vue remote uses `@repo/ui-vue`,
+   puts its styles in one `src/styles.css` injected inline from `mount.ts` (and removed on unmount), and sets
+   `app.config.idPrefix`. A React remote would use `@repo/ui` the same way.
 4. In the shell:
-   - add the remote to `remotes` in `apps/shell/vite.config.ts` (with its own `VITE_*_REMOTE_URL` variable);
+   - add the remote to `remotes` in `apps/shell/vite.config.ts` with its own `VITE_*_REMOTE_URL` variable, and
+     list that variable in the root `turbo.json` `build.env`;
    - declare its module in `apps/shell/src/remotes.d.ts`;
-   - add a route with a host component (copy `TodoMfeHost`, or make it generic over the loader and base path);
+   - add a host file built with `createRemoteHost`, and its splat route in `App.tsx`;
    - add its entry to the sidebar menu config (`apps/shell/src/navigation.ts`).
 5. Turborepo picks up the new app's `dev`, `build`, `typecheck` and `preview` tasks automatically.
 
@@ -188,6 +214,7 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 | @types/node | 22.20.5 | | tailwindcss / @tailwindcss/vite | 4.3.3 |
 | @radix-ui/react-slot | 1.5.0 | | class-variance-authority | 0.7.1 |
 | clsx | 2.1.1 | | tailwind-merge | 3.7.0 |
+| reka-ui | 2.11.0 | | | |
 
 ### Deviations from the original brief, and why
 
@@ -200,7 +227,7 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 - **pnpm's release-age gate.** pnpm 12 by default refuses versions published less than 24 h ago
   (`minimumReleaseAge`). That's why the repo uses pnpm 12.16.0 and react-router 8.5.0 rather than the
   day-old 12.16.1 and 8.5.1.
-- **Additions:** a root `pnpm preview` script, `packages/ui/turbo.json`, and a `data:` favicon in each
+- **Additions:** a root `pnpm preview` script, a `turbo.json` in each library, and a `data:` favicon in each
   `index.html` (avoids a console 404).
 - **No shared dependencies between host and remote yet** (`shared: {}`). Module Federation `dts` type
   generation is off; the remote's types are hand-written in the shell.

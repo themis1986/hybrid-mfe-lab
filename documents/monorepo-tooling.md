@@ -25,8 +25,10 @@ This repo is a **monorepo**: several packages in one git repository that depend 
 | Package | Role |
 |---|---|
 | `apps/shell` | The host app. |
-| `apps/todo-mfe` | The remote app that the shell loads at runtime. |
-| `packages/ui` | React components used by both apps. |
+| `apps/todo-mfe`, `apps/ui-vue-docs` | Remote apps that the shell loads at runtime. |
+| `packages/tokens` | Design tokens shared by both component libraries (CSS only, no build). |
+| `packages/ui` | React components (the shell, and the todo MFE through custom elements). |
+| `packages/ui-vue` | The same components natively in Vue (the Vue docs remote). |
 | `packages/config` | Shared TypeScript presets. |
 
 Three tools cooperate to make that work, and each has a separate job:
@@ -77,12 +79,13 @@ This is the only link between `pnpm run dev` and Turbo. pnpm does not know Turbo
 - `pnpm-workspace.yaml` says which folders are packages (`apps/*` and `packages/*`). Turbo opens each package's `package.json`, records its `scripts`, and reads its `workspace:*` dependencies, which gives it the dependency graph.
 - `turbo.json` defines the tasks and how they relate (see [section 5](#5-turborepo-tasks-and-their-order)).
 
-**Step 5.** For `dev`, Turbo finds three packages with a `dev` script and starts them:
+**Step 5.** For `dev`, Turbo finds every package with a `dev` script and starts them:
 
 | Package | Its `dev` script | Result |
 |---|---|---|
-| `@repo/ui` | `vite build --watch` | Rebuilds `dist/` whenever its source changes. |
+| `@repo/ui`, `@repo/ui-vue` | `vite build --watch` | Rebuilds the library's `dist/` whenever its source changes. |
 | `@repo/todo-mfe` | `vite` | Dev server on `:5174`. |
+| `@repo/ui-vue-docs` | `vite` | Dev server on `:5175`. |
 | `@repo/shell` | `vite` | Dev server on `:5173`. |
 
 The output you see is prefixed with `package:task` (for example `@repo/ui:build:`), which is Turbo labelling interleaved logs from several processes.
@@ -163,14 +166,14 @@ The root `turbo.json` defines four tasks:
 
 | Task | `dependsOn` | Cached? | Long-running? | Consequence |
 |---|---|---|---|---|
-| `build` | `^build` | Yes (outputs `dist/**`) | No | ui builds before both apps. |
-| `typecheck` | `^build` | Yes | No | Apps typecheck against ui's built `.d.ts` files, so ui is built first. |
-| `dev` | `^build` | No | Yes | ui is built once, then all three dev processes run together. |
+| `build` | `^build` | Yes (outputs `dist/**`) | No | The libraries build before the apps that use them. |
+| `typecheck` | `^build` | Yes | No | Apps typecheck against the libraries' built `.d.ts` files, so those are built first. |
+| `dev` | `^build` | No | Yes | The libraries are built once, then all the dev processes run together. |
 | `preview` | `build` | No | Yes | Builds everything, then serves the production output. |
 
 ### Reading `dependsOn`
 
-- **`"^build"`** (with a caret) means "run `build` in the packages **I depend on** first". For an app, that is ui.
+- **`"^build"`** (with a caret) means "run `build` in the packages **I depend on** first". For an app, that is its component library.
 - **`"build"`** (no caret) means "run `build` in **this same package** first".
 
 Turbo only needs to be told about these relationships. It already knows the dependency graph from the workspace links.
@@ -178,10 +181,14 @@ Turbo only needs to be told about these relationships. It already knows the depe
 ### What `dev` looks like when it starts
 
 ```
-@repo/ui#build ──► @repo/ui#dev        (vite build --watch)
-              ├──► @repo/todo-mfe#dev  (vite on :5174)
-              └──► @repo/shell#dev     (vite on :5173)
+@repo/ui#build ──────► @repo/ui#dev            (vite build --watch)
+                  ├──► @repo/todo-mfe#dev      (vite on :5174)
+                  └──► @repo/shell#dev         (vite on :5173)
+@repo/ui-vue#build ──► @repo/ui-vue#dev        (vite build --watch)
+                  └──► @repo/ui-vue-docs#dev   (vite on :5175)
 ```
+
+`@repo/tokens` has no tasks: the libraries compile its CSS into their own stylesheets. Each library's `turbo.json` lists `$TURBO_ROOT$/packages/tokens/**` as a `build` input, so a token change still invalidates their cached builds.
 
 - **`persistent: true`** marks a task as a server that never exits. Turbo keeps it alive and shows its output together with the others. It also means stopping one persistent task stops the whole `pnpm dev` run.
 - **`cache: false`** stops Turbo from replaying an old result for a dev server, which would be meaningless.
@@ -249,7 +256,7 @@ This starts the shell and its dependencies' builds, but not the todo MFE. The sh
 
 | Symptom | Cause and fix |
 |---|---|
-| The dev server exits with a port error | `5173` or `5174` is already in use. The ports are `strictPort`, so the server exits instead of moving. Free the port. |
+| The dev server exits with a port error | `5173`, `5174` or `5175` is already in use. The ports are `strictPort`, so the server exits instead of moving. Free the port. |
 | Stopping one process stopped everything | Expected: all `dev` tasks are persistent children of one Turbo run. |
 | An app cannot resolve `@repo/ui` | `packages/ui/dist` is missing. Run through `pnpm dev`, `build` or `typecheck`, which build ui first. |
 | An app shows old ui code or old ui types | ui has not been rebuilt since the change. `pnpm dev` keeps a watcher running for this. |

@@ -1,6 +1,8 @@
 # React components in Vue: the custom-element bridge
 
-The Vue MFE renders `@repo/ui`'s React components as `<t-*>` custom elements. This document covers:
+> **Status: being phased out.** The repo has moved to Option B (section 1): `@repo/ui-vue` is a native Vue library on the same tokens, and new Vue apps use it (see [design-system.md](design-system.md#52-the-vue-library)). The todo MFE still uses the bridge described here until it migrates; then `register.ts` and r2wc go away.
+
+The todo MFE renders `@repo/ui`'s React components as `<t-*>` custom elements. This document covers:
 - why the repo works this way ("Option A");
 - how a bridged element works;
 - the rules for passing props, events and content across the boundary;
@@ -24,7 +26,7 @@ For the tokens, Tailwind setup and component recipe, see [design-system.md](desi
 
 A design system serving a React shell and a Vue MFE can take one of two shapes. They are alternatives, not layers to combine.
 
-| | **A: one React library, bridged** (this repo) | **B: two native libraries** |
+| | **A: one React library, bridged** (the starting point) | **B: two native libraries** (where the repo is going) |
 |---|---|---|
 | Packages | `packages/ui`: React + Radix + Tailwind | a React library (Radix) and a Vue library (Reka UI), sharing the tokens |
 | Implementations per component | one | two |
@@ -40,7 +42,9 @@ A design system serving a React shell and a Vue MFE can take one of two shapes. 
 | many complex inputs and overlays are coming, or many Vue MFEs | B |
 | unsure | start with A; add a Vue library only when the bridge starts to hurt |
 
-**Why A here.** The component set is small, and A keeps one implementation of each component. It also builds on the custom-element bridge the skeleton had already proved.
+**Why A first.** The component set was small, and A kept one implementation of each component. It also built on the custom-element bridge the skeleton had already proved.
+
+**Why B now.** Layout components hold children, which can't cross the bridge, and Vue apps want slots and `v-model`. The repo now has two libraries, `@repo/ui` and `@repo/ui-vue`, on the shared `@repo/tokens`, with identical variant class strings so they still look the same.
 
 **Why it is cheap to reverse.**
 - **Same foundations.** The tokens and the Tailwind setup are the same in both designs.
@@ -124,7 +128,7 @@ r2wc passes one extra prop to every component: `container`, the element itself. 
 
 Text and other content go through props. In light DOM, React replaces the element's child nodes, so anything placed between the tags is never shown. Components therefore accept visible text as a prop.
 
-For the same reason, components whose job is to hold children (the layout components) are React-only and are not registered here. Vue lays out with its own markup and CSS (see [design-system.md](design-system.md#51-layout-components)).
+For the same reason, components whose job is to hold children (the layout components) are not registered here. Vue apps use them natively from `@repo/ui-vue` (see [design-system.md](design-system.md#52-the-vue-library)).
 
 ### 4.6 `v-model`
 

@@ -233,7 +233,7 @@ Only the remote sets it. The host only needs to know the final URL, which includ
 
 ## 7. The host component that ties it together
 
-The shell's host component (`apps/shell/src/TodoMfeHost.tsx`) is where the federation import is actually used. In order:
+The shell builds one host component per remote with `createRemoteHost(load, basePath, appName)` (`apps/shell/src/RemoteMfeHost.tsx`). Each remote's small host file (for example `TodoMfeHost.tsx`) passes it the federation import, `() => import('todo/mount')`, which is where that import is actually used. In order, the host component does this:
 
 1. **`React.lazy` wraps the import**, so the remote is requested only the first time the route renders, not when the shell starts. `React` caches the result, so later visits reuse it.
 2. **`Suspense`** shows a loading fallback while the import is in flight.
@@ -241,7 +241,7 @@ The shell's host component (`apps/shell/src/TodoMfeHost.tsx`) is where the feder
 4. **An empty container element** is rendered once the import has resolved. React owns that element but nothing inside it.
 5. **`useEffect` calls `mount(container, props)`** after React has put the container in the page, and **returns the unmount function as its cleanup**. React then tears the MFE down automatically when the route changes.
 
-The rule behind steps 4 and 5: the shell hands the remote a DOM node and a function signature, and nothing else. It never imports Vue or any MFE source. To add another MFE, copy this pattern (see "Adding another microfrontend" in the [README](../README.md)).
+The rule behind steps 4 and 5: the shell hands the remote a DOM node and a function signature, and nothing else. It never imports Vue or any MFE source. To add another MFE, create its host with the same factory (see "Adding another microfrontend" in the [README](../README.md)).
 
 ## 8. Common mistakes and how they show up
 
