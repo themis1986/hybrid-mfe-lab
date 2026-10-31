@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
   // Build-time settings: where each remote's entry is served from.
   const todoRemoteUrl = env.VITE_TODO_REMOTE_URL || 'http://localhost:5174/remoteEntry.js'
   const uiVueDocsRemoteUrl = env.VITE_UI_VUE_DOCS_REMOTE_URL || 'http://localhost:5175/remoteEntry.js'
+  const uiReactDocsRemoteUrl = env.VITE_UI_REACT_DOCS_REMOTE_URL || 'http://localhost:5176/remoteEntry.js'
 
   return {
     plugins: [
@@ -18,6 +19,7 @@ export default defineConfig(({ mode }) => {
         remotes: {
           todo: { type: 'module', name: 'todo', entry: todoRemoteUrl },
           uiVueDocs: { type: 'module', name: 'uiVueDocs', entry: uiVueDocsRemoteUrl },
+          uiReactDocs: { type: 'module', name: 'uiReactDocs', entry: uiReactDocsRemoteUrl },
         },
         // Nothing shared yet (see README).
         shared: {},

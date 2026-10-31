@@ -1,4 +1,5 @@
 import { TODO_BASE_PATH } from './TodoMfeHost'
+import { UI_REACT_DOCS_BASE_PATH } from './UiReactDocsHost'
 import { UI_VUE_DOCS_BASE_PATH } from './UiVueDocsHost'
 
 // The sidebar menu. Every sub-application (a Vue or React microfrontend) gets an entry here, plus its
@@ -13,8 +14,6 @@ export interface NavItem {
   group: NavGroup
   tech: Tech
 }
-
-export const UI_DOCS_PATH = '/ui-docs'
 
 export const NAV_GROUPS: { id: NavGroup; label: string }[] = [
   { id: 'apps', label: 'Applications' },
@@ -31,8 +30,8 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     label: 'React UI docs',
-    to: UI_DOCS_PATH,
-    description: 'Every @repo/ui component with a live example, its usage and its props.',
+    to: UI_REACT_DOCS_BASE_PATH,
+    description: 'Every @repo/ui component, documented by a React microfrontend: examples, usage and props.',
     group: 'developer',
     tech: 'react',
   },

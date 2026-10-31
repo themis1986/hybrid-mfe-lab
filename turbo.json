@@ -4,7 +4,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "env": ["VITE_TODO_REMOTE_URL", "VITE_UI_VUE_DOCS_REMOTE_URL"],
+      "env": ["VITE_TODO_REMOTE_URL", "VITE_UI_VUE_DOCS_REMOTE_URL", "VITE_UI_REACT_DOCS_REMOTE_URL"],
       "outputs": ["dist/**"]
     },
     "typecheck": {

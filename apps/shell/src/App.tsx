@@ -2,12 +2,11 @@ import { TAppShell, TAppShellHeader, TAppShellMain, TAppShellSidebar, TContainer
 import { Route, Routes } from 'react-router'
 import { HomePage } from './HomePage'
 import { Logo } from './Logo'
-import { UI_DOCS_PATH } from './navigation'
 import { Sidebar } from './Sidebar'
-import { TODO_BASE_PATH, TodoMfeHost } from './TodoMfeHost'
-import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './UiVueDocsHost'
 import { ThemeSwitch } from './ThemeSwitch'
-import { UiDocsPage } from './ui-docs/UiDocsPage'
+import { TODO_BASE_PATH, TodoMfeHost } from './TodoMfeHost'
+import { UI_REACT_DOCS_BASE_PATH, UiReactDocsHost } from './UiReactDocsHost'
+import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './UiVueDocsHost'
 
 export function App() {
   return (
@@ -32,8 +31,8 @@ export function App() {
               </TContainer>
             }
           />
-          <Route path={UI_DOCS_PATH} element={<UiDocsPage />} />
-          {/* The Vue docs microfrontend lays out its own page. */}
+          {/* The docs microfrontends lay out their own pages. */}
+          <Route path={`${UI_REACT_DOCS_BASE_PATH}/*`} element={<UiReactDocsHost />} />
           <Route path={`${UI_VUE_DOCS_BASE_PATH}/*`} element={<UiVueDocsHost />} />
         </Routes>
       </TAppShellMain>
