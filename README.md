@@ -113,9 +113,11 @@ Vue can't render React components, so `@repo/ui` ships three entry points:
 |---|---|---|
 | `@repo/ui` | React apps | the `T`-prefixed React components |
 | `@repo/ui/styles.css` | React apps | the design system's stylesheet: tokens + the Tailwind utilities the components use (no Preflight) |
+| `@repo/ui/theme.css` | apps running Tailwind | the token → utility theme (`@theme inline`), so an app's own utilities use the same tokens. It points at the source file on purpose: it is Tailwind input, not built output |
 | `@repo/ui/register` | any framework | injects that stylesheet as one `<style>` and defines each component as a `t-*` custom element with `@r2wc/react-to-web-component` |
 
-The shell imports `@repo/ui/styles.css` once, in `main.tsx`. The MFE imports `@repo/ui/register` once, in
+The shell imports `@repo/ui/styles.css` once, in `main.tsx`, followed by its own Tailwind stylesheet
+(`src/index.css`: theme and utilities, no Preflight, plus `@repo/ui/theme.css`). The MFE imports `@repo/ui/register` once, in
 `mount.ts`, and then uses the `t-*` tags in its Vue templates like native elements. A component `T<Name>`
 becomes the tag `<t-<name>>`.
 
@@ -166,7 +168,8 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 4. In the shell:
    - add the remote to `remotes` in `apps/shell/vite.config.ts` (with its own `VITE_*_REMOTE_URL` variable);
    - declare its module in `apps/shell/src/remotes.d.ts`;
-   - add a route with a host component (copy `TodoMfeHost`, or make it generic over the loader and base path).
+   - add a route with a host component (copy `TodoMfeHost`, or make it generic over the loader and base path);
+   - add its entry to the sidebar menu config (`apps/shell/src/navigation.ts`).
 5. Turborepo picks up the new app's `dev`, `build`, `typecheck` and `preview` tasks automatically.
 
 ## Versions

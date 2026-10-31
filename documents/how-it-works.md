@@ -108,6 +108,7 @@ React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `
 |---|---|---|
 | shell (React) | `import { … } from '@repo/ui'` | The plain React components, rendered by the shell's own React. |
 | shell (React) | `import '@repo/ui/styles.css'` (once, in `main.tsx`) | The stylesheet, bundled into the shell's CSS. |
+| shell (React) | `@import '@repo/ui/theme.css'` (in its own `src/index.css`) | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens. |
 | todo-mfe (Vue) | `import '@repo/ui/register'` | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
 
 `"sideEffects": ["./dist/register.js", "./dist/styles.css"]` tells bundlers that these bare imports must not be tree-shaken away, even though they export nothing.

@@ -24,7 +24,8 @@ Everything is in one package, `packages/ui`. There is one implementation of each
 ```
 packages/ui/src/
   styles/tokens.css    design tokens: plain CSS custom properties (--t-*)
-  styles/index.css     the library stylesheet: Tailwind (no Preflight) + tokens + the token → utility bridge
+  styles/index.css     the library stylesheet: Tailwind (no Preflight) + tokens + theme.css
+  styles/theme.css     the token → utility bridge (@theme inline), also exported for apps that run Tailwind
   lib/cn.ts            class-name helper (clsx + tailwind-merge)
   lib/layout.ts        shared variants (gap, padding, alignment) and the style-merge helper of the layout components
   components/T<Name>/  one folder per component: T<Name>.tsx, T<Name>.variants.ts, types.ts, index.ts
@@ -129,7 +130,7 @@ Components contain no `dark:` classes. They switch automatically because the tok
 
 **Imports the tokens** into `layer(base)` (see [section 3.4](#34-re-theming)).
 
-**Bridges tokens to utilities** with `@theme inline`:
+**Bridges tokens to utilities** with `@theme inline`, kept in its own file, `styles/theme.css`, so apps running Tailwind can import the same bridge (see [section 7](#7-one-stylesheet-two-deliveries)):
 
 ```css
 @theme inline {
@@ -214,6 +215,13 @@ The Vue compiler treats every `t-*` tag as a custom element (`isCustomElement` i
 | React host (the shell) | `import '@repo/ui/styles.css'` once, in its entry | `index.ts` imports `styles/index.css`; Vite library mode extracts it to `dist/styles.css` (`build.lib.cssFileName: 'styles'`) and removes the import from the JavaScript. |
 | Custom-element host (the MFE) | nothing to do: `import '@repo/ui/register'` brings it | `register.ts` imports `styles/index.css?inline`, a string compiled by the same Tailwind plugin, and writes it into one `<style>` before defining any element. |
 
+An app that runs **its own Tailwind** (the shell does) also imports `@repo/ui/theme.css` into its Tailwind stylesheet:
+- its own utilities (`bg-surface`, `text-fg-muted`, …) then resolve to the same tokens, and off-system colours don't exist there either;
+- it skips Preflight for the same reason the library does: microfrontends render inside its page;
+- it loads after `@repo/ui/styles.css`. Utilities that both builds generate are identical, so the duplicates are harmless.
+
+The export points at the source file, not `dist/`: it is input for the consumer's Tailwind, which needs the `@theme` source, not compiled CSS. It carries only the bridge; tokens and the components' utilities still come from `styles.css`.
+
 Why the custom-element path can't just use the CSS file is explained in [react-components-in-vue.md](react-components-in-vue.md#5-styles-across-the-boundary).
 
 Build details:
@@ -236,7 +244,7 @@ Build details:
 
 ## 9. Things worth knowing
 
-- **Only classes used in `packages/ui/src` exist.** The apps don't run Tailwind, so a Tailwind class written in an app's own markup does nothing. React apps lay out with the layout components; other app layout uses the app's own CSS. The same applies to a caller's `className`: it can only override with a class that already exists in the stylesheet.
+- **Which classes exist depends on the host.** In an app that runs Tailwind with `@repo/ui/theme.css` (the shell), any utility works, in its own markup and in a `className` passed to a component. In an app that doesn't (the MFE), only classes used in `packages/ui/src` exist, so a class in its own markup, or in a `className`, does nothing unless the library happens to use it. That app lays out with its own CSS.
 - **The scanner reads words, not code.** Any word in `src` that happens to be a utility name produces that utility, for example a variant key that is also a utility name. This is harmless (a few unused rules) but explains surprises in `dist/styles.css`.
 - **`transition-colors` includes `outline-color`.** A focus ring therefore fades in over the transition duration rather than appearing instantly.
 - **Fonts are system stacks.** A web font would need its files served from somewhere both the shell and a federated remote can reach. `url()`s in the inlined CSS resolve against the *page*, not the remote. Decide the hosting before adding one.

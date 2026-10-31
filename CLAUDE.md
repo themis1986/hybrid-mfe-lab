@@ -79,7 +79,8 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - `src/styles/index.css` imports Tailwind's `theme.css` and `utilities.css` **without Preflight** (a library must not reset its host page), imports the tokens into `layer(base)`, and maps tokens to utilities with `@theme inline`. `--color-*: initial` removes Tailwind's default palette; only token colours exist.
 - Radius, font, shadow and easing reuse Tailwind's standard names so `tailwind-merge` works without config. Keep it that way, or extend tailwind-merge.
 - Components: native element + Radix `Slot` (`asChild`), or a Radix primitive for real behaviour; variants with `cva`; classes merged with `cn` (`src/lib/cn.ts`). Without Preflight, base classes must reset UA defaults themselves.
-- Only classes used inside `packages/ui/src` exist; the apps don't run Tailwind.
+- `src/styles/theme.css` holds the `@theme inline` bridge, imported by `index.css` and exported as `@repo/ui/theme.css`. That export points at source on purpose (Tailwind input, not built output).
+- The shell runs its own Tailwind (`apps/shell/src/index.css`): theme + utilities **without Preflight** (MFEs render inside its page), plus `@repo/ui/theme.css`, so the same token utilities exist there. It loads after `@repo/ui/styles.css`. The MFE doesn't run Tailwind: only classes used inside `packages/ui/src` exist there.
 - Layout components are React-only: never custom elements (children can't cross the bridge). They hold no state (collapsing and the like is a caller-controlled prop) and are intrinsically responsive (flex-wrap, auto-fit, `min(100%, …)`), with no viewport breakpoints except the page-level app frame's one `max-md:`. Shared variants live in `src/lib/layout.ts`; a root restyles its parts only through direct-child `data-slot` selectors.
 - Layout tokens (`--t-container-*`, `--t-layout-*`) are not mapped into `@theme` (Tailwind's `--container-*` also drives `@container`); components use `max-w-(--t-…)`. Spacing and type use Tailwind's scale.
 
@@ -114,4 +115,4 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 
 Follow the steps in README.md ("Adding another microfrontend"):
 1. A new `apps/<name>` exposing the same `mount` contract, with a unique federation `name` and a fixed port.
-2. In the shell: a `remotes` entry with its own `VITE_*_REMOTE_URL` variable, a declaration in `remotes.d.ts`, and a route with a host component modeled on `TodoMfeHost`.
+2. In the shell: a `remotes` entry with its own `VITE_*_REMOTE_URL` variable, a declaration in `remotes.d.ts`, a route with a host component modeled on `TodoMfeHost`, and an entry in the sidebar menu config (`apps/shell/src/navigation.ts`).
