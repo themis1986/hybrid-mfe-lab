@@ -1,0 +1,6 @@
+export { default as TAppShell } from './TAppShell.vue'
+export { default as TAppShellHeader } from './TAppShellHeader.vue'
+export { default as TAppShellSidebar } from './TAppShellSidebar.vue'
+export { default as TAppShellMain } from './TAppShellMain.vue'
+export { default as TAppShellFooter } from './TAppShellFooter.vue'
+export type { TAppShellFooterProps, TAppShellHeaderProps, TAppShellMainProps, TAppShellProps, TAppShellSidebarProps } from './types'

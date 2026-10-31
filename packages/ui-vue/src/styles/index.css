@@ -1,0 +1,27 @@
+/*
+ * The library stylesheet, built to dist/styles.css: import '@repo/ui-vue/styles.css' once.
+ * Same setup as @repo/ui's, on the same tokens, so both libraries look the same.
+ */
+@layer theme, base, components, utilities;
+
+/* No Preflight: a component library must not reset the page it is loaded into. */
+@import 'tailwindcss/theme.css' layer(theme);
+/* Only scan this package's src/ (.vue and .ts) for class names. */
+@import 'tailwindcss/utilities.css' layer(utilities) source('..');
+
+/* Layered, so a host can re-theme by overriding --t-* in plain (unlayered) CSS. */
+@import '@repo/tokens/tokens.css' layer(base);
+
+/* Tailwind bridge: utilities resolve to the semantic tokens (bg-accent, text-fg, rounded-md, ...). */
+@import '@repo/tokens/theme.css';
+
+/* Applies the tokens to the page itself. */
+@layer base {
+  body {
+    font-family: var(--t-font-sans);
+    background-color: var(--t-color-canvas);
+    color: var(--t-color-fg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

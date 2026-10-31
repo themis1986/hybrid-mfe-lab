@@ -1,0 +1,14 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      // @repo/tokens has no build task, so its CSS (compiled into dist/styles.css) is listed as an input.
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "$TURBO_ROOT$/packages/tokens/**"]
+    },
+    "dev": {
+      // Start the watcher only after the initial build (which also emits the .d.ts files).
+      "dependsOn": ["build"]
+    }
+  }
+}

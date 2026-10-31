@@ -1,0 +1,5 @@
+export { default as TCard } from './TCard.vue'
+export { default as TCardHeader } from './TCardHeader.vue'
+export { default as TCardBody } from './TCardBody.vue'
+export { default as TCardFooter } from './TCardFooter.vue'
+export type { TCardBodyProps, TCardFooterProps, TCardHeaderProps, TCardProps } from './types'
