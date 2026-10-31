@@ -1,22 +1,33 @@
-import { TButton, type TButtonProps } from '@repo/ui'
-import { useState } from 'react'
-
-const variants: NonNullable<TButtonProps['variant']>[] = ['solid', 'soft', 'outline', 'ghost', 'danger']
+import { TButton, TCard, TCardBody, TCardFooter, TCardHeader, TContainer, TGrid, TPageHeader, TStack } from '@repo/ui'
+import { Link } from 'react-router'
+import { NAV_ITEMS } from './navigation'
+import { TechTag } from './TechTag'
 
 export function HomePage() {
-  const [clicks, setClicks] = useState(0)
-  const increment = () => setClicks((n) => n + 1)
-
   return (
-    <>
-      <h1>Home</h1>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-        {variants.map((variant) => (
-          <TButton key={variant} label={`React ${variant}`} variant={variant} onClick={increment} />
-        ))}
-        <TButton label="React disabled" disabled onClick={increment} />
-      </div>
-      <p>Clicked {clicks} times</p>
-    </>
+    <TContainer className="py-8">
+      <TStack gap={6}>
+        <TPageHeader
+          title="Welcome to The L@b"
+          description="A microfrontends playground: a React shell hosting sub-applications built in Vue or React, on one design system."
+        />
+        <TGrid minChildWidth="16rem" gap={4}>
+          {NAV_ITEMS.map((item) => (
+            <TCard key={item.to} variant="elevated">
+              <TCardHeader>
+                <h2>{item.label}</h2>
+                <TechTag tech={item.tech} />
+              </TCardHeader>
+              <TCardBody className="text-sm text-fg-muted">{item.description}</TCardBody>
+              <TCardFooter>
+                <TButton asChild size="sm" variant="soft">
+                  <Link to={item.to}>Open</Link>
+                </TButton>
+              </TCardFooter>
+            </TCard>
+          ))}
+        </TGrid>
+      </TStack>
+    </TContainer>
   )
 }
