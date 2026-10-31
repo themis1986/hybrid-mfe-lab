@@ -8,6 +8,7 @@ import ContainerDemo from './demos/ContainerDemo.vue'
 import DividerDemo from './demos/DividerDemo.vue'
 import FieldDemo from './demos/FieldDemo.vue'
 import GridDemo from './demos/GridDemo.vue'
+import IconDemo from './demos/IconDemo.vue'
 import InlineDemo from './demos/InlineDemo.vue'
 import InputDemo from './demos/InputDemo.vue'
 import PageHeaderDemo from './demos/PageHeaderDemo.vue'
@@ -18,8 +19,9 @@ import SidebarLayoutDemo from './demos/SidebarLayoutDemo.vue'
 import SpacerDemo from './demos/SpacerDemo.vue'
 import SplitDemo from './demos/SplitDemo.vue'
 import StackDemo from './demos/StackDemo.vue'
+import SwitchDemo from './demos/SwitchDemo.vue'
 
-export type DocGroupId = 'actions' | 'primitives' | 'surfaces' | 'app'
+export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'app'
 
 export interface DocProp {
   name: string
@@ -44,6 +46,11 @@ export interface DocEntry {
 
 export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[] = [
   { id: 'actions', label: 'Actions & inputs', description: 'Buttons and form controls.' },
+  {
+    id: 'icons',
+    label: 'Icons',
+    description: "The design system's icon set (Lucide), imported from '@repo/ui-vue/icons'.",
+  },
   {
     id: 'primitives',
     label: 'Layout primitives',
@@ -154,6 +161,47 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: FieldDemo,
     code: `<TField v-model="email" label="Email" description="We never share it." />
 <TField v-model="username" label="Username" :error="error" />`,
+  },
+  {
+    id: 'switch',
+    name: 'TSwitch',
+    group: 'actions',
+    summary: 'An on/off toggle (Reka Switch): a <button role="switch">. Name it with a wrapping <label> or aria-label.',
+    props: [
+      { name: 'v-model', type: 'boolean', description: 'The state (modelValue / update:modelValue).' },
+      { name: 'defaultValue', type: 'boolean', default: 'false', description: 'Initial state when no v-model is bound.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Track and thumb size.' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'Native disabled; not focusable or togglable.' },
+      { name: 'name / value / required', type: 'string / string / boolean', description: 'Form submission, as a checkbox would.' },
+      ...asProps('button'),
+    ],
+    events: [{ name: 'update:modelValue', payload: 'boolean', description: 'When the user toggles it (v-model).' }],
+    demo: SwitchDemo,
+    code: `<TSwitch v-model="enabled" aria-label="Notifications" />
+<label>
+  <TSwitch :default-value="true" size="sm" /> Remember me
+</label>`,
+  },
+
+  // Icons
+  {
+    id: 'icon',
+    name: 'TIcon',
+    group: 'icons',
+    summary:
+      'Renders one Lucide icon at a design-system size, in the current text colour. Decorative unless it has a label.',
+    props: [
+      { name: 'icon', type: 'Component', description: "The icon, imported from '@repo/ui-vue/icons'. Required." },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: '16, 20 or 24px.' },
+      { name: 'label', type: 'string', description: 'Accessible name (role="img"). Without it the icon is aria-hidden.' },
+      { name: '…attributes', type: 'SVG attributes', description: 'stroke-width, class (text-* tints it), …' },
+    ],
+    demo: IconDemo,
+    code: `import { TIcon } from '@repo/ui-vue'
+import { Search, TriangleAlert } from '@repo/ui-vue/icons'
+
+<TIcon :icon="Search" size="sm" />
+<TIcon :icon="TriangleAlert" label="Warning" class="text-danger" />`,
   },
 
   // Layout primitives

@@ -93,7 +93,8 @@ export function UiDocsPage() {
               components, built on design tokens, Tailwind and Radix.
             </span>
             <Code label="Setup">{`import '@repo/ui/styles.css'
-import { TButton, TStack } from '@repo/ui'`}</Code>
+import { TButton, TIcon, TStack } from '@repo/ui'
+import { Search } from '@repo/ui/icons'`}</Code>
             <TCluster gap={4} className="text-fg-muted">
               <span>Spacing props take steps 0–8: 0, 4, 8, 12, 16, 24, 32, 48, 64px.</span>
               <span>A className you pass wins over the component's own classes.</span>

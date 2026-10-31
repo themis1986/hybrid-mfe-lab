@@ -15,7 +15,8 @@ import CodeBlock from './components/CodeBlock.vue'
 import DocEntry from './components/DocEntry.vue'
 
 const setup = `import '@repo/ui-vue/styles.css'
-import { TButton, TStack } from '@repo/ui-vue'
+import { TButton, TIcon, TStack } from '@repo/ui-vue'
+import { Search } from '@repo/ui-vue/icons'
 
 // Each Vue app on a shared page sets its own id prefix (field ids use useId()).
 app.config.idPrefix = 'my-app'`

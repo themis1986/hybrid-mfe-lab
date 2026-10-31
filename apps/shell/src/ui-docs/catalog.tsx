@@ -15,6 +15,7 @@ import {
   TDivider,
   TField,
   TGrid,
+  TIcon,
   TInline,
   TInput,
   TPageHeader,
@@ -27,10 +28,12 @@ import {
   TSpacer,
   TSplit,
   TStack,
+  TSwitch,
 } from '@repo/ui'
-import type { ReactNode } from 'react'
+import { Bell, Check, Heart, Info, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
+import { type ReactNode, useState } from 'react'
 
-export type DocGroupId = 'actions' | 'primitives' | 'surfaces' | 'app'
+export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'app'
 
 export interface DocProp {
   name: string
@@ -56,6 +59,11 @@ export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[
     id: 'actions',
     label: 'Actions & inputs',
     description: 'Buttons and form controls.',
+  },
+  {
+    id: 'icons',
+    label: 'Icons',
+    description: "The design system's icon set (Lucide), imported from '@repo/ui/icons'.",
   },
   {
     id: 'primitives',
@@ -110,6 +118,27 @@ function Block({ children, className = '' }: { children?: ReactNode; className?:
 
 function Tag({ children }: { children: ReactNode }) {
   return <span className="rounded-full border border-accent-line px-2.5 py-0.5 text-xs text-accent-fg">{children}</span>
+}
+
+function SwitchDemo() {
+  const [on, setOn] = useState(true)
+
+  return (
+    <TCluster gap={6}>
+      <label className="inline-flex items-center gap-2 text-sm">
+        <TSwitch checked={on} onCheckedChange={setOn} />
+        Controlled: {on ? 'on' : 'off'}
+      </label>
+      <label className="inline-flex items-center gap-2 text-sm">
+        <TSwitch size="sm" />
+        Small, uncontrolled
+      </label>
+      <label className="inline-flex items-center gap-2 text-sm text-fg-muted">
+        <TSwitch disabled defaultChecked />
+        Disabled
+      </label>
+    </TCluster>
+  )
 }
 
 export const DOC_ENTRIES: DocEntry[] = [
@@ -190,6 +219,66 @@ export const DOC_ENTRIES: DocEntry[] = [
     ),
     code: `<TField label="Email" description="We never share it." value={email} onChange={onChange} />
 <TField label="Username" error={error} />`,
+  },
+  {
+    id: 'switch',
+    name: 'TSwitch',
+    group: 'actions',
+    summary: 'An on/off toggle (Radix Switch): a <button role="switch">. Name it with a wrapping <label> or aria-label.',
+    props: [
+      { name: 'checked', type: 'boolean', description: 'Controlled state; pair it with onCheckedChange.' },
+      { name: 'defaultChecked', type: 'boolean', default: 'false', description: 'Initial state when uncontrolled.' },
+      { name: 'onCheckedChange', type: '(checked: boolean) => void', description: 'Called when the user toggles it.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Track and thumb size.' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'Native disabled; not focusable or togglable.' },
+      { name: 'name / value / required', type: 'string / string / boolean', description: 'Form submission, as a checkbox would.' },
+      asChildProp,
+    ],
+    demo: <SwitchDemo />,
+    code: `<TSwitch checked={enabled} onCheckedChange={setEnabled} aria-label="Notifications" />
+<label>
+  <TSwitch defaultChecked size="sm" /> Remember me
+</label>`,
+  },
+
+  // Icons
+  {
+    id: 'icon',
+    name: 'TIcon',
+    group: 'icons',
+    summary:
+      'Renders one Lucide icon at a design-system size, in the current text colour. Decorative unless it has a label.',
+    props: [
+      { name: 'icon', type: 'LucideIcon', description: "The icon, imported from '@repo/ui/icons'. Required." },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: '16, 20 or 24px.' },
+      { name: 'label', type: 'string', description: 'Accessible name (role="img"). Without it the icon is aria-hidden.' },
+      { name: '…svg props', type: 'LucideProps', description: 'strokeWidth, className (text-* tints it), …' },
+    ],
+    demo: (
+      <TStack gap={4}>
+        <TCluster gap={4} className="text-fg">
+          {Object.entries({ Search, Bell, Settings, Star, Heart, Check, Info }).map(([name, icon]) => (
+            <TIcon key={name} icon={icon} label={name} />
+          ))}
+        </TCluster>
+        <TCluster gap={4}>
+          <TIcon icon={Star} size="sm" />
+          <TIcon icon={Star} size="md" />
+          <TIcon icon={Star} size="lg" />
+          <TIcon icon={TriangleAlert} className="text-danger" label="Warning" />
+          <TIcon icon={Heart} className="text-accent-fg" strokeWidth={2.5} />
+          <TButton variant="soft">
+            <TIcon icon={Settings} size="sm" />
+            Settings
+          </TButton>
+        </TCluster>
+      </TStack>
+    ),
+    code: `import { TIcon } from '@repo/ui'
+import { Search, TriangleAlert } from '@repo/ui/icons'
+
+<TIcon icon={Search} size="sm" />
+<TIcon icon={TriangleAlert} label="Warning" className="text-danger" />`,
   },
 
   // Layout primitives
