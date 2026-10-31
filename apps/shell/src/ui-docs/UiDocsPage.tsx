@@ -83,7 +83,7 @@ export function UiDocsPage() {
       <TStack gap={6}>
         <TPageHeader
           title="React UI docs"
-          description="Every component of @repo/ui: a live example, how to use it and its props."
+          description="Every component of @repo/ui: a live example, how to use it and its props. The same components exist for Vue in @repo/ui-vue (see Vue UI docs)."
         />
 
         <TPanel tone="accent" title="Getting started">

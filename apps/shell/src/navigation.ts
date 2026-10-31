@@ -1,4 +1,5 @@
 import { TODO_BASE_PATH } from './TodoMfeHost'
+import { UI_VUE_DOCS_BASE_PATH } from './UiVueDocsHost'
 
 // The sidebar menu. Every sub-application (a Vue or React microfrontend) gets an entry here, plus its
 // route in App.tsx.
@@ -34,5 +35,12 @@ export const NAV_ITEMS: NavItem[] = [
     description: 'Every @repo/ui component with a live example, its usage and its props.',
     group: 'developer',
     tech: 'react',
+  },
+  {
+    label: 'Vue UI docs',
+    to: UI_VUE_DOCS_BASE_PATH,
+    description: 'Every @repo/ui-vue component, documented by a Vue microfrontend: examples, usage, props and slots.',
+    group: 'developer',
+    tech: 'vue',
   },
 ]

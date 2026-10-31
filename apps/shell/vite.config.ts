@@ -7,8 +7,9 @@ const port = 5173
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
-  // Build-time setting: where the todo remote's entry is served from.
+  // Build-time settings: where each remote's entry is served from.
   const todoRemoteUrl = env.VITE_TODO_REMOTE_URL || 'http://localhost:5174/remoteEntry.js'
+  const uiVueDocsRemoteUrl = env.VITE_UI_VUE_DOCS_REMOTE_URL || 'http://localhost:5175/remoteEntry.js'
 
   return {
     plugins: [
@@ -16,6 +17,7 @@ export default defineConfig(({ mode }) => {
         name: 'shell',
         remotes: {
           todo: { type: 'module', name: 'todo', entry: todoRemoteUrl },
+          uiVueDocs: { type: 'module', name: 'uiVueDocs', entry: uiVueDocsRemoteUrl },
         },
         // Nothing shared yet (see README).
         shared: {},
