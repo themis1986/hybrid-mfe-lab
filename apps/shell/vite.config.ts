@@ -1,4 +1,5 @@
 import { federation } from '@module-federation/vite'
+import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 
@@ -21,6 +22,7 @@ export default defineConfig(({ mode }) => {
         dts: false,
       }),
       react(),
+      tailwindcss(),
     ],
     server: { port, strictPort: true },
     preview: { port, strictPort: true },

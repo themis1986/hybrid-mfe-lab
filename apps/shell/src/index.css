@@ -1,0 +1,19 @@
+/*
+ * The shell's own Tailwind build: utilities for the shell's markup, on the same token theme as @repo/ui.
+ * The design system's tokens and its components' utilities come from '@repo/ui/styles.css' (main.tsx).
+ */
+@layer theme, base, components, utilities;
+
+/* No Preflight: microfrontends render inside this page and must keep their own styling. */
+@import 'tailwindcss/theme.css' layer(theme);
+/* Only scan the shell's src/ for class names. */
+@import 'tailwindcss/utilities.css' layer(utilities) source('.');
+
+/* The same token → utility mapping as the library (bg-surface, text-fg-muted, rounded-md, ...). */
+@import '@repo/ui/theme.css';
+
+@layer base {
+  body {
+    margin: 0;
+  }
+}
