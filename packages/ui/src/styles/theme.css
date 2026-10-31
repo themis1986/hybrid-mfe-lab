@@ -1,0 +1,43 @@
+/*
+ * The token → utility bridge, shared by every Tailwind build that uses the design system: this
+ * package's own stylesheet (index.css) and any app running Tailwind (`@import '@repo/ui/theme.css'`).
+ * Theme only: the tokens and the library's utilities reach a page through '@repo/ui/styles.css'.
+ */
+@theme inline {
+  /* Only token colours exist: Tailwind's default palette is cleared. */
+  --color-*: initial;
+
+  --color-canvas: var(--t-color-canvas);
+  --color-surface: var(--t-color-surface);
+  --color-fg: var(--t-color-fg);
+  --color-fg-muted: var(--t-color-fg-muted);
+  --color-line: var(--t-color-line);
+  --color-line-strong: var(--t-color-line-strong);
+
+  --color-accent: var(--t-color-accent);
+  --color-accent-hover: var(--t-color-accent-hover);
+  --color-accent-contrast: var(--t-color-accent-contrast);
+  --color-accent-subtle: var(--t-color-accent-subtle);
+  --color-accent-subtle-hover: var(--t-color-accent-subtle-hover);
+  --color-accent-subtle-active: var(--t-color-accent-subtle-active);
+  --color-accent-line: var(--t-color-accent-line);
+  --color-accent-fg: var(--t-color-accent-fg);
+
+  --color-danger: var(--t-color-danger);
+  --color-danger-hover: var(--t-color-danger-hover);
+  --color-danger-contrast: var(--t-color-danger-contrast);
+
+  --color-focus: var(--t-color-focus);
+
+  /* Standard Tailwind names, so tailwind-merge resolves conflicts without extra config. */
+  --radius-sm: var(--t-radius-sm);
+  --radius-md: var(--t-radius-md);
+  --radius-lg: var(--t-radius-lg);
+
+  --font-sans: var(--t-font-sans);
+  --font-mono: var(--t-font-mono);
+
+  --shadow-sm: var(--t-shadow-sm);
+
+  --ease-out: var(--t-ease-out);
+}
