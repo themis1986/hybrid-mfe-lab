@@ -124,6 +124,8 @@ r2wc passes one extra prop to every component: `container`, the element itself. 
 
 Text and other content go through props. In light DOM, React replaces the element's child nodes, so anything placed between the tags is never shown. Components therefore accept visible text as a prop.
 
+For the same reason, components whose job is to hold children (the layout components) are React-only and are not registered here. Vue lays out with its own markup and CSS (see [design-system.md](design-system.md#51-layout-components)).
+
 ### 4.6 `v-model`
 
 Vue's `v-model` doesn't work on custom elements. Wire it by hand from a value prop and a change event:

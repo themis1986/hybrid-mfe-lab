@@ -26,7 +26,8 @@ packages/ui/src/
   styles/tokens.css    design tokens: plain CSS custom properties (--t-*)
   styles/index.css     the library stylesheet: Tailwind (no Preflight) + tokens + the token → utility bridge
   lib/cn.ts            class-name helper (clsx + tailwind-merge)
-  T<Name>.tsx          one file per component
+  lib/layout.ts        shared variants (gap, padding, alignment) and the style-merge helper of the layout components
+  components/T<Name>/  one folder per component: T<Name>.tsx, T<Name>.variants.ts, types.ts, index.ts
   index.ts             entry ".":          the React components (and the stylesheet, for the build)
   register.ts          entry "./register": the stylesheet, injected + each component as a <t-*> custom element
   env.d.ts             Vite's types, for the .css and ?inline imports
@@ -64,6 +65,8 @@ The semantic roles fall into four groups:
 - **focus**: the focus-ring colour.
 
 A component asks for a *role* ("accent fill"), never a *colour* ("iris 9"). Swapping the brand colour is therefore a change to tier 2 only.
+
+Tier 2 also holds **layout sizes** that Tailwind's scale has no step for: container widths (`--t-container-*`) and the app-level sidebar and header sizes (`--t-layout-*`). Components read them with Tailwind's variable shorthand (`max-w-(--t-container-md)`). They are deliberately not mapped into `@theme`: Tailwind's `--container-*` names also drive its `@container` breakpoints. Spacing and type sizes have no tokens. They use Tailwind's own scale, like every other component.
 
 ### 3.2 The palette and why
 
@@ -173,6 +176,25 @@ const tNameVariants = cva('<base classes>', {
 - **Disabled uses the native attribute**, not `pointer-events: none`. A natively disabled button dispatches no click at all. With `pointer-events: none` the click falls through to whatever is underneath. In Vue that is the `<t-*>` host element, whose inline box spans the middle of the button and where Vue's listener sits, so a disabled component would still fire. Hover styles are scoped with `not-disabled:` instead.
 - **Text content also has a prop.** A custom element can't pass React children, so components that show text accept it as a prop, with `children` taking precedence in React.
 
+### 5.1 Layout components
+
+Layout components hold children, so they are **React-only**: they are never registered as custom elements, because children can't cross the bridge (see [react-components-in-vue.md](react-components-in-vue.md#45-content)). They follow the same recipe, with these additions.
+
+- **Stateless.** Anything that collapses or switches sides is a prop (a modifier class) that the caller controls.
+- **Intrinsic, not viewport-responsive.** A component can end up inside a microfrontend slot of unknown width, so it adapts to its *container*:
+  - `flex-wrap` with a basis or min-width;
+  - `repeat(auto-fit, minmax(min(100%, X), 1fr))`;
+  - `min(100%, X)` wherever a fixed minimum could overflow a narrow container.
+
+  No viewport breakpoints (`md:` and the like). The only exception is the page-level app frame, which uses one documented `max-md:` query, because it *is* the viewport.
+- **Shared scales.** Gap, padding and alignment props use the maps in `lib/layout.ts`, where steps 0–8 cover Tailwind's 0–64px spacing. Defaults go in `cva`'s `defaultVariants`. A caller's `className` wins through `cn`, as usual.
+- **Lengths from props** become CSS variables on the root when children or an expression use them, and plain inline styles otherwise. Either way they are merged into the caller's `style` (`withStyle`), never replace it.
+- **Parts and root modifiers.** A component with parts exports them from the same folder. When the root has to restyle a part (order, width), the part carries a `data-slot` attribute and the root targets only its direct children (`[&>[data-slot=…]]:…`). That keeps nested instances independent and needs no React context.
+- **`asChild` with internal structure.** When the component renders its own elements (a heading, a body wrapper) around the caller's content, use Radix `Slottable`:
+  - `<Slottable>{children}</Slottable>` puts the slotted element's children at that position;
+  - the render form `<Slottable child={children}>{(content) => …}</Slottable>` wraps them, so the content still lands inside the wrapper when the caller supplies the root element.
+- **Headings** set their margin, size, weight and line-height explicitly, so the heading level a caller chooses never changes the look.
+
 ## 6. Naming conventions
 
 | Thing | Pattern | Notes |
@@ -203,18 +225,18 @@ Build details:
 ## 8. Adding a component
 
 1. **Tokens.** If the component needs a role that doesn't exist yet, add `--t-color-<role>` to tier 2 in `tokens.css` (pointing at a primitive step with the right job), and its `--color-<role>` line to `@theme inline` in `index.css`.
-2. **Component.** Create `src/T<Name>.tsx`:
+2. **Component.** Create `src/components/T<Name>/` (`T<Name>.tsx`, `T<Name>.variants.ts`, `types.ts`, `index.ts`):
    - for behaviour, use a native element plus `Slot`, or the matching Radix primitive (install it as a ui `dependency` through the catalog);
    - write its variants with `cva`, using only token-backed utilities, and merge `className` through `cn`;
    - give any visible text a prop as well as `children`.
 3. **Export it.** Add `T<Name>` and `T<Name>Props` to `src/index.ts`.
-4. **Bridge it.** In `src/register.ts`, `define('t-<name>', r2wc(bridge(T<Name>), { props: { … } }))`. Declare every prop the custom element should accept, with its r2wc type. The bridge rules (booleans, events, content, compound components) are in [react-components-in-vue.md](react-components-in-vue.md#4-crossing-the-boundary).
+4. **Bridge it** (not for layout or other children-based components; see [section 5.1](#51-layout-components)). In `src/register.ts`, `define('t-<name>', r2wc(bridge(T<Name>), { props: { … } }))`. Declare every prop the custom element should accept, with its r2wc type. The bridge rules (booleans, events, content, compound components) are in [react-components-in-vue.md](react-components-in-vue.md#4-crossing-the-boundary).
 5. **New runtime dependency?** Add it to `external` in `packages/ui/vite.config.ts` as well.
 6. **Check** `pnpm build` and `pnpm typecheck`, then look at the component in the shell and in the MFE, in both colour schemes.
 
 ## 9. Things worth knowing
 
-- **Only classes used in `packages/ui/src` exist.** The apps don't run Tailwind, so a Tailwind class written in an app's own markup does nothing. App layout uses the app's own CSS.
+- **Only classes used in `packages/ui/src` exist.** The apps don't run Tailwind, so a Tailwind class written in an app's own markup does nothing. React apps lay out with the layout components; other app layout uses the app's own CSS. The same applies to a caller's `className`: it can only override with a class that already exists in the stylesheet.
 - **The scanner reads words, not code.** Any word in `src` that happens to be a utility name produces that utility, for example a variant key that is also a utility name. This is harmless (a few unused rules) but explains surprises in `dist/styles.css`.
 - **`transition-colors` includes `outline-color`.** A focus ring therefore fades in over the transition duration rather than appearing instantly.
 - **Fonts are system stacks.** A web font would need its files served from somewhere both the shell and a federated remote can reach. `url()`s in the inlined CSS resolve against the *page*, not the remote. Decide the hosting before adding one.

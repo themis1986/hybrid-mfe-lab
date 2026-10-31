@@ -80,6 +80,8 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Radius, font, shadow and easing reuse Tailwind's standard names so `tailwind-merge` works without config. Keep it that way, or extend tailwind-merge.
 - Components: native element + Radix `Slot` (`asChild`), or a Radix primitive for real behaviour; variants with `cva`; classes merged with `cn` (`src/lib/cn.ts`). Without Preflight, base classes must reset UA defaults themselves.
 - Only classes used inside `packages/ui/src` exist; the apps don't run Tailwind.
+- Layout components are React-only: never custom elements (children can't cross the bridge). They hold no state (collapsing and the like is a caller-controlled prop) and are intrinsically responsive (flex-wrap, auto-fit, `min(100%, …)`), with no viewport breakpoints except the page-level app frame's one `max-md:`. Shared variants live in `src/lib/layout.ts`; a root restyles its parts only through direct-child `data-slot` selectors.
+- Layout tokens (`--t-container-*`, `--t-layout-*`) are not mapped into `@theme` (Tailwind's `--container-*` also drives `@container`); components use `max-w-(--t-…)`. Spacing and type use Tailwind's scale.
 
 **`@repo/ui` is consumed from `dist/`, not source.**
 - Apps resolve it through the package `exports` (`dist/*.js` + `dist/*.d.ts` + `dist/styles.css`). A change in `packages/ui/src` reaches the apps only after a rebuild; `pnpm dev` keeps a watcher running for that.
