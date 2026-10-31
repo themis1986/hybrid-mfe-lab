@@ -90,7 +90,8 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Native events (e.g. `click`) just bubble out of the element. Don't map their React handlers (e.g. `onClick`) in r2wc `events`: it would dispatch a second event.
 - Disabled states use the native `disabled` attribute, never `pointer-events: none`: the click would land on the `t-*` host, where Vue's listener is.
 - Text and content must come through props: in light DOM, React replaces child nodes, so slots don't work. Light DOM (no shadow root) is deliberate: global CSS and Radix portals need it.
-- New custom elements go in `register.ts` through `define()`, which keeps the `customElements.get` guard. Layout components are never registered (children can't cross the bridge), and neither are components added since the move to two libraries: the bridge only keeps the todo MFE working until it migrates.
+- New custom elements go in `register.ts` through `define()`, which keeps the `customElements.get` guard. Components that need children are never registered (children can't cross the bridge), and the bridge only keeps the todo MFE working until it migrates, so register only what it needs.
+- A component that reports changes through a callback (not a native event) maps it in r2wc `events` (`onCheckedChange` → a `checkedchange` CustomEvent, value in `detail`). Hosts of elements that must be direct children of a flex or block parent (divider, spacer) get `display: contents` from the CSS string in `register.ts`.
 
 **Tokens (`packages/tokens`).**
 - CSS only, no build step: `tokens.css` and `theme.css`, exported as `@repo/tokens/tokens.css` and `@repo/tokens/theme.css`.

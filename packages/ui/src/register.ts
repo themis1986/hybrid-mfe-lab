@@ -4,6 +4,9 @@ import styles from './styles/index.css?inline'
 import { TButton } from './components/TButton'
 import { TField } from './components/TField'
 import { TInput } from './components/TInput'
+import { TSwitch } from './components/TSwitch'
+import { TDivider } from './components/TDivider'
+import { TSpacer } from './components/TSpacer'
 
 // Wraps the React components as custom elements so non-React apps (e.g. Vue) can use them:
 //   <t-button label="Save" variant="soft" @click="..."></t-button>
@@ -14,7 +17,9 @@ import { TInput } from './components/TInput'
 const STYLE_ID = 't-ui-styles'
 const style = document.getElementById(STYLE_ID) ?? document.head.appendChild(document.createElement('style'))
 style.id = STYLE_ID
-style.textContent = styles
+// A divider and a spacer only work as direct children of their flex or block parent, so their hosts
+// step out of the layout (`display: contents`). A class on the host itself then has no effect.
+style.textContent = `${styles}\nt-divider, t-spacer { display: contents; }`
 
 // r2wc passes the element itself as a `container` prop. Drop it, so components that spread their
 // props onto a DOM element don't render it as an attribute.
@@ -60,3 +65,25 @@ define(
     props: { ...inputProps, label: 'string', description: 'string', error: 'string' },
   }),
 )
+
+// The switch reports changes through a callback, not a native event: `onCheckedChange` becomes a
+// `checkedchange` CustomEvent whose `detail` is the new boolean. Bind `checked` and update it on that event
+// (`:checked="on" @checkedchange="on = $event.detail"`). Name it with `aria-label`.
+define(
+  't-switch',
+  r2wc(bridge(TSwitch), {
+    props: {
+      checked: 'boolean',
+      name: 'string',
+      size: 'string',
+      required: 'boolean',
+      disabled: 'boolean',
+      'aria-label': 'string',
+    },
+    events: { onCheckedChange: { bubbles: true } },
+  }),
+)
+
+// Content-free layout pieces: no children cross the bridge, so only these two are registered.
+define('t-divider', r2wc(bridge(TDivider), { props: { orientation: 'string' } }))
+define('t-spacer', r2wc(bridge(TSpacer)))
