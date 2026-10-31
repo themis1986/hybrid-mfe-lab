@@ -124,6 +124,7 @@ export function mount(el: HTMLElement, props: { basePath: string }): () => void
 | `@repo/tokens/theme.css` | any Tailwind build on the design system | the token → utility theme (`@theme inline`) |
 | `@repo/ui` + `@repo/ui/styles.css` | React apps | the `T`-prefixed React components and their stylesheet (tokens + utilities, no Preflight) |
 | `@repo/ui-vue` + `@repo/ui-vue/styles.css` | Vue apps | the same components natively in Vue, and their stylesheet |
+| `@repo/ui/icons`, `@repo/ui-vue/icons` | React / Vue apps | the icon set (Lucide), re-exported, so apps never depend on the icon package themselves |
 
 - The shell imports `@repo/ui/styles.css` once, in `main.tsx`, followed by its own Tailwind stylesheet
   (`src/index.css`: theme and utilities, no Preflight, plus `@repo/tokens/theme.css`).
@@ -131,6 +132,9 @@ export function mount(el: HTMLElement, props: { basePath: string }): () => void
   stylesheet, imports it with `?inline`, and injects it as a `<style>` while it is mounted. A federated remote
   can't count on its host or on the federation runtime to load a CSS file for it.
 - Both libraries use identical class strings for their variants, so they look the same; a change goes in both.
+- **Light and dark.** The page follows the OS until the shell sets `data-theme="light|dark"` on `<html>`. The tokens
+  hold both values (`light-dark()`), so the whole page switches, remotes included. The shell stores the choice and
+  applies it before the first paint.
 
 ### React UI inside Vue: the custom-element bridge (being phased out)
 
@@ -168,8 +172,10 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 
 ### Build details
 
-- `@repo/ui` is built with Vite library mode (ESM, entries `index` and `register`), and `tsc` emits its `.d.ts`
-  files. `@repo/ui-vue` is built the same way (entry `index`), with `vue-tsc` emitting the `.d.ts` files.
+- `@repo/ui` is built with Vite library mode (ESM, entries `index`, `icons` and `register`), and `tsc` emits its
+  `.d.ts` files. `@repo/ui-vue` is built the same way (entries `index` and `icons`), with `vue-tsc` emitting the
+  `.d.ts` files. The `icons` entries are bare re-exports of the external Lucide packages, so apps' builds keep only
+  the icons they import.
   Apps consume `dist/` through the package `exports`.
 - `@repo/tokens` has no build: each library's Tailwind compiles it into its `dist/styles.css`. Each library's
   `turbo.json` lists the tokens as a `build` input, so a token change invalidates the cached build.
@@ -213,8 +219,9 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 | @types/react(-dom) | 19.3.0 | | @r2wc/react-to-web-component | 2.1.1 |
 | @types/node | 22.20.5 | | tailwindcss / @tailwindcss/vite | 4.3.3 |
 | @radix-ui/react-slot | 1.5.0 | | class-variance-authority | 0.7.1 |
+| @radix-ui/react-switch | 1.4.1 | | reka-ui | 2.11.0 |
 | clsx | 2.1.1 | | tailwind-merge | 3.7.0 |
-| reka-ui | 2.11.0 | | | |
+| lucide-react | 1.65.0 | | @lucide/vue | 1.65.0 |
 
 ### Deviations from the original brief, and why
 

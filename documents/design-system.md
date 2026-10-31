@@ -32,6 +32,7 @@ packages/ui/src/       @repo/ui: React + Radix
   lib/layout.ts        shared variants (gap, padding, alignment) and the style-merge helper of the layout components
   components/T<Name>/  one folder per component: T<Name>.tsx, T<Name>.variants.ts, types.ts, index.ts
   index.ts             entry ".":          the React components (and the stylesheet, for the build)
+  icons.ts             entry "./icons":    the icon set, re-exported from lucide-react
   register.ts          entry "./register": the stylesheet, injected + each component as a <t-*> custom element
   env.d.ts             Vite's types, for the .css and ?inline imports
 
@@ -41,6 +42,7 @@ packages/ui-vue/src/   @repo/ui-vue: the same components natively in Vue, on Rek
   lib/attrs.ts         useRootAttrs(): merges the caller's class and style onto a component's root
   components/T<Name>/  T<Name>.vue (+ part SFCs), T<Name>.variants.ts (identical to ui's), types.ts, index.ts
   index.ts             entry ".": the Vue components (and the stylesheet, for the build)
+  icons.ts             entry "./icons": the icon set, re-exported from @lucide/vue
 ```
 
 Each component exists once per framework, and both implementations share the same class strings, so they look the same.
@@ -104,9 +106,12 @@ The scales are tuned with the APCA contrast model: text on steps 11–12 over th
 
 ### 3.3 Light and dark
 
-- **Tier 1 switches.** Light values sit on `:root`, and dark values sit in `@media (prefers-color-scheme: dark)`.
-- **Tier 2 mostly doesn't.** Because each step keeps its job in both themes, the semantic aliases stay the same. The only exception is the canvas: white in light mode, step 1 of the neutral in dark mode, as Radix recommends.
-- `:root` sets `color-scheme: light dark`, so native parts (scrollbars, default form controls, the page's default canvas) follow too.
+- **Tier 1 holds both values.** Each primitive is `light-dark(<light>, <dark>)`, and the `color-scheme` in effect picks one.
+- **Tier 2 mostly doesn't switch.** Because each step keeps its job in both themes, the semantic aliases stay the same. The only exception is the canvas: white in light mode, step 1 of the neutral in dark mode, as Radix recommends (also a `light-dark()` pair).
+- **Who chooses.** `:root` sets `color-scheme: light dark`, so the page follows the OS. A host forces a scheme by setting `data-theme="light"` or `"dark"` on `<html>`. Native parts (scrollbars, default form controls, the page's default canvas) follow too.
+- **The whole page switches.** Microfrontends render in the host's document and read the same `:root` tokens, so they switch with it; they need no theme code of their own.
+- **Page-level only.** Tailwind's CSS compiler (Lightning CSS) rewrites `light-dark()` into a fallback built on two variables set on `:root`. The tokens therefore resolve once, at the root: a `color-scheme` set on an inner element doesn't re-theme its subtree.
+- **The host owns the choice.** It stores it and applies it in a small inline `<head>` script, before the first paint, so the page never flashes the other scheme. Until the user chooses, nothing is stored and the page follows the OS.
 
 Components contain no `dark:` classes. They switch automatically because the tokens underneath them do.
 
@@ -225,6 +230,15 @@ Layout components hold children, so they are never registered as custom elements
 
 **The class strings are the contract.** Every `*.variants.ts`, and the maps in `lib/layout.ts`, are identical in both libraries; their built stylesheets contain the same utilities. Change a variant in both libraries, or they stop looking the same.
 
+### 5.3 Icons
+
+Both libraries use [Lucide](https://lucide.dev) (ISC): `lucide-react` and `@lucide/vue` are released together, with the same version and the same icon names, so the two libraries offer the same set.
+- **One import source.** Each library re-exports the whole set from its `./icons` entry (`export * from …`). Apps import icons from there and never depend on the Lucide packages themselves, so one catalog version keeps React and Vue in step. Keep both catalog ranges equal.
+- **Unused icons cost nothing.** The entry stays a bare re-export of an external package, so each app's production build keeps only the icons it imports.
+- **The icon component** takes the icon itself as a prop (a component, not a name) and maps the design-system sizes through `cva`. Colour is `currentColor`: an icon takes the surrounding text colour, and a `text-*` class tints it.
+- **Decorative by default.** Without an accessible name the icon is `aria-hidden`. With one, it renders `role="img"` and `aria-label`. Lucide hides an icon only when it receives no accessibility attribute, so the component sets one or the other explicitly.
+- **Vue typing.** The icon prop is typed as Vue's `Component`: `defineProps` can't turn Lucide's own type into a runtime prop.
+
 ## 6. Naming conventions
 
 | Thing | Pattern | Notes |
@@ -257,8 +271,8 @@ Why the custom-element path can't just use the CSS file is explained in [react-c
 Build details:
 - `@tailwindcss/vite` runs in each library's `vite.config.ts`. It compiles `.css` and `.css?inline` alike; it skips only `?raw`, `?url` and `?worker`.
 - In `vite build --watch`, Tailwind registers every scanned source file as a watch dependency. A new class in a `.tsx` file therefore rebuilds both `dist/styles.css` and the string inside `dist/register.js`.
-- `package.json` exports `./styles.css`, and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
-- Tailwind is a **devDependency** of each library. The runtime helpers (`@radix-ui/*` or `reka-ui`, `class-variance-authority`, `clsx`, `tailwind-merge`) are `dependencies` and are kept external in the library build, so each app bundles them, like the framework itself.
+- `package.json` exports `./styles.css` (and `./icons`), and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
+- Tailwind is a **devDependency** of each library. The runtime helpers (`@radix-ui/*` or `reka-ui`, the Lucide package, `class-variance-authority`, `clsx`, `tailwind-merge`) are `dependencies` and are kept external in the library build, so each app bundles them, like the framework itself.
 
 ## 8. Adding a component
 

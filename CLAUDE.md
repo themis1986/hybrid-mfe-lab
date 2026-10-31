@@ -74,8 +74,9 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - The todo MFE gets the `@repo/ui` stylesheet from `@repo/ui/register` (below).
 
 **React UI inside Vue (custom-element bridge, todo MFE only, being phased out).**
-- `@repo/ui` has two JS entries and a stylesheet:
+- `@repo/ui` has three JS entries and a stylesheet:
   - `.` exports the React components (`T<Name>`, `T<Name>Props`);
+  - `./icons` re-exports the icon set (see the libraries below);
   - `./styles.css` is the stylesheet; React hosts import it once (the shell does, in `main.tsx`);
   - `./register` injects the same stylesheet as one `<style id="t-ui-styles">`, then defines each component as a `t-<name>` custom element with `@r2wc/react-to-web-component`.
 - The todo MFE imports `@repo/ui/register` once (in `mount.ts`). Vue's `isCustomElement` treats `t-*` tags as custom elements (`apps/todo-mfe/vite.config.ts`), so `t-` is reserved for design-system elements in its templates.
@@ -85,11 +86,14 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Native events (e.g. `click`) just bubble out of the element. Don't map their React handlers (e.g. `onClick`) in r2wc `events`: it would dispatch a second event.
 - Disabled states use the native `disabled` attribute, never `pointer-events: none`: the click would land on the `t-*` host, where Vue's listener is.
 - Text and content must come through props: in light DOM, React replaces child nodes, so slots don't work. Light DOM (no shadow root) is deliberate: global CSS and Radix portals need it.
-- New custom elements go in `register.ts` through `define()`, which keeps the `customElements.get` guard. Layout components are never registered (children can't cross the bridge).
+- New custom elements go in `register.ts` through `define()`, which keeps the `customElements.get` guard. Layout components are never registered (children can't cross the bridge), and neither are components added since the move to two libraries: the bridge only keeps the todo MFE working until it migrates.
 
 **Tokens (`packages/tokens`).**
 - CSS only, no build step: `tokens.css` and `theme.css`, exported as `@repo/tokens/tokens.css` and `@repo/tokens/theme.css`.
-- `tokens.css`: primitives `--t-<hue>-<step>` (Radix Colors scales, light on `:root`, dark under `prefers-color-scheme`) and semantic `--t-color-<role>` etc. Components use semantic tokens only, via Tailwind utilities.
+- `tokens.css`: primitives `--t-<hue>-<step>` (Radix Colors scales, each a `light-dark(<light>, <dark>)` pair) and semantic `--t-color-<role>` etc. Components use semantic tokens only, via Tailwind utilities, and never `dark:` classes.
+- **Light/dark:** `:root { color-scheme: light dark }` follows the OS; `data-theme="light|dark"` on `<html>` forces a scheme for the whole page, remotes included.
+  - Lightning CSS compiles `light-dark()` into variables set on `:root`, so the scheme is page-level only: an inner element's `color-scheme` doesn't re-theme its subtree.
+  - The host owns the choice. The shell (`src/theme.ts`) stores it in `localStorage`, and an inline script in `index.html` applies it before the first paint; keep their storage keys in sync. Remotes have no theme code.
 - `theme.css`: the `@theme inline` bridge that maps tokens to utilities. `--color-*: initial` removes Tailwind's default palette; only token colours exist.
 - Radius, font, shadow and easing reuse Tailwind's standard names so `tailwind-merge` works without config. Keep it that way, or extend tailwind-merge.
 - Layout tokens (`--t-container-*`, `--t-layout-*`) are not mapped into `@theme` (Tailwind's `--container-*` also drives `@container`); components use `max-w-(--t-…)`. Spacing and type use Tailwind's scale.
@@ -100,6 +104,9 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Variants use `cva`; classes are merged with `cn` (`src/lib/cn.ts`). Without Preflight, base classes must reset UA defaults themselves.
 - **The class strings in each `*.variants.ts`, and `src/lib/layout.ts`'s maps, are identical in both libraries.** Change them in both, or the libraries stop looking the same.
 - React (`@repo/ui`): a native element plus Radix `Slot` (`asChild`), or a Radix primitive for real behaviour.
+- **Icons:** Lucide, the same release in both (`lucide-react` / `@lucide/vue`; keep their catalog ranges equal).
+  - Each library re-exports the whole set from its `./icons` entry (`src/icons.ts`, a bare `export *`), so apps import icons from `@repo/ui/icons` / `@repo/ui-vue/icons` and never add Lucide themselves. Unused icons are tree-shaken in the apps' builds.
+  - The icon component takes the icon component as a prop. It is decorative (`aria-hidden`) unless given an accessible name (`role="img"` + `aria-label`).
 - Vue (`@repo/ui-vue`):
   - SFCs with `<script setup>`, rooted on Reka `Primitive` (`as` + `asChild`), or a Reka component for real behaviour;
   - `inheritAttrs: false` plus `useRootAttrs()` (`src/lib/attrs.ts`) merge the caller's class through `cn`, so the caller wins conflicts as in React;
@@ -113,7 +120,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Apps resolve them through the package `exports` (`dist/*.js` + `dist/*.d.ts` + `dist/styles.css`). A change in a library's `src` reaches the apps only after a rebuild; `pnpm dev` keeps a watcher running for each library.
 - `build` runs `vite build`, then emits the `.d.ts` files: `tsc -p tsconfig.build.json` in ui, `vue-tsc -p tsconfig.build.json` in ui-vue.
 - In ui, `@tailwindcss/vite` compiles `src/styles/index.css` twice: imported by `index.ts` it becomes `dist/styles.css` (`build.lib.cssFileName: 'styles'`); imported with `?inline` by `register.ts` it becomes a string in `register.js`. ui-vue only builds `dist/styles.css`. `dist/index.d.ts` keeps the CSS import line; that's expected and harmless (`skipLibCheck`).
-- Each Vite config keeps the framework and every runtime dependency external (ui: `react`, `react-dom`, `@r2wc/*`, `@radix-ui/*`; ui-vue: `vue`, `reka-ui`; both: `class-variance-authority`, `clsx`, `tailwind-merge`). Add any new runtime dependency there too.
+- Each Vite config keeps the framework and every runtime dependency external (ui: `react`, `react-dom`, `@r2wc/*`, `@radix-ui/*`, `lucide-react`; ui-vue: `vue`, `reka-ui`, `@lucide/vue`; both: `class-variance-authority`, `clsx`, `tailwind-merge`). Add any new runtime dependency there too.
 - `emptyOutDir: false` plus unhashed chunk names keep the watcher from deleting the `.d.ts` files.
 - `sideEffects` lists the bare-import entries (`dist/styles.css`, and ui's `dist/register.js`), so they aren't tree-shaken. Update that list if you add another side-effect entry.
 - A running `pnpm dev` doesn't pick up changes to a library's `package.json` `exports` or `vite.config.ts`, or new workspace packages: restart it.
