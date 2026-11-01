@@ -1,5 +1,6 @@
 import { TAppShell, TAppShellHeader, TAppShellMain, TAppShellSidebar, TContainer, TSpacer } from '@repo/ui'
 import { Route, Routes } from 'react-router'
+import { GithubLink } from './GithubLink'
 import { HomePage } from './HomePage'
 import { Logo } from './Logo'
 import { Sidebar } from './Sidebar'
@@ -16,6 +17,7 @@ export function App() {
         <TSpacer />
         <span className="text-sm text-fg-muted max-sm:hidden">Microfrontends playground</span>
         <ThemeSwitch />
+        <GithubLink />
       </TAppShellHeader>
       <TAppShellSidebar>
         <Sidebar />
