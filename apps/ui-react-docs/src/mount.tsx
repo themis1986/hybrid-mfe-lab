@@ -1,3 +1,4 @@
+import { TAlarmHost } from '@repo/ui'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { DocsPage } from './DocsPage'
@@ -25,6 +26,8 @@ export function mount(el: HTMLElement, _props: MountProps): () => void {
   root.render(
     <StrictMode>
       <DocsPage />
+      {/* Shows the alarms when this app runs on its own; inside the shell, the shell's host does. */}
+      <TAlarmHost />
     </StrictMode>,
   )
 
