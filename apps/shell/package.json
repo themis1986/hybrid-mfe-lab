@@ -17,6 +17,8 @@
   },
   "devDependencies": {
     "@module-federation/vite": "catalog:",
+    "@vitejs/devtools": "catalog:",
+    "@vitejs/devtools-vite": "catalog:",
     "@repo/config": "workspace:*",
     "@repo/tokens": "workspace:*",
     "@tailwindcss/vite": "catalog:",
@@ -26,6 +28,7 @@
     "@vitejs/plugin-react": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:"
   }
 }

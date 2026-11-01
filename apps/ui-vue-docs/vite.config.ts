@@ -1,19 +1,22 @@
-import { federation } from '@module-federation/vite'
-import tailwindcss from '@tailwindcss/vite'
-import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
+import { federation } from "@module-federation/vite";
+import tailwindcss from "@tailwindcss/vite";
+import vue from "@vitejs/plugin-vue";
+import vueDevTools from "vite-plugin-vue-devtools";
+import { defineConfig } from "vite";
 
-const port = 5175
+const port = 5175;
 
 export default defineConfig({
+  devtools: { apply: "serve" },
   plugins: [
     vue(),
     tailwindcss(),
+    vueDevTools({ appendTo: /\/src\/mount\.ts$/ }),
     federation({
-      name: 'uiVueDocs',
-      filename: 'remoteEntry.js',
+      name: "uiVueDocs",
+      filename: "remoteEntry.js",
       exposes: {
-        './mount': './src/mount.ts',
+        "./mount": "./src/mount.ts",
       },
       // Nothing shared yet: this remote bundles its own Vue (see README).
       shared: {},
@@ -27,4 +30,4 @@ export default defineConfig({
     origin: `http://localhost:${port}`,
   },
   preview: { port, strictPort: true },
-})
+});

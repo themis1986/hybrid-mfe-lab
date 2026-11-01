@@ -18,11 +18,13 @@
   },
   "devDependencies": {
     "@module-federation/vite": "catalog:",
+    "@vitejs/devtools": "catalog:",
     "@repo/config": "workspace:*",
     "@types/node": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:",
     "vue-tsc": "catalog:"
   }
 }

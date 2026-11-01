@@ -1,22 +1,25 @@
-import { federation } from '@module-federation/vite'
-import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
+import { federation } from "@module-federation/vite";
+import vue from "@vitejs/plugin-vue";
+import vueDevTools from "vite-plugin-vue-devtools";
+import { defineConfig } from "vite";
 
-const port = 5174
+const port = 5174;
 
 export default defineConfig({
+  devtools: { apply: "serve" },
   plugins: [
     vue({
       template: {
         // <t-*> tags are custom elements from @repo/ui/register, not Vue components.
-        compilerOptions: { isCustomElement: (tag) => tag.startsWith('t-') },
+        compilerOptions: { isCustomElement: (tag) => tag.startsWith("t-") },
       },
     }),
+    vueDevTools({ appendTo: /\/src\/mount\.ts$/ }),
     federation({
-      name: 'todo',
-      filename: 'remoteEntry.js',
+      name: "todo",
+      filename: "remoteEntry.js",
       exposes: {
-        './mount': './src/mount.ts',
+        "./mount": "./src/mount.ts",
       },
       // Nothing shared yet: this remote bundles its own Vue and React (see README).
       shared: {},
@@ -30,4 +33,4 @@ export default defineConfig({
     origin: `http://localhost:${port}`,
   },
   preview: { port, strictPort: true },
-})
+});
