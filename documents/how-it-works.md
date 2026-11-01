@@ -215,6 +215,8 @@ The shell gates every route; the remotes are unaware of it.
 
 This is client-side gating: anyone can still fetch a remote's files from its server. Real enforcement belongs on the server.
 
+For a step-by-step walkthrough of the session store and the guards, see [authentication.md](authentication.md).
+
 ### 4.6 StrictMode, refreshes, back/forward
 
 - **StrictMode (dev only):** React mounts, unmounts and re-mounts every effect once, so `mount` → unmount → `mount` happens immediately. The cleanup is complete, so exactly one Vue app (with one Pinia and one stylesheet) remains.
