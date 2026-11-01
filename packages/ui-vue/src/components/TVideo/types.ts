@@ -1,4 +1,10 @@
-import type { TMediaFit, TMediaRadius, TMediaRatio, TMediaSource, TMediaTrack } from '../../lib/media'
+import type {
+  TMediaFit,
+  TMediaRadius,
+  TMediaRatio,
+  TMediaSource,
+  TMediaTrack,
+} from '../../lib/media'
 
 // `class` and `style` go on the root; every other attribute (poster, loop…) and listener (@play,
 // @timeupdate…) goes on the <video>.

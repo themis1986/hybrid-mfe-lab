@@ -10,7 +10,14 @@ const root = useRootAttrs(() => tAccordionItemClasses)
 </script>
 
 <template>
-  <AccordionItem data-slot="accordion-item" v-bind="root()" :value="value" :disabled="disabled" :as="as" :as-child="asChild">
+  <AccordionItem
+    data-slot="accordion-item"
+    v-bind="root()"
+    :value="value"
+    :disabled="disabled"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </AccordionItem>
 </template>

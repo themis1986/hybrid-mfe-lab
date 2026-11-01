@@ -33,14 +33,20 @@ export function localeWeekStart(locale: string): WeekStartsOn {
 // 0 = Sunday, whatever the locale.
 const weekday = (date: CalendarDate) => date.toDate('UTC').getUTCDay()
 
-function createMonth(month: CalendarDate, weekStartsOn: WeekStartsOn, fixedWeeks: boolean): CalendarMonth {
+function createMonth(
+  month: CalendarDate,
+  weekStartsOn: WeekStartsOn,
+  fixedWeeks: boolean,
+): CalendarMonth {
   const first = startOfMonth(month)
   const last = endOfMonth(month)
   const lead = (weekday(first) - weekStartsOn + 7) % 7
   const trail = (weekStartsOn + 6 - weekday(last) + 7) % 7
   let count = lead + last.day + trail
   if (fixedWeeks && count < 42) count = 42
-  const days = Array.from({ length: count }, (_, i) => first.add({ days: i - lead }))
+  const days = Array.from({ length: count }, (_, i) =>
+    first.add({ days: i - lead }),
+  )
   const rows: CalendarDate[][] = []
   for (let i = 0; i < days.length; i += 7) rows.push(days.slice(i, i + 7))
   return { value: first, rows }
@@ -54,25 +60,40 @@ export function createMonths(
   fixedWeeks: boolean,
 ): CalendarMonth[] {
   return Array.from({ length: Math.max(1, numberOfMonths) }, (_, i) =>
-    createMonth(startOfMonth(start).add({ months: i }), weekStartsOn, fixedWeeks),
+    createMonth(
+      startOfMonth(start).add({ months: i }),
+      weekStartsOn,
+      fixedWeeks,
+    ),
   )
 }
 
-export function isOutsideVisibleView(date: CalendarDate, months: CalendarMonth[]) {
+export function isOutsideVisibleView(
+  date: CalendarDate,
+  months: CalendarMonth[],
+) {
   return !months.some((month) => isEqualMonth(date, month.value))
 }
 
 /** The weekday names over the grid, in its order ('Sun', 'Mon', … in en-US). */
-export function weekdayNames(months: CalendarMonth[], locale: string): string[] {
+export function weekdayNames(
+  months: CalendarMonth[],
+  locale: string,
+): string[] {
   const formatter = new DateFormatter(locale, { weekday: 'short' })
-  return months[0].rows[0].map((date) => formatter.format(date.toDate(getLocalTimeZone())))
+  return months[0].rows[0].map((date) =>
+    formatter.format(date.toDate(getLocalTimeZone())),
+  )
 }
 
 /** "November 2026"; with several months, "November - December 2026" or "December 2026 - January 2027". */
 export function headingOf(months: CalendarMonth[], locale: string): string {
   const tz = getLocalTimeZone()
   const first = months[0].value.toDate(tz)
-  if (months.length === 1) return new DateFormatter(locale, { month: 'long', year: 'numeric' }).format(first)
+  if (months.length === 1)
+    return new DateFormatter(locale, { month: 'long', year: 'numeric' }).format(
+      first,
+    )
   const last = months[months.length - 1].value.toDate(tz)
   const month = new DateFormatter(locale, { month: 'long' })
   const year = new DateFormatter(locale, { year: 'numeric' })
@@ -83,9 +104,12 @@ export function headingOf(months: CalendarMonth[], locale: string): string {
 
 /** A day's accessible name: "Sunday, November 1, 2026". */
 export function dayLabel(date: CalendarDate, locale: string): string {
-  return new DateFormatter(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(
-    date.toDate(getLocalTimeZone()),
-  )
+  return new DateFormatter(locale, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date.toDate(getLocalTimeZone()))
 }
 
 interface DayRuleProps {
@@ -97,7 +121,13 @@ interface DayRuleProps {
 }
 
 /** A calendar's limits as date values, and the tests that follow from them (as Reka's isDateDisabled). */
-export function dayRules({ min, max, disabled, isDateDisabled, isDateUnavailable }: DayRuleProps) {
+export function dayRules({
+  min,
+  max,
+  disabled,
+  isDateDisabled,
+  isDateUnavailable,
+}: DayRuleProps) {
   const minDate = parseIsoDate(min)
   const maxDate = parseIsoDate(max)
   const disabledMatcher = toMatcher(isDateDisabled)
@@ -114,16 +144,28 @@ export function dayRules({ min, max, disabled, isDateDisabled, isDateUnavailable
     isDateUnavailable: unavailableMatcher,
     isDisabled,
     /** Disabled, out of bounds or unavailable: a range can't cross it. */
-    isBlocked: (date: CalendarDate) => isDisabled(date) || !!unavailableMatcher?.(date),
+    isBlocked: (date: CalendarDate) =>
+      isDisabled(date) || !!unavailableMatcher?.(date),
   }
 }
 
 /** Whether the month before the grid holds no date after `min`. */
-export function isPrevDisabled(months: CalendarMonth[], min: CalendarDate | undefined) {
-  return !!min && endOfMonth(months[0].value.subtract({ months: 1 })).compare(min) < 0
+export function isPrevDisabled(
+  months: CalendarMonth[],
+  min: CalendarDate | undefined,
+) {
+  return (
+    !!min &&
+    endOfMonth(months[0].value.subtract({ months: 1 })).compare(min) < 0
+  )
 }
 
 /** Whether the month after the grid holds no date before `max`. */
-export function isNextDisabled(months: CalendarMonth[], max: CalendarDate | undefined) {
-  return !!max && months[months.length - 1].value.add({ months: 1 }).compare(max) > 0
+export function isNextDisabled(
+  months: CalendarMonth[],
+  max: CalendarDate | undefined,
+) {
+  return (
+    !!max && months[months.length - 1].value.add({ months: 1 }).compare(max) > 0
+  )
 }

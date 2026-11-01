@@ -10,7 +10,14 @@ const root = useRootAttrs(() => tTabsTriggerClasses)
 </script>
 
 <template>
-  <TabsTrigger data-slot="tabs-trigger" v-bind="root()" :value="value" :disabled="disabled" :as="as" :as-child="asChild">
+  <TabsTrigger
+    data-slot="tabs-trigger"
+    v-bind="root()"
+    :value="value"
+    :disabled="disabled"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </TabsTrigger>
 </template>

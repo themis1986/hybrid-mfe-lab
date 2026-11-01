@@ -6,7 +6,10 @@ import type { TSplitProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TSplitProps>(), { as: 'div' })
-const root = useRootAttrs(() => tSplitVariants({ ratio: props.ratio, gap: props.gap }), () => ({ '--t-split-min': props.minPaneWidth }))
+const root = useRootAttrs(
+  () => tSplitVariants({ ratio: props.ratio, gap: props.gap }),
+  () => ({ '--t-split-min': props.minPaneWidth }),
+)
 </script>
 
 <template>

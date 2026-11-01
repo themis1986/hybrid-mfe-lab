@@ -1,4 +1,10 @@
-import { type KeyboardEvent, type MouseEvent, useEffect, useRef, useState } from 'react'
+import {
+  type KeyboardEvent,
+  type MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { tDateFieldSegmentClasses } from './TDateField.variants'
 import {
   dateOf,
@@ -25,7 +31,9 @@ const SEGMENTS = `[${DATE_ATTR}]:not([${DATE_ATTR}="literal"]),[${TIME_ATTR}]:no
 
 /** The editable segments of the field around `from` (its role="group" root), in order. */
 function segmentsAround(from: Element) {
-  return Array.from(from.closest('[role=group]')?.querySelectorAll<HTMLElement>(SEGMENTS) ?? [])
+  return Array.from(
+    from.closest('[role=group]')?.querySelectorAll<HTMLElement>(SEGMENTS) ?? [],
+  )
 }
 
 /** Focuses the field's first segment (an invalid form focuses its hidden input). */
@@ -38,7 +46,11 @@ export function focusFirstSegment(from: Element) {
  * Reka's DateField root does.
  */
 export function onFieldKeyDown(event: KeyboardEvent<HTMLElement>) {
-  if (event.nativeEvent.isComposing || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return
+  if (
+    event.nativeEvent.isComposing ||
+    (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')
+  )
+    return
   const segments = segmentsAround(event.target as Element)
   const index = segments.indexOf(event.target as HTMLElement)
   if (index < 0) return
@@ -47,7 +59,19 @@ export function onFieldKeyDown(event: KeyboardEvent<HTMLElement>) {
   segments[index + (forward ? 1 : -1)]?.focus()
 }
 
-const ACCEPTED = new Set(['Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Backspace', ' ', 'a', 'A', 'p', 'P'])
+const ACCEPTED = new Set([
+  'Enter',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'Backspace',
+  ' ',
+  'a',
+  'A',
+  'p',
+  'P',
+])
 const isDigit = (key: string) => /^\d$/.test(key)
 
 interface DateSegmentsProps {
@@ -92,7 +116,8 @@ export function DateSegments({
   const [ref, setRef] = useState<SegmentDate>(value ?? fallback)
   const typing = useRef(new Map<EditablePart, TypingState>())
   const typingOf = (part: EditablePart) => {
-    if (!typing.current.has(part)) typing.current.set(part, { lastKeyZero: false, hasLeftFocus: true })
+    if (!typing.current.has(part))
+      typing.current.set(part, { lastKeyZero: false, hasLeftFocus: true })
     return typing.current.get(part)!
   }
 
@@ -102,15 +127,27 @@ export function DateSegments({
     if (value) {
       setValues(valuesOf(kind, value, granularity))
       setRef(value)
-    } else setValues((current) => (isComplete(current) ? emptyValues(kind, granularity) : current))
+    } else
+      setValues((current) =>
+        isComplete(current) ? emptyValues(kind, granularity) : current,
+      )
     // valueKey stands for value, a new object on every render.
   }, [valueKey, kind, granularity])
 
   const twelveHour = kind === 'time' && is12Hour(locale, hourCycle)
   const attr = kind === 'date' ? DATE_ATTR : TIME_ATTR
 
-  function onKeyDown(part: EditablePart, event: KeyboardEvent<HTMLSpanElement>) {
-    if (event.nativeEvent.isComposing || event.key === 'Process' || disabled || readonly) return
+  function onKeyDown(
+    part: EditablePart,
+    event: KeyboardEvent<HTMLSpanElement>,
+  ) {
+    if (
+      event.nativeEvent.isComposing ||
+      event.key === 'Process' ||
+      disabled ||
+      readonly
+    )
+      return
     if (event.key !== 'Tab') event.preventDefault()
     const { key } = event
     if (!ACCEPTED.has(key) && !isDigit(key)) return
@@ -121,10 +158,23 @@ export function DateSegments({
     if (key === 'ArrowUp' || key === 'ArrowDown') {
       next = stepSegment(part, key === 'ArrowUp' ? 1 : -1, values, ref)
     } else if (part === 'dayPeriod') {
-      const period = key === 'a' || key === 'A' ? 'AM' : key === 'p' || key === 'P' ? 'PM' : undefined
-      if (period && period !== values.dayPeriod) next = stepSegment('dayPeriod', 1, values, ref)
+      const period =
+        key === 'a' || key === 'A'
+          ? 'AM'
+          : key === 'p' || key === 'P'
+            ? 'PM'
+            : undefined
+      if (period && period !== values.dayPeriod)
+        next = stepSegment('dayPeriod', 1, values, ref)
     } else if (isDigit(key)) {
-      const typed = typeDigit(part, Number(key), values, ref, typingOf(part), twelveHour)
+      const typed = typeDigit(
+        part,
+        Number(key),
+        values,
+        ref,
+        typingOf(part),
+        twelveHour,
+      )
       next = typed.values
       if (typed.moveToNext) {
         const segments = segmentsAround(event.currentTarget)
@@ -145,52 +195,62 @@ export function DateSegments({
     } else if (cleared) onValueChange(undefined)
   }
 
-  return segmentsOf(kind, values, ref, locale, granularity, hourCycle).map((segment, i) => {
-    if (segment.part === 'literal')
+  return segmentsOf(kind, values, ref, locale, granularity, hourCycle).map(
+    (segment, i) => {
+      if (segment.part === 'literal')
+        return (
+          <span
+            key={i}
+            aria-hidden
+            data-segment="literal"
+            {...{ [attr]: 'literal' }}
+            data-reka-date-range-field-segment-type={rangeType}
+            className={tDateFieldSegmentClasses}
+          >
+            {segment.text}
+          </span>
+        )
+      const part = segment.part
+      const { inputMode, ...aria } = segmentAria(
+        part,
+        values,
+        ref,
+        locale,
+        hourCycle,
+      )
       return (
         <span
           key={i}
-          aria-hidden
-          data-segment="literal"
-          {...{ [attr]: 'literal' }}
+          role="spinbutton"
+          contentEditable={!disabled && !readonly}
+          suppressContentEditableWarning
+          tabIndex={disabled ? undefined : 0}
+          spellCheck={false}
+          inputMode={inputMode}
+          autoCorrect="off"
+          enterKeyHint="next"
+          {...aria}
+          {...{ [attr]: part }}
           data-reka-date-range-field-segment-type={rangeType}
+          aria-disabled={disabled || undefined}
+          aria-readonly={readonly || undefined}
+          data-disabled={disabled ? '' : undefined}
+          data-invalid={invalid ? '' : undefined}
+          aria-invalid={invalid || undefined}
           className={tDateFieldSegmentClasses}
+          onKeyDown={(event) => onKeyDown(part, event)}
+          onMouseDown={(event: MouseEvent) =>
+            disabled && event.preventDefault()
+          }
+          onBlur={() => {
+            typingOf(part).hasLeftFocus = true
+          }}
+          onPaste={(event) => event.preventDefault()}
+          onDrop={(event) => event.preventDefault()}
         >
           {segment.text}
         </span>
       )
-    const part = segment.part
-    const { inputMode, ...aria } = segmentAria(part, values, ref, locale, hourCycle)
-    return (
-      <span
-        key={i}
-        role="spinbutton"
-        contentEditable={!disabled && !readonly}
-        suppressContentEditableWarning
-        tabIndex={disabled ? undefined : 0}
-        spellCheck={false}
-        inputMode={inputMode}
-        autoCorrect="off"
-        enterKeyHint="next"
-        {...aria}
-        {...{ [attr]: part }}
-        data-reka-date-range-field-segment-type={rangeType}
-        aria-disabled={disabled || undefined}
-        aria-readonly={readonly || undefined}
-        data-disabled={disabled ? '' : undefined}
-        data-invalid={invalid ? '' : undefined}
-        aria-invalid={invalid || undefined}
-        className={tDateFieldSegmentClasses}
-        onKeyDown={(event) => onKeyDown(part, event)}
-        onMouseDown={(event: MouseEvent) => disabled && event.preventDefault()}
-        onBlur={() => {
-          typingOf(part).hasLeftFocus = true
-        }}
-        onPaste={(event) => event.preventDefault()}
-        onDrop={(event) => event.preventDefault()}
-      >
-        {segment.text}
-      </span>
-    )
-  })
+    },
+  )
 }

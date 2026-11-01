@@ -25,7 +25,8 @@ export const tComboboxFieldVariants = cva(
   },
 )
 
-export const tComboboxValuesClasses = 'flex min-w-0 flex-1 flex-wrap items-center gap-1'
+export const tComboboxValuesClasses =
+  'flex min-w-0 flex-1 flex-wrap items-center gap-1'
 
 // No Preflight: the input's own border, background, padding and font are reset here.
 export const tComboboxInputClasses = [

@@ -1,11 +1,15 @@
 import * as Tooltip from '@radix-ui/react-tooltip'
 import type { CSSProperties } from 'react'
 import { cn } from '../../lib/cn'
-import { tTooltipArrowClasses, tTooltipContentClasses } from './TTooltip.variants'
+import {
+  tTooltipArrowClasses,
+  tTooltipContentClasses,
+} from './TTooltip.variants'
 import type { TTooltipProps } from './types'
 
 const contentStyle = {
-  '--t-tooltip-transform-origin': 'var(--radix-tooltip-content-transform-origin)',
+  '--t-tooltip-transform-origin':
+    'var(--radix-tooltip-content-transform-origin)',
 } as CSSProperties
 
 // A hint shown on hover (after `delayDuration`) and on keyboard focus (Radix Tooltip). The child is the
@@ -31,7 +35,11 @@ export function TTooltip({
 
   return (
     <Tooltip.Provider delayDuration={delayDuration}>
-      <Tooltip.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
+      <Tooltip.Root
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={onOpenChange}
+      >
         <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content
@@ -45,7 +53,14 @@ export function TTooltip({
             {...props}
           >
             {content}
-            {arrow && <Tooltip.Arrow data-slot="tooltip-arrow" width={10} height={5} className={tTooltipArrowClasses} />}
+            {arrow && (
+              <Tooltip.Arrow
+                data-slot="tooltip-arrow"
+                width={10}
+                height={5}
+                className={tTooltipArrowClasses}
+              />
+            )}
           </Tooltip.Content>
         </Tooltip.Portal>
       </Tooltip.Root>

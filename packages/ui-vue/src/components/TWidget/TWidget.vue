@@ -2,9 +2,20 @@
 import { Maximize2 } from '@lucide/vue'
 import { TButton } from '../TButton'
 import { TCard, TCardBody, TCardHeader } from '../TCard'
-import { TDialog, TDialogBody, TDialogContent, TDialogHeader, TDialogTitle, TDialogTrigger } from '../TDialog'
+import {
+  TDialog,
+  TDialogBody,
+  TDialogContent,
+  TDialogHeader,
+  TDialogTitle,
+  TDialogTrigger,
+} from '../TDialog'
 import { TIcon } from '../TIcon'
-import { tWidgetExpandClasses, tWidgetExpandedHeaderClasses, tWidgetHeaderClasses } from './TWidget.variants'
+import {
+  tWidgetExpandClasses,
+  tWidgetExpandedHeaderClasses,
+  tWidgetHeaderClasses,
+} from './TWidget.variants'
 import type { TWidgetProps } from './types'
 
 // The root, TDialog, renders no element: the caller's attributes go on the card, which merges the class.
@@ -17,7 +28,9 @@ withDefaults(defineProps<TWidgetProps>(), {
   expandLabel: 'Expand',
   headingLevel: 3,
 })
-const expanded = defineModel<boolean | undefined>('expanded', { default: undefined })
+const expanded = defineModel<boolean | undefined>('expanded', {
+  default: undefined,
+})
 </script>
 
 <!--
@@ -27,7 +40,14 @@ const expanded = defineModel<boolean | undefined>('expanded', { default: undefin
 -->
 <template>
   <TDialog v-model:open="expanded" :default-open="defaultExpanded">
-    <TCard data-slot="widget" v-bind="$attrs" :variant="variant" :padding="padding" :dividers="dividers" :as="as">
+    <TCard
+      data-slot="widget"
+      v-bind="$attrs"
+      :variant="variant"
+      :padding="padding"
+      :dividers="dividers"
+      :as="as"
+    >
       <TCardHeader>
         <div :class="tWidgetHeaderClasses">
           <slot name="header">
@@ -35,7 +55,12 @@ const expanded = defineModel<boolean | undefined>('expanded', { default: undefin
           </slot>
         </div>
         <TDialogTrigger as-child>
-          <TButton variant="ghost" size="sm" :aria-label="`${expandLabel} ${title}`" :class="tWidgetExpandClasses">
+          <TButton
+            variant="ghost"
+            size="sm"
+            :aria-label="`${expandLabel} ${title}`"
+            :class="tWidgetExpandClasses"
+          >
             <TIcon :icon="Maximize2" size="sm" />
           </TButton>
         </TDialogTrigger>

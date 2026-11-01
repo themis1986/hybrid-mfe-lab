@@ -5,7 +5,11 @@ import { brokenVideo, sampleVideoSources } from '../samples'
 
 <template>
   <TGrid min-child-width="16rem" :gap="4">
-    <TVideo :sources="sampleVideoSources" radius="md" caption="Two sources (WebM, MP4), native controls" />
+    <TVideo
+      :sources="sampleVideoSources"
+      radius="md"
+      caption="Two sources (WebM, MP4), native controls"
+    />
     <TVideo
       :sources="sampleVideoSources"
       autoplay
@@ -16,6 +20,11 @@ import { brokenVideo, sampleVideoSources } from '../samples'
       radius="md"
       caption="Muted autoplay loop, cover (paused with reduced motion)"
     />
-    <TVideo :src="brokenVideo" radius="md" bordered caption="No playable source" />
+    <TVideo
+      :src="brokenVideo"
+      radius="md"
+      bordered
+      caption="No playable source"
+    />
   </TGrid>
 </template>

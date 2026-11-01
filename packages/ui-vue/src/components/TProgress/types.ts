@@ -7,5 +7,8 @@ export interface TProgressProps {
   /** The bar's colour. */
   tone?: 'accent' | 'success' | 'info' | 'warning' | 'danger'
   /** The spoken value; the percentage by default. */
-  getValueLabel?: (value: number | null | undefined, max: number) => string | undefined
+  getValueLabel?: (
+    value: number | null | undefined,
+    max: number,
+  ) => string | undefined
 }

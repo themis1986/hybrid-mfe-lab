@@ -8,7 +8,10 @@ export type AccessGrant =
   | { kind: 'apps'; apps: AppId[] }
 
 // The one access rule: the menu, the home page and the route guards all go through it.
-export function canAccess(grants: readonly AccessGrant[], app: { id: AppId; tech: Tech }): boolean {
+export function canAccess(
+  grants: readonly AccessGrant[],
+  app: { id: AppId; tech: Tech },
+): boolean {
   return grants.some((grant) => {
     switch (grant.kind) {
       case 'all':

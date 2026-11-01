@@ -1,9 +1,13 @@
 import type { VariantProps } from 'class-variance-authority'
 import type { ComponentProps, ReactNode } from 'react'
-import type { tSectionBodyVariants, tSectionVariants } from './TSection.variants'
+import type {
+  tSectionBodyVariants,
+  tSectionVariants,
+} from './TSection.variants'
 
 export interface TSectionProps
-  extends Omit<ComponentProps<'section'>, 'title'>,
+  extends
+    Omit<ComponentProps<'section'>, 'title'>,
     VariantProps<typeof tSectionVariants>,
     VariantProps<typeof tSectionBodyVariants> {
   /** Heading content. Without it, no heading element renders. */

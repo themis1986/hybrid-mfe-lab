@@ -10,7 +10,13 @@ const root = useRootAttrs(() => tTabsContentClasses)
 </script>
 
 <template>
-  <TabsContent data-slot="tabs-content" v-bind="root()" :value="value" :as="as" :as-child="asChild">
+  <TabsContent
+    data-slot="tabs-content"
+    v-bind="root()"
+    :value="value"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </TabsContent>
 </template>

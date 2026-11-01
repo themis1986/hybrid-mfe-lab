@@ -10,7 +10,12 @@ const root = useRootAttrs(() => tAppShellFooterClasses)
 </script>
 
 <template>
-  <Primitive data-slot="app-shell-footer" v-bind="root()" :as="as" :as-child="asChild">
+  <Primitive
+    data-slot="app-shell-footer"
+    v-bind="root()"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </Primitive>
 </template>

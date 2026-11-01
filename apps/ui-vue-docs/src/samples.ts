@@ -13,17 +13,25 @@ export const sampleImage = `data:image/svg+xml,${encodeURIComponent(picture)}`
 export const brokenImage = '/missing-picture.jpg'
 
 export const sampleVideoSources = [
-  { src: 'https://mdn.github.io/shared-assets/videos/flower.webm', type: 'video/webm' },
-  { src: 'https://mdn.github.io/shared-assets/videos/flower.mp4', type: 'video/mp4' },
+  {
+    src: 'https://mdn.github.io/shared-assets/videos/flower.webm',
+    type: 'video/webm',
+  },
+  {
+    src: 'https://mdn.github.io/shared-assets/videos/flower.mp4',
+    type: 'video/mp4',
+  },
 ]
 export const brokenVideo = '/missing-video.mp4'
 
-export const sampleAudio = 'https://mdn.github.io/shared-assets/audio/t-rex-roar.mp3'
+export const sampleAudio =
+  'https://mdn.github.io/shared-assets/audio/t-rex-roar.mp3'
 export const brokenAudio = '/missing-audio.mp3'
 
 // Documents for the frame demos. `color-scheme` matches the page's, so the frame stays transparent and
 // follows the theme.
-const frameStyle = '<style>body{margin:16px;font:14px/1.5 system-ui,sans-serif;color-scheme:light dark}h1{margin:0 0 8px;font-size:16px}p{margin:0 0 8px}</style>'
+const frameStyle =
+  '<style>body{margin:16px;font:14px/1.5 system-ui,sans-serif;color-scheme:light dark}h1{margin:0 0 8px;font-size:16px}p{margin:0 0 8px}</style>'
 
 export const sampleFrameDoc = `${frameStyle}<h1>Embedded document</h1><p>An inline HTML document (srcdoc), sandboxed: no scripts, no forms, no same-origin access.</p>`
 

@@ -4,7 +4,8 @@ import type { TDialogContentProps } from '../TDialog'
 
 // No asChild: the widget renders its own header and body around the content.
 export interface TWidgetProps
-  extends Omit<ComponentProps<'div'>, 'title' | 'children'>,
+  extends
+    Omit<ComponentProps<'div'>, 'title' | 'children'>,
     Pick<TCardProps, 'variant' | 'padding' | 'dividers'> {
   /** The widget's name: shown in the header by default, and names the expand button and the dialog. */
   title: string

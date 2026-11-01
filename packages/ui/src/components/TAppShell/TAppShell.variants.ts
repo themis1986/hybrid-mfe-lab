@@ -20,10 +20,13 @@ export const tAppShellVariants = cva(
   ],
   {
     variants: {
-      collapsed: { true: 'grid-cols-[var(--t-layout-sidebar-collapsed-width)_minmax(0,1fr)]' },
+      collapsed: {
+        true: 'grid-cols-[var(--t-layout-sidebar-collapsed-width)_minmax(0,1fr)]',
+      },
       hasSidebar: {
         true: '',
-        false: 'grid-cols-[minmax(0,1fr)] [grid-template-areas:"header"_"main"_"footer"] before:hidden',
+        false:
+          'grid-cols-[minmax(0,1fr)] [grid-template-areas:"header"_"main"_"footer"] before:hidden',
       },
       viewport: { true: 'min-h-dvh' },
     },
@@ -39,4 +42,5 @@ export const tAppShellSidebarClasses = [
   'max-md:static max-md:max-h-none max-md:self-stretch max-md:border-b max-md:border-line max-md:bg-surface',
 ].join(' ')
 export const tAppShellMainClasses = 'min-w-0 [grid-area:main]'
-export const tAppShellFooterClasses = 'box-border border-t border-line px-4 py-3 [grid-area:footer]'
+export const tAppShellFooterClasses =
+  'box-border border-t border-line px-4 py-3 [grid-area:footer]'

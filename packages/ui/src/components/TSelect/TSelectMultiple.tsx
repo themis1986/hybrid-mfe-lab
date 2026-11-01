@@ -1,8 +1,19 @@
 import * as Popover from '@radix-ui/react-popover'
 import { Check, ChevronDown } from 'lucide-react'
-import { type CSSProperties, type KeyboardEvent, useEffect, useId, useRef, useState } from 'react'
+import {
+  type CSSProperties,
+  type KeyboardEvent,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react'
 import { cn } from '../../lib/cn'
-import { tCheckboxIconClasses, tCheckboxIndicatorClasses, tCheckboxVariants } from '../TCheckbox/TCheckbox.variants'
+import {
+  tCheckboxIconClasses,
+  tCheckboxIndicatorClasses,
+  tCheckboxVariants,
+} from '../TCheckbox/TCheckbox.variants'
 import { TIcon } from '../TIcon'
 import { tInputVariants } from '../TInput/TInput.variants'
 import {
@@ -18,7 +29,8 @@ import type { TSelectMultipleProps, TSelectOption } from './types'
 
 const contentStyle = {
   '--t-select-trigger-width': 'var(--radix-popover-trigger-width)',
-  '--t-select-available-height': 'var(--radix-popover-content-available-height)',
+  '--t-select-available-height':
+    'var(--radix-popover-content-available-height)',
 } as CSSProperties
 
 const TYPEAHEAD_RESET_MS = 500
@@ -61,24 +73,34 @@ export function TSelectMultiple({
   const optionId = (index: number) => `${baseId}-option-${index}`
 
   // In selection order, as Reka's trigger shows them.
-  const selectedLabels = value.flatMap((v) => options.find((option) => option.value === v)?.label ?? [])
+  const selectedLabels = value.flatMap(
+    (v) => options.find((option) => option.value === v)?.label ?? [],
+  )
 
   useEffect(() => {
     if (open && highlighted >= 0) {
-      document.getElementById(optionId(highlighted))?.scrollIntoView({ block: 'nearest' })
+      document
+        .getElementById(optionId(highlighted))
+        ?.scrollIntoView({ block: 'nearest' })
     }
   }, [open, highlighted])
 
   function toggle(option: TSelectOption) {
     if (option.disabled) return
-    const next = value.includes(option.value) ? value.filter((v) => v !== option.value) : [...value, option.value]
+    const next = value.includes(option.value)
+      ? value.filter((v) => v !== option.value)
+      : [...value, option.value]
     if (valueProp === undefined) setUncontrolledValue(next)
     onValueChange?.(next)
   }
 
   // The next enabled option from `from` in direction `step`, or `from` itself at the end of the list.
   function step(from: number, direction: 1 | -1) {
-    for (let i = from + direction; i >= 0 && i < options.length; i += direction) {
+    for (
+      let i = from + direction;
+      i >= 0 && i < options.length;
+      i += direction
+    ) {
       if (!options[i].disabled) return i
     }
     return from
@@ -92,11 +114,15 @@ export function TSelectMultiple({
     state.text += key.toLowerCase()
     state.timer = window.setTimeout(() => (state.text = ''), TYPEAHEAD_RESET_MS)
 
-    const start = state.text.length === 1 ? highlighted + 1 : Math.max(highlighted, 0)
+    const start =
+      state.text.length === 1 ? highlighted + 1 : Math.max(highlighted, 0)
     for (let n = 0; n < options.length; n++) {
       const index = (start + n) % options.length
       const option = options[index]
-      if (!option.disabled && option.label.toLowerCase().startsWith(state.text)) {
+      if (
+        !option.disabled &&
+        option.label.toLowerCase().startsWith(state.text)
+      ) {
         setHighlighted(index)
         return
       }
@@ -133,7 +159,13 @@ export function TSelectMultiple({
         else if (options[highlighted]) toggle(options[highlighted])
         break
       default:
-        if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return
+        if (
+          event.key.length !== 1 ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.altKey
+        )
+          return
         search(event.key)
     }
     event.preventDefault()
@@ -142,7 +174,9 @@ export function TSelectMultiple({
   // Opening highlights the first selected option (or the first enabled one) and focuses the listbox.
   function onOpenAutoFocus(event: Event) {
     event.preventDefault()
-    const firstSelected = options.findIndex((option) => !option.disabled && value.includes(option.value))
+    const firstSelected = options.findIndex(
+      (option) => !option.disabled && value.includes(option.value),
+    )
     setHighlighted(firstSelected >= 0 ? firstSelected : step(-1, 1))
     listboxRef.current?.focus()
   }
@@ -165,10 +199,16 @@ export function TSelectMultiple({
           aria-invalid={invalid || undefined}
           data-placeholder={selectedLabels.length ? undefined : ''}
           disabled={disabled}
-          className={cn(tInputVariants({ size }), tSelectTriggerClasses, className)}
+          className={cn(
+            tInputVariants({ size }),
+            tSelectTriggerClasses,
+            className,
+          )}
           onKeyDown={onTriggerKeyDown}
         >
-          <span className={tSelectValueClasses}>{selectedLabels.length ? selectedLabels.join(', ') : placeholder}</span>
+          <span className={tSelectValueClasses}>
+            {selectedLabels.length ? selectedLabels.join(', ') : placeholder}
+          </span>
           <TIcon icon={ChevronDown} className={tSelectChevronClasses} />
         </button>
       </Popover.Trigger>
@@ -189,7 +229,9 @@ export function TSelectMultiple({
             aria-multiselectable="true"
             aria-label={ariaLabel}
             aria-labelledby={ariaLabelledby}
-            aria-activedescendant={highlighted >= 0 ? optionId(highlighted) : undefined}
+            aria-activedescendant={
+              highlighted >= 0 ? optionId(highlighted) : undefined
+            }
             tabIndex={0}
             className={tSelectViewportClasses}
             onKeyDown={onListboxKeyDown}
@@ -210,10 +252,18 @@ export function TSelectMultiple({
                   data-highlighted={index === highlighted ? '' : undefined}
                   data-disabled={option.disabled ? '' : undefined}
                   className={tSelectItemClasses}
-                  onPointerMove={() => !option.disabled && setHighlighted(index)}
+                  onPointerMove={() =>
+                    !option.disabled && setHighlighted(index)
+                  }
                   onClick={() => toggle(option)}
                 >
-                  <span aria-hidden className={cn(tCheckboxVariants({ size: 'sm' }), tSelectIndicatorClasses)}>
+                  <span
+                    aria-hidden
+                    className={cn(
+                      tCheckboxVariants({ size: 'sm' }),
+                      tSelectIndicatorClasses,
+                    )}
+                  >
                     {selected && (
                       <span className={tCheckboxIndicatorClasses}>
                         <TIcon icon={Check} className={tCheckboxIconClasses} />

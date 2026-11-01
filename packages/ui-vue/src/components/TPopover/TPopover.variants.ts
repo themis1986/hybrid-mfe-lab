@@ -26,8 +26,11 @@ export const tPopoverContentVariants = cva(
 
 // The header's end padding (a longhand) keeps the title clear of the close button.
 export const tPopoverHeaderClasses = 'flex flex-col gap-1 pe-8'
-export const tPopoverTitleClasses = 'm-0 font-sans text-base leading-tight font-semibold'
+export const tPopoverTitleClasses =
+  'm-0 font-sans text-base leading-tight font-semibold'
 export const tPopoverDescriptionClasses = 'm-0 text-sm text-fg-muted'
-export const tPopoverFooterClasses = 'flex flex-wrap items-center justify-end gap-2'
+export const tPopoverFooterClasses =
+  'flex flex-wrap items-center justify-end gap-2'
 // Merged onto a ghost TButton.
-export const tPopoverCloseClasses = 'absolute end-3 top-3 h-7 w-7 px-0 text-fg-muted'
+export const tPopoverCloseClasses =
+  'absolute end-3 top-3 h-7 w-7 px-0 text-fg-muted'

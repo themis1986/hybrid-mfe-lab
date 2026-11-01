@@ -13,7 +13,10 @@ import {
 } from './TCalendar.variants'
 import type { TCalendarProps } from './types'
 
-const triggerClassName = cn(tCalendarCellTriggerClasses, tCalendarSelectedClasses)
+const triggerClassName = cn(
+  tCalendarCellTriggerClasses,
+  tCalendarSelectedClasses,
+)
 
 // A month grid that picks one date. Radix has no calendar, so this is CalendarView, written to behave like
 // Reka's Calendar (the Vue library's TCalendar): arrow keys move by day and week, Page Up/Down by month (with
@@ -28,7 +31,9 @@ export function TCalendar({
   ...props
 }: TCalendarProps) {
   const [uncontrolledValue, setUncontrolledValue] = useState(props.defaultValue)
-  const selected = parseIsoDate(props.value !== undefined ? props.value : uncontrolledValue)
+  const selected = parseIsoDate(
+    props.value !== undefined ? props.value : uncontrolledValue,
+  )
   const min = parseIsoDate(props.min)
   const max = parseIsoDate(props.max)
   const isDateDisabled = toMatcher(props.isDateDisabled)
@@ -60,8 +65,15 @@ export function TCalendar({
       isSelected={(date) => !!selected && isSameDay(date, selected)}
       hasSelectedDate={!!selected}
       isSelectedDisabled={!!selected && !!isDateDisabled?.(selected)}
-      invalid={!!selected && (!!isDateDisabled?.(selected) || !!isDateUnavailable?.(selected))}
-      onSelect={(date) => commit(selected && isSameDay(date, selected) ? undefined : toIsoDate(date))}
+      invalid={
+        !!selected &&
+        (!!isDateDisabled?.(selected) || !!isDateUnavailable?.(selected))
+      }
+      onSelect={(date) =>
+        commit(
+          selected && isSameDay(date, selected) ? undefined : toIsoDate(date),
+        )
+      }
       className={cn(tCalendarRootClasses, tCalendarFrameClasses, className)}
       cellClassName={tCalendarCellClasses}
       triggerClassName={triggerClassName}

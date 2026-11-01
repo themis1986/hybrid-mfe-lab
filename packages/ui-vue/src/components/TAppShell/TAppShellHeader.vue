@@ -10,7 +10,12 @@ const root = useRootAttrs(() => tAppShellHeaderClasses)
 </script>
 
 <template>
-  <Primitive data-slot="app-shell-header" v-bind="root()" :as="as" :as-child="asChild">
+  <Primitive
+    data-slot="app-shell-header"
+    v-bind="root()"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </Primitive>
 </template>

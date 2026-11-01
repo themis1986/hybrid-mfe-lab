@@ -11,7 +11,8 @@ export type TDialogDescriptionProps = ComponentProps<typeof Dialog.Description>
 
 // No asChild: the content renders its own close button next to the children.
 export interface TDialogContentProps
-  extends Omit<ComponentProps<typeof Dialog.Content>, 'asChild'>,
+  extends
+    Omit<ComponentProps<typeof Dialog.Content>, 'asChild'>,
     VariantProps<typeof tDialogContentVariants> {
   /** Leave out the close button (top end corner). Escape and a click on the overlay still close. */
   hideClose?: boolean

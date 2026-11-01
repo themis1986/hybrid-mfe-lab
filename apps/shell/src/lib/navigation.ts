@@ -30,7 +30,8 @@ export const NAV_ITEMS: NavItem[] = [
     id: 'todo',
     label: 'Todo app',
     to: TODO_BASE_PATH,
-    description: 'The todo microfrontend: a Vue 3 app loaded at runtime through Module Federation.',
+    description:
+      'The todo microfrontend: a Vue 3 app loaded at runtime through Module Federation.',
     group: 'apps',
     tech: 'vue',
   },
@@ -38,7 +39,8 @@ export const NAV_ITEMS: NavItem[] = [
     id: 'ui-react-docs',
     label: 'React UI docs',
     to: UI_REACT_DOCS_BASE_PATH,
-    description: 'Every @repo/ui component, documented by a React microfrontend: examples, usage and props.',
+    description:
+      'Every @repo/ui component, documented by a React microfrontend: examples, usage and props.',
     group: 'developer',
     tech: 'react',
   },
@@ -46,7 +48,8 @@ export const NAV_ITEMS: NavItem[] = [
     id: 'ui-vue-docs',
     label: 'Vue UI docs',
     to: UI_VUE_DOCS_BASE_PATH,
-    description: 'Every @repo/ui-vue component, documented by a Vue microfrontend: examples, usage, props and slots.',
+    description:
+      'Every @repo/ui-vue component, documented by a Vue microfrontend: examples, usage, props and slots.',
     group: 'developer',
     tech: 'vue',
   },
@@ -59,6 +62,8 @@ export function getAccessibleItems(user: User | null): NavItem[] {
 
 /** Whether the user may open this URL path: a remote's path needs access to it, the shell's own pages don't. */
 export function canOpenPath(user: User, pathname: string): boolean {
-  const app = NAV_ITEMS.find((item) => pathname === item.to || pathname.startsWith(`${item.to}/`))
+  const app = NAV_ITEMS.find(
+    (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
+  )
   return !app || canAccess(user.grants, app)
 }

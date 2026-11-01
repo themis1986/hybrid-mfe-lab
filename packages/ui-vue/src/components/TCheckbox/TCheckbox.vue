@@ -14,8 +14,12 @@ import type { TCheckboxProps } from './types'
 defineOptions({ inheritAttrs: false })
 // Vue casts an absent boolean prop to `false`. The explicit undefined defaults keep "not set" apart from
 // "unchecked", so `defaultValue` applies and the checkbox is only controlled when v-model is bound.
-const props = withDefaults(defineProps<TCheckboxProps>(), { defaultValue: undefined })
-const model = defineModel<boolean | 'indeterminate' | undefined>({ default: undefined })
+const props = withDefaults(defineProps<TCheckboxProps>(), {
+  defaultValue: undefined,
+})
+const model = defineModel<boolean | 'indeterminate' | undefined>({
+  default: undefined,
+})
 const root = useRootAttrs(() => tCheckboxVariants({ size: props.size }))
 </script>
 
@@ -32,7 +36,10 @@ const root = useRootAttrs(() => tCheckboxVariants({ size: props.size }))
     :as="as"
     :as-child="asChild"
   >
-    <CheckboxIndicator data-slot="checkbox-indicator" :class="tCheckboxIndicatorClasses">
+    <CheckboxIndicator
+      data-slot="checkbox-indicator"
+      :class="tCheckboxIndicatorClasses"
+    >
       <TIcon :icon="Check" :class="tCheckboxIconClasses" />
       <TIcon :icon="Minus" :class="tCheckboxIndeterminateIconClasses" />
     </CheckboxIndicator>

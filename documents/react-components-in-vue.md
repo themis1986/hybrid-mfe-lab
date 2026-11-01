@@ -3,6 +3,7 @@
 > **Status: unused.** The repo has moved to Option B (section 1): `@repo/ui-vue` is a native Vue library on the same tokens, and every Vue app uses it (see [design-system.md](design-system.md#52-the-vue-library)). The todo MFE, the last host of the bridge described here, has migrated. `@repo/ui` still builds `register.ts` until it is removed.
 
 Until its migration, the todo MFE rendered `@repo/ui`'s React components as `<t-*>` custom elements. This document covers:
+
 - why the repo works this way ("Option A");
 - how a bridged element works;
 - the rules for passing props, events and content across the boundary;
@@ -10,6 +11,7 @@ Until its migration, the todo MFE rendered `@repo/ui`'s React components as `<t-
 - what the approach costs.
 
 **Contents**
+
 1. [The decision: one library, bridged](#1-the-decision-one-library-bridged)
 2. [How a `<t-*>` element works](#2-how-a-t--element-works)
 3. [Light DOM, not shadow DOM](#3-light-dom-not-shadow-dom)
@@ -26,27 +28,28 @@ For the tokens, Tailwind setup and component recipe, see [design-system.md](desi
 
 A design system serving a React shell and a Vue MFE can take one of two shapes. They are alternatives, not layers to combine.
 
-| | **A: one React library, bridged** (the starting point) | **B: two native libraries** (where the repo is going) |
-|---|---|---|
-| Packages | `packages/ui`: React + Radix + Tailwind | a React library (Radix) and a Vue library (Reka UI), sharing the tokens |
-| Implementations per component | one | two |
-| Visual consistency | guaranteed: the same code renders everywhere | by discipline: the same tokens, two implementations |
-| In Vue templates | custom elements: props as attributes or properties, DOM events, no slots, no `v-model` | native components: typed props, slots, `v-model` |
-| Extra runtime in the Vue app | a copy of React (until React is shared) | none |
+|                               | **A: one React library, bridged** (the starting point)                                 | **B: two native libraries** (where the repo is going)                   |
+| ----------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Packages                      | `packages/ui`: React + Radix + Tailwind                                                | a React library (Radix) and a Vue library (Reka UI), sharing the tokens |
+| Implementations per component | one                                                                                    | two                                                                     |
+| Visual consistency            | guaranteed: the same code renders everywhere                                           | by discipline: the same tokens, two implementations                     |
+| In Vue templates              | custom elements: props as attributes or properties, DOM events, no slots, no `v-model` | native components: typed props, slots, `v-model`                        |
+| Extra runtime in the Vue app  | a copy of React (until React is shared)                                                | none                                                                    |
 
 **Choosing.**
 
-| If… | Choose |
-|---|---|
-| the component set stays small or simple, and one source of truth matters most | A |
-| many complex inputs and overlays are coming, or many Vue MFEs | B |
-| unsure | start with A; add a Vue library only when the bridge starts to hurt |
+| If…                                                                           | Choose                                                              |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| the component set stays small or simple, and one source of truth matters most | A                                                                   |
+| many complex inputs and overlays are coming, or many Vue MFEs                 | B                                                                   |
+| unsure                                                                        | start with A; add a Vue library only when the bridge starts to hurt |
 
 **Why A first.** The component set was small, and A kept one implementation of each component. It also built on the custom-element bridge the skeleton had already proved.
 
 **Why B now.** Layout components hold children, which can't cross the bridge, and Vue apps want slots and `v-model`. The repo now has two libraries, `@repo/ui` and `@repo/ui-vue`, on the shared `@repo/tokens`, with identical variant class strings so they still look the same.
 
 **Why it is cheap to reverse.**
+
 - **Same foundations.** The tokens and the Tailwind setup are the same in both designs.
 - **One component at a time.** A single component can later move to a native Vue implementation without affecting the others.
 - **Keep the tags contained.** The move stays cheap as long as `<t-*>` tags appear in few files. A thin local Vue wrapper around a `<t-*>` tag keeps the switch to a one-file change.
@@ -59,12 +62,12 @@ A design system serving a React shell and a Vue MFE can take one of two shapes. 
 define('t-<name>', r2wc(bridge(T<Name>), { props: { … } }))
 ```
 
-| Step | What r2wc does |
-|---|---|
-| element created (`constructor`) | reads the declared attributes and parses them into props |
-| inserted into the page (`connectedCallback`) | `createRoot(element)`, then renders `<T<Name> {...props} />` **inside the element** |
-| declared attribute or property changes | updates the props and re-renders |
-| removed from the page (`disconnectedCallback`) | `root.unmount()` |
+| Step                                           | What r2wc does                                                                      |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------- |
+| element created (`constructor`)                | reads the declared attributes and parses them into props                            |
+| inserted into the page (`connectedCallback`)   | `createRoot(element)`, then renders `<T<Name> {...props} />` **inside the element** |
+| declared attribute or property changes         | updates the props and re-renders                                                    |
+| removed from the page (`disconnectedCallback`) | `root.unmount()`                                                                    |
 
 The DOM that results:
 
@@ -102,11 +105,11 @@ The trade-offs: no slots, because React owns the element's children; and page CS
 
 r2wc's boolean transform converts the value to `"true"`/`"false"` when it is set, and parses attribute text with `/^[ty1-9]/i`. An empty attribute value is ignored.
 
-| In a Vue template | The prop |
-|---|---|
-| `:flag="true"` | `true` |
-| `flag="true"` | `true` |
-| `:flag="false"` | `false` |
+| In a Vue template                | The prop                                  |
+| -------------------------------- | ----------------------------------------- |
+| `:flag="true"`                   | `true`                                    |
+| `flag="true"`                    | `true`                                    |
+| `:flag="false"`                  | `false`                                   |
 | bare `flag` (HTML boolean style) | **`false`**: the value is an empty string |
 
 Bind booleans (`:flag="true"`), never rely on a bare attribute. The host also keeps the reflected attribute, for example `flag="false"`, so don't style hosts with `[flag]` attribute selectors.
@@ -143,6 +146,7 @@ The React component has to support being controlled (`value` plus `onValueChange
 ### 4.7 Compound components
 
 Radix's compound APIs (a root, a trigger, content, items) are composed from React children, and children don't cross the boundary. For the custom element, design a **flat API**:
+
 - the data comes in a `json` prop (for example a list of options);
 - one event reports the result;
 - the element renders the compound parts internally.
@@ -152,10 +156,12 @@ The React export can keep the composable API for React consumers. These are the 
 ## 5. Styles across the boundary
 
 There are two consumers and two ways to deliver the same stylesheet (details in [design-system.md](design-system.md#7-one-stylesheet-two-deliveries)):
+
 - **React hosts** import the file: `import '@repo/ui/styles.css'`.
 - **Custom-element hosts** get the CSS from `@repo/ui/register`, which carries it as a string and writes it into `<style id="t-ui-styles">` before defining any element.
 
 **Why `register` carries its own CSS.**
+
 - **The remote is independent.** It is deployed separately, and it runs both standalone and inside hosts that may not load the stylesheet. It can't count on its host.
 - **Federation doesn't carry CSS by default.** In the MFE's production build, a CSS import becomes a separate asset next to the remote's chunks. `@module-federation/vite` doesn't process CSS assets unless `bundleAllCSS` is turned on. Relying on it would also make dev mode (where Vite injects CSS from JavaScript) behave differently from production.
 - **A string travels with the code.** CSS inlined in the JavaScript arrives wherever the elements do, and standalone, hosted, dev and production all behave the same.
@@ -163,11 +169,13 @@ There are two consumers and two ways to deliver the same stylesheet (details in 
 **One `<style>` per page.** `register.ts` reuses `#t-ui-styles` if it exists and always refreshes its content. A second evaluation, such as an HMR update, therefore replaces the CSS instead of adding another copy.
 
 **Duplication on the shell's page.**
+
 - On `/todo-app`, the page holds both the shell's `styles.css` and the MFE's injected copy.
 - When both come from the same ui version they are identical, so the result looks the same and the cost is only bytes.
 - The injected `<style>` stays after the MFE unmounts. That is harmless for the same reason.
 
 **Version skew.**
+
 - Host and remote are deployed independently, so they can carry different ui versions.
 - Both stylesheets apply to the whole page, in the same cascade layers. When specificity is equal, the later one wins, and the remote's `<style>` comes after the shell's.
 - A remote built against a different ui version can therefore change tokens or utilities for the shell's own components too.
@@ -175,13 +183,13 @@ There are two consumers and two ways to deliver the same stylesheet (details in 
 
 ## 6. Costs
 
-| Cost | Where it shows | Mitigation |
-|---|---|---|
-| A second copy of React and react-dom in the remote | the remote's chunk size | federation `shared` with React as a singleton (planned). The element's `root.unmount()` then runs during the shell's commit and must be deferred ([how-it-works.md §6](how-it-works.md#6-two-copies-of-react-on-one-page)). |
-| The stylesheet twice on the shell's page | bytes, and the version skew above | one shared stylesheet, later |
-| One React root per element | many elements mean many roots | fine for dozens; for long lists, render the list inside one React component |
-| Two renderers stacked | debugging: Vue DevTools doesn't see inside a `<t-*>`, and React DevTools shows each element as a separate root | inspect the element's DOM; it is light DOM |
-| Flat APIs and hand-wired `v-model` | Vue ergonomics | move that component to Option B if it hurts |
+| Cost                                               | Where it shows                                                                                                 | Mitigation                                                                                                                                                                                                                  |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A second copy of React and react-dom in the remote | the remote's chunk size                                                                                        | federation `shared` with React as a singleton (planned). The element's `root.unmount()` then runs during the shell's commit and must be deferred ([how-it-works.md §6](how-it-works.md#6-two-copies-of-react-on-one-page)). |
+| The stylesheet twice on the shell's page           | bytes, and the version skew above                                                                              | one shared stylesheet, later                                                                                                                                                                                                |
+| One React root per element                         | many elements mean many roots                                                                                  | fine for dozens; for long lists, render the list inside one React component                                                                                                                                                 |
+| Two renderers stacked                              | debugging: Vue DevTools doesn't see inside a `<t-*>`, and React DevTools shows each element as a separate root | inspect the element's DOM; it is light DOM                                                                                                                                                                                  |
+| Flat APIs and hand-wired `v-model`                 | Vue ergonomics                                                                                                 | move that component to Option B if it hurts                                                                                                                                                                                 |
 
 ## 7. Checklist: exposing a component to Vue
 

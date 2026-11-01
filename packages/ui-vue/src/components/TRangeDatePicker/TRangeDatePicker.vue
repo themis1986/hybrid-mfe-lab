@@ -11,7 +11,12 @@ import {
 } from 'reka-ui'
 import { computed } from 'vue'
 import { useRootAttrs } from '../../lib/attrs'
-import { parseIsoDate, rangeSubmitValue, type TDateRange, toMatcher } from '../../lib/date'
+import {
+  parseIsoDate,
+  rangeSubmitValue,
+  type TDateRange,
+  toMatcher,
+} from '../../lib/date'
 import { rangeToIso, rangeToReka, useDateModel } from '../../lib/dateModel'
 import { tCalendarRootClasses } from '../TCalendar/TCalendar.variants'
 import FormValue from '../TDateField/FormValue.vue'
@@ -44,7 +49,12 @@ const props = withDefaults(defineProps<TRangeDatePickerProps>(), {
 })
 const model = defineModel<TDateRange | undefined>({ default: undefined })
 const open = defineModel<boolean | undefined>('open', { default: undefined })
-const { draft, update } = useDateModel(model, props.defaultValue, rangeToReka, rangeToIso)
+const { draft, update } = useDateModel(
+  model,
+  props.defaultValue,
+  rangeToReka,
+  rangeToIso,
+)
 // The complete range shown, for the presets and the form (without a v-model, the model stays undefined).
 const shown = computed(() => {
   const iso = rangeToIso(draft.value)
@@ -55,8 +65,10 @@ const field = useRootAttrs(() => tDateFieldVariants({ size: props.size }))
 const min = computed(() => parseIsoDate(props.min))
 const max = computed(() => parseIsoDate(props.max))
 const contentStyle = {
-  '--t-popover-available-height': 'var(--reka-popover-content-available-height)',
-  '--t-popover-transform-origin': 'var(--reka-popover-content-transform-origin)',
+  '--t-popover-available-height':
+    'var(--reka-popover-content-available-height)',
+  '--t-popover-transform-origin':
+    'var(--reka-popover-content-transform-origin)',
 }
 </script>
 
@@ -107,7 +119,10 @@ const contentStyle = {
           {{ item.value }}
         </DateRangePickerInput>
       </div>
-      <DateRangePickerTrigger :aria-label="triggerLabel" :class="tDateFieldTriggerClasses">
+      <DateRangePickerTrigger
+        :aria-label="triggerLabel"
+        :class="tDateFieldTriggerClasses"
+      >
         <TIcon :icon="Calendar" size="sm" />
       </DateRangePickerTrigger>
       <FormValue
@@ -127,7 +142,11 @@ const contentStyle = {
       :class="tDatePickerContentClasses"
       :style="contentStyle"
     >
-      <DateRangePickerCalendar v-slot="{ grid, weekDays }" :calendar-label="label" :class="tCalendarRootClasses">
+      <DateRangePickerCalendar
+        v-slot="{ grid, weekDays }"
+        :calendar-label="label"
+        :class="tCalendarRootClasses"
+      >
         <RangePresets
           v-if="presets?.length"
           :presets="presets"
@@ -136,7 +155,12 @@ const contentStyle = {
           :disabled="disabled || readonly"
           @select="(range) => update(rangeToReka(range))"
         />
-        <RangeCalendarBody :grid="grid" :week-days="weekDays" :prev-label="prevLabel" :next-label="nextLabel" />
+        <RangeCalendarBody
+          :grid="grid"
+          :week-days="weekDays"
+          :prev-label="prevLabel"
+          :next-label="nextLabel"
+        />
       </DateRangePickerCalendar>
     </DateRangePickerContent>
   </DateRangePickerRoot>

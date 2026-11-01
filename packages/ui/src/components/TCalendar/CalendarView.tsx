@@ -1,6 +1,20 @@
-import { type CalendarDate, getLocalTimeZone, isSameDay, isSameMonth, isToday, startOfMonth } from '@internationalized/date'
+import {
+  type CalendarDate,
+  getLocalTimeZone,
+  isSameDay,
+  isSameMonth,
+  isToday,
+  startOfMonth,
+} from '@internationalized/date'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { type KeyboardEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { TButton } from '../TButton'
 import { TIcon } from '../TIcon'
 import {
@@ -48,7 +62,10 @@ export interface CalendarViewProps {
   initialFocus?: boolean
   isSelected: (date: CalendarDate) => boolean
   /** Extra data attributes for a day's trigger (the range states). */
-  dayAttributes?: (date: CalendarDate, unavailable: boolean) => Record<string, true | undefined>
+  dayAttributes?: (
+    date: CalendarDate,
+    unavailable: boolean,
+  ) => Record<string, true | undefined>
   /** Whether something is selected, and the selected date to focus when the placeholder can't be. */
   hasSelectedDate: boolean
   isSelectedDisabled?: boolean
@@ -106,7 +123,8 @@ export function CalendarView(props: CalendarViewProps) {
     !!props.isDateDisabled?.(date) ||
     (!!max && date.compare(max) > 0) ||
     (!!min && date.compare(min) < 0)
-  const isUnavailable = (date: CalendarDate) => !!props.isDateUnavailable?.(date)
+  const isUnavailable = (date: CalendarDate) =>
+    !!props.isDateUnavailable?.(date)
   const prevDisabled = !!disabled || isPrevDisabled(months, min)
   const nextDisabled = !!disabled || isNextDisabled(months, max)
 
@@ -123,16 +141,26 @@ export function CalendarView(props: CalendarViewProps) {
     const date = pendingFocus.current
     if (!date) return
     pendingFocus.current = undefined
-    rootRef.current?.querySelector<HTMLElement>(`[data-value="${date}"]:not([data-outside-view])`)?.focus()
+    rootRef.current
+      ?.querySelector<HTMLElement>(
+        `[data-value="${date}"]:not([data-outside-view])`,
+      )
+      ?.focus()
   }, [focusRequest, months])
 
   useEffect(() => {
     if (!props.initialFocus) return
     const root = rootRef.current
     const target =
-      root?.querySelector<HTMLElement>('[data-selected]:not([data-outside-view])') ??
-      root?.querySelector<HTMLElement>('[data-today]:not([data-outside-view])') ??
-      root?.querySelector<HTMLElement>('[data-value]:not([data-outside-view]):not([data-disabled])')
+      root?.querySelector<HTMLElement>(
+        '[data-selected]:not([data-outside-view])',
+      ) ??
+      root?.querySelector<HTMLElement>(
+        '[data-today]:not([data-outside-view])',
+      ) ??
+      root?.querySelector<HTMLElement>(
+        '[data-value]:not([data-outside-view]):not([data-disabled])',
+      )
     target?.focus()
   }, [])
 
@@ -148,7 +176,8 @@ export function CalendarView(props: CalendarViewProps) {
     let shown: CalendarMonth[] = months
     for (let i = 0; i < 240 && isOutsideVisibleView(date, shown); i++) {
       const forward = date.compare(first) > 0
-      if (forward ? isNextDisabled(shown, max) : isPrevDisabled(shown, min)) return
+      if (forward ? isNextDisabled(shown, max) : isPrevDisabled(shown, min))
+        return
       first = first.add({ months: (forward ? 1 : -1) * pageSize })
       shown = createMonths(first, numberOfMonths, weekStartsOn, fixedWeeks)
     }
@@ -158,27 +187,49 @@ export function CalendarView(props: CalendarViewProps) {
     setFocusRequest((n) => n + 1)
   }
 
-  const outOfBounds = (date: CalendarDate) => (!!min && date.compare(min) < 0) || (!!max && date.compare(max) > 0)
+  const outOfBounds = (date: CalendarDate) =>
+    (!!min && date.compare(min) < 0) || (!!max && date.compare(max) > 0)
 
   // Arrow keys: the next day `add` days away that isn't disabled; nothing past min or max.
   function shiftFocus(day: CalendarDate, add: number) {
     let candidate = day.add({ days: add })
-    while (!outOfBounds(candidate) && isDisabled(candidate)) candidate = candidate.add({ days: add })
+    while (!outOfBounds(candidate) && isDisabled(candidate))
+      candidate = candidate.add({ days: add })
     if (!outOfBounds(candidate)) focusDate(candidate)
   }
 
-  const clamp = (date: CalendarDate) => (min && date.compare(min) < 0 ? min : max && date.compare(max) > 0 ? max : date)
+  const clamp = (date: CalendarDate) =>
+    min && date.compare(min) < 0
+      ? min
+      : max && date.compare(max) > 0
+        ? max
+        : date
   const weekday = (date: CalendarDate) => date.toDate('UTC').getUTCDay()
 
-  function onDayKeyDown(day: CalendarDate, event: KeyboardEvent<HTMLDivElement>) {
+  function onDayKeyDown(
+    day: CalendarDate,
+    event: KeyboardEvent<HTMLDivElement>,
+  ) {
     if (isDisabled(day)) return
     const select = event.key === 'Enter' || event.key === ' '
     if (select && (event.ctrlKey || event.metaKey || event.altKey)) return
-    const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown']
+    const keys = [
+      'ArrowRight',
+      'ArrowLeft',
+      'ArrowUp',
+      'ArrowDown',
+      'Home',
+      'End',
+      'PageUp',
+      'PageDown',
+    ]
     if (!select && !keys.includes(event.key)) return
     event.preventDefault()
     event.stopPropagation()
-    const sign = rootRef.current && getComputedStyle(rootRef.current).direction === 'rtl' ? -1 : 1
+    const sign =
+      rootRef.current && getComputedStyle(rootRef.current).direction === 'rtl'
+        ? -1
+        : 1
     const fromWeekStart = (weekday(day) - weekStartsOn + 7) % 7
     switch (event.key) {
       case 'ArrowRight':
@@ -196,7 +247,11 @@ export function CalendarView(props: CalendarViewProps) {
       case 'PageUp':
       case 'PageDown': {
         const amount = event.shiftKey ? { years: 1 } : { months: 1 }
-        return focusDate(clamp(event.key === 'PageUp' ? day.subtract(amount) : day.add(amount)))
+        return focusDate(
+          clamp(
+            event.key === 'PageUp' ? day.subtract(amount) : day.add(amount),
+          ),
+        )
       }
       default:
         return choose(day)
@@ -215,13 +270,18 @@ export function CalendarView(props: CalendarViewProps) {
     isOutsideVisibleView(placeholder, months)
   )
   const firstFocusable = months
-    .flatMap((month) => month.rows.flat().filter((day) => isSameMonth(day, month.value)))
+    .flatMap((month) =>
+      month.rows.flat().filter((day) => isSameMonth(day, month.value)),
+    )
     .find((day) => !isDisabled(day) && !isUnavailable(day))
   function isFocused(day: CalendarDate, outsideView: boolean) {
     if (outsideView || isDisabled(day)) return false
-    if (!disabled && placeholderFocusable && isSameDay(day, placeholder)) return true
-    if (!disabled && selectedFocusable && !placeholderFocusable) return isSameDay(day, selectedFocusable)
-    if ((!hasSelectedDate || isSelectedDisabled) && !placeholderFocusable) return !!firstFocusable && isSameDay(day, firstFocusable)
+    if (!disabled && placeholderFocusable && isSameDay(day, placeholder))
+      return true
+    if (!disabled && selectedFocusable && !placeholderFocusable)
+      return isSameDay(day, selectedFocusable)
+    if ((!hasSelectedDate || isSelectedDisabled) && !placeholderFocusable)
+      return !!firstFocusable && isSameDay(day, firstFocusable)
     return false
   }
 
@@ -256,7 +316,10 @@ export function CalendarView(props: CalendarViewProps) {
           >
             <TIcon icon={ChevronLeft} size="sm" className="rtl:-scale-x-100" />
           </TButton>
-          <div data-disabled={disabled ? '' : undefined} className={tCalendarHeadingClasses}>
+          <div
+            data-disabled={disabled ? '' : undefined}
+            className={tCalendarHeadingClasses}
+          >
             {heading}
           </div>
           <TButton
@@ -315,22 +378,40 @@ export function CalendarView(props: CalendarViewProps) {
                             role="button"
                             aria-label={dayLabel(day, locale)}
                             data-reka-calendar-cell-trigger=""
-                            aria-disabled={dayDisabled || unavailable || undefined}
+                            aria-disabled={
+                              dayDisabled || unavailable || undefined
+                            }
                             data-selected={selected || undefined}
                             data-value={day.toString()}
                             data-disabled={dayDisabled ? '' : undefined}
                             data-unavailable={unavailable ? '' : undefined}
                             data-today={isToday(day, tz) ? '' : undefined}
                             data-outside-view={outsideView ? '' : undefined}
-                            data-outside-visible-view={isOutsideVisibleView(day, months) ? '' : undefined}
+                            data-outside-visible-view={
+                              isOutsideVisibleView(day, months) ? '' : undefined
+                            }
                             data-focused={focused ? '' : undefined}
                             {...props.dayAttributes?.(day, unavailable)}
-                            tabIndex={focused ? 0 : outsideView || dayDisabled ? undefined : -1}
+                            tabIndex={
+                              focused
+                                ? 0
+                                : outsideView || dayDisabled
+                                  ? undefined
+                                  : -1
+                            }
                             className={props.triggerClassName}
                             onClick={() => !dayDisabled && choose(day)}
                             onKeyDown={(event) => onDayKeyDown(day, event)}
-                            onFocus={() => !dayDisabled && !unavailable && props.onDayActive?.(day)}
-                            onMouseEnter={() => !dayDisabled && !unavailable && props.onDayActive?.(day)}
+                            onFocus={() =>
+                              !dayDisabled &&
+                              !unavailable &&
+                              props.onDayActive?.(day)
+                            }
+                            onMouseEnter={() =>
+                              !dayDisabled &&
+                              !unavailable &&
+                              props.onDayActive?.(day)
+                            }
                           >
                             {day.day.toLocaleString(locale)}
                           </div>

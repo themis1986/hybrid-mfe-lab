@@ -9,12 +9,19 @@ defineProps<{ entry: DocEntry }>()
 
 <template>
   <!-- scroll-mt keeps the card clear of a sticky host header when its anchor is followed. -->
-  <TCard :id="entry.id" class="scroll-mt-[calc(var(--t-layout-header-height)+1rem)]">
+  <TCard
+    :id="entry.id"
+    class="scroll-mt-[calc(var(--t-layout-header-height)+1rem)]"
+  >
     <TCardHeader>
       <h3>
         <code class="font-mono">{{ entry.name }}</code>
       </h3>
-      <span v-if="entry.parts" class="font-mono text-xs font-normal text-fg-muted">+ {{ entry.parts.join(', ') }}</span>
+      <span
+        v-if="entry.parts"
+        class="font-mono text-xs font-normal text-fg-muted"
+        >+ {{ entry.parts.join(', ') }}</span
+      >
     </TCardHeader>
     <TCardBody>
       <TStack :gap="4">
@@ -26,7 +33,14 @@ defineProps<{ entry: DocEntry }>()
         <DocTable
           :label="`${entry.name} props`"
           :columns="['Prop', 'Type', 'Default', 'Description']"
-          :rows="entry.props.map((p) => [p.name, p.type, p.default ?? '–', p.description])"
+          :rows="
+            entry.props.map((p) => [
+              p.name,
+              p.type,
+              p.default ?? '–',
+              p.description,
+            ])
+          "
           :mono="[0, 1, 2]"
         />
         <DocTable

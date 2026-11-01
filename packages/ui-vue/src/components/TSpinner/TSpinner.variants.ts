@@ -15,6 +15,7 @@ export const tSpinnerVariants = cva('inline-block shrink-0 text-accent', {
 })
 
 // With reduced motion it still turns, slowly: a still spinner reads as frozen.
-export const tSpinnerSvgClasses = 'block size-full animate-spin motion-reduce:[animation-duration:2.5s]'
+export const tSpinnerSvgClasses =
+  'block size-full animate-spin motion-reduce:[animation-duration:2.5s]'
 // The full ring behind the turning arc.
 export const tSpinnerTrackClasses = 'opacity-25'

@@ -46,10 +46,22 @@ export function isTreeParent(node: TTreeNode) {
 export function indexTree(roots: TTreeNode[]): TTreeIndex {
   const index: TTreeIndex = new Map()
 
-  const visit = (node: TTreeNode, parent: TTreeEntry | undefined, level: number): string[] => {
-    const entry: TTreeEntry = { node, parent, level, leaves: [], disabled: !!node.disabled || !!parent?.disabled }
+  const visit = (
+    node: TTreeNode,
+    parent: TTreeEntry | undefined,
+    level: number,
+  ): string[] => {
+    const entry: TTreeEntry = {
+      node,
+      parent,
+      level,
+      leaves: [],
+      disabled: !!node.disabled || !!parent?.disabled,
+    }
     index.set(node.value, entry)
-    entry.leaves = isTreeParent(node) ? node.children!.flatMap((child) => visit(child, entry, level + 1)) : [node.value]
+    entry.leaves = isTreeParent(node)
+      ? node.children!.flatMap((child) => visit(child, entry, level + 1))
+      : [node.value]
     return entry.leaves
   }
   roots.forEach((root) => visit(root, undefined, 1))
@@ -57,13 +69,24 @@ export function indexTree(roots: TTreeNode[]): TTreeIndex {
   return index
 }
 
-export function nodeState(entry: TTreeEntry, selected: ReadonlySet<string>): TTreeNodeState {
+export function nodeState(
+  entry: TTreeEntry,
+  selected: ReadonlySet<string>,
+): TTreeNodeState {
   const count = entry.leaves.filter((leaf) => selected.has(leaf)).length
-  return count === 0 ? 'unchecked' : count === entry.leaves.length ? 'checked' : 'indeterminate'
+  return count === 0
+    ? 'unchecked'
+    : count === entry.leaves.length
+      ? 'checked'
+      : 'indeterminate'
 }
 
 /** Selects every enabled leaf under the node, or clears them when they are all selected already. */
-export function toggleSubtree(index: TTreeIndex, entry: TTreeEntry, selected: ReadonlySet<string>) {
+export function toggleSubtree(
+  index: TTreeIndex,
+  entry: TTreeEntry,
+  selected: ReadonlySet<string>,
+) {
   const enabled = entry.leaves.filter((leaf) => !index.get(leaf)!.disabled)
   const allSelected = enabled.every((leaf) => selected.has(leaf))
   const next = new Set(selected)
@@ -75,13 +98,19 @@ export function toggleSubtree(index: TTreeIndex, entry: TTreeEntry, selected: Re
 }
 
 /** The selected leaves as a multiple value, in tree order. */
-export function toValue(roots: TTreeNode[], index: TTreeIndex, selected: ReadonlySet<string>, mode: TTreeValueMode) {
+export function toValue(
+  roots: TTreeNode[],
+  index: TTreeIndex,
+  selected: ReadonlySet<string>,
+  mode: TTreeValueMode,
+) {
   const value: string[] = []
 
   const visit = (node: TTreeNode) => {
     const state = nodeState(index.get(node.value)!, selected)
     if (state === 'unchecked') return
-    if (!isTreeParent(node) || (mode === 'parents' && state === 'checked')) value.push(node.value)
+    if (!isTreeParent(node) || (mode === 'parents' && state === 'checked'))
+      value.push(node.value)
     else node.children!.forEach(visit)
   }
   roots.forEach(visit)
@@ -98,19 +127,24 @@ export function toLeaves(index: TTreeIndex, value: readonly string[]) {
 export function ancestorsOf(index: TTreeIndex, values: readonly string[]) {
   const ancestors = new Set<string>()
   for (const value of values) {
-    for (let parent = index.get(value)?.parent; parent; parent = parent.parent) ancestors.add(parent.node.value)
+    for (let parent = index.get(value)?.parent; parent; parent = parent.parent)
+      ancestors.add(parent.node.value)
   }
   return [...ancestors]
 }
 
 /** The rows a tree shows: every root, and the children of each expanded parent, in tree order. */
-export function flattenVisible(roots: TTreeNode[], expanded: readonly string[]) {
+export function flattenVisible(
+  roots: TTreeNode[],
+  expanded: readonly string[],
+) {
   const rows: TTreeRow[] = []
 
   const visit = (nodes: TTreeNode[], level: number) => {
     nodes.forEach((node, i) => {
       rows.push({ node, level, setSize: nodes.length, posInSet: i + 1 })
-      if (isTreeParent(node) && expanded.includes(node.value)) visit(node.children!, level + 1)
+      if (isTreeParent(node) && expanded.includes(node.value))
+        visit(node.children!, level + 1)
     })
   }
   visit(roots, 1)

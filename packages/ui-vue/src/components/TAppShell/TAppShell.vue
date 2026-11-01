@@ -5,8 +5,17 @@ import { tAppShellVariants } from './TAppShell.variants'
 import type { TAppShellProps } from './types'
 
 defineOptions({ inheritAttrs: false })
-const props = withDefaults(defineProps<TAppShellProps>(), { as: 'div', hasSidebar: true })
-const root = useRootAttrs(() => tAppShellVariants({ collapsed: props.collapsed, hasSidebar: props.hasSidebar, viewport: props.viewport }))
+const props = withDefaults(defineProps<TAppShellProps>(), {
+  as: 'div',
+  hasSidebar: true,
+})
+const root = useRootAttrs(() =>
+  tAppShellVariants({
+    collapsed: props.collapsed,
+    hasSidebar: props.hasSidebar,
+    viewport: props.viewport,
+  }),
+)
 </script>
 
 <template>

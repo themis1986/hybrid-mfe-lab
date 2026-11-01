@@ -7,7 +7,10 @@ import { cn } from '../../lib/cn'
 import { parseIsoDate, toIsoDate, toMatcher } from '../../lib/date'
 import { useDateModel } from '../../lib/dateModel'
 import CalendarBody from './CalendarBody.vue'
-import { tCalendarFrameClasses, tCalendarRootClasses } from './TCalendar.variants'
+import {
+  tCalendarFrameClasses,
+  tCalendarRootClasses,
+} from './TCalendar.variants'
 import type { TCalendarProps } from './types'
 
 // A month grid that picks one date (Reka Calendar). v-model is an ISO date ('2026-11-01'), undefined while
@@ -54,6 +57,11 @@ const max = computed(() => parseIsoDate(props.max))
     weekday-format="short"
     @update:model-value="(value) => update(value as DateValue | undefined)"
   >
-    <CalendarBody :grid="grid" :week-days="weekDays" :prev-label="prevLabel" :next-label="nextLabel" />
+    <CalendarBody
+      :grid="grid"
+      :week-days="weekDays"
+      :prev-label="prevLabel"
+      :next-label="nextLabel"
+    />
   </CalendarRoot>
 </template>

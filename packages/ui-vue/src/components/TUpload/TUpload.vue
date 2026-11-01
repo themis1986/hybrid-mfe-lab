@@ -17,7 +17,10 @@ import {
 } from '../../lib/upload'
 import { TButton } from '../TButton'
 import { tButtonVariants } from '../TButton/TButton.variants'
-import { tFieldHintVariants, tFieldLabelClasses } from '../TField/TField.variants'
+import {
+  tFieldHintVariants,
+  tFieldLabelClasses,
+} from '../TField/TField.variants'
 import { TIcon } from '../TIcon'
 import { TProgress } from '../TProgress'
 import {
@@ -170,22 +173,40 @@ function onDrop(event: DragEvent) {
 
 const hint = computed(() => props.error ?? props.description)
 const messages = computed(() =>
-  rejections.value.map((rejection) => props.formatRejection?.(rejection) ?? describeRejection(rejection, rules.value)),
+  rejections.value.map(
+    (rejection) =>
+      props.formatRejection?.(rejection) ??
+      describeRejection(rejection, rules.value),
+  ),
 )
 const describedBy = computed(
-  () => [hint.value && hintId.value, messages.value.length > 0 && rejectionsId.value].filter(Boolean).join(' ') || undefined,
+  () =>
+    [
+      hint.value && hintId.value,
+      messages.value.length > 0 && rejectionsId.value,
+    ]
+      .filter(Boolean)
+      .join(' ') || undefined,
 )
-const pending = computed(() => files.value.filter((file) => ['idle', 'error'].includes(stateOf(file).status)))
+const pending = computed(() =>
+  files.value.filter((file) =>
+    ['idle', 'error'].includes(stateOf(file).status),
+  ),
+)
 
 function percentOf(file: File) {
   const state = stateOf(file)
-  return state.status === 'uploading' && state.progress !== undefined ? ` · ${Math.round(state.progress)}%` : ''
+  return state.status === 'uploading' && state.progress !== undefined
+    ? ` · ${Math.round(state.progress)}%`
+    : ''
 }
 </script>
 
 <template>
   <div data-slot="upload" v-bind="root()">
-    <span v-if="label" :id="labelId" :class="tFieldLabelClasses">{{ label }}</span>
+    <span v-if="label" :id="labelId" :class="tFieldLabelClasses">{{
+      label
+    }}</span>
     <input
       ref="element"
       v-bind="inner()"
@@ -212,8 +233,15 @@ function percentOf(file: File) {
       @drop="onDrop"
     >
       <TIcon :icon="Upload" :size="variant === 'compact' ? 'sm' : 'lg'" />
-      <span>{{ dropLabel ?? (multiple ? 'Drag and drop files here, or' : 'Drag and drop a file here, or') }}</span>
-      <span :class="tButtonVariants({ variant: 'soft', size: 'sm' })">{{ browseLabel }}</span>
+      <span>{{
+        dropLabel ??
+        (multiple
+          ? 'Drag and drop files here, or'
+          : 'Drag and drop a file here, or')
+      }}</span>
+      <span :class="tButtonVariants({ variant: 'soft', size: 'sm' })">{{
+        browseLabel
+      }}</span>
     </label>
     <p
       v-if="hint"
@@ -223,10 +251,27 @@ function percentOf(file: File) {
     >
       {{ hint }}
     </p>
-    <div v-if="messages.length > 0" :id="rejectionsId" role="alert" data-slot="upload-rejections" :class="tUploadRejectionsClasses">
-      <p v-for="(message, index) in messages" :key="index" :class="tFieldHintVariants({ tone: 'error' })">{{ message }}</p>
+    <div
+      v-if="messages.length > 0"
+      :id="rejectionsId"
+      role="alert"
+      data-slot="upload-rejections"
+      :class="tUploadRejectionsClasses"
+    >
+      <p
+        v-for="(message, index) in messages"
+        :key="index"
+        :class="tFieldHintVariants({ tone: 'error' })"
+      >
+        {{ message }}
+      </p>
     </div>
-    <ul v-if="showList && files.length > 0" data-slot="upload-list" :aria-label="label" :class="tUploadListClasses">
+    <ul
+      v-if="showList && files.length > 0"
+      data-slot="upload-list"
+      :aria-label="label"
+      :class="tUploadListClasses"
+    >
       <li
         v-for="file in files"
         :key="fileKey(file)"
@@ -235,21 +280,46 @@ function percentOf(file: File) {
         :class="tUploadItemVariants({ status: stateOf(file).status })"
       >
         <span :class="tUploadPreviewClasses">
-          <img v-if="previews && previewCache.get(file)" :src="previewCache.get(file)" alt="" :class="tUploadPreviewImageClasses" />
+          <img
+            v-if="previews && previewCache.get(file)"
+            :src="previewCache.get(file)"
+            alt=""
+            :class="tUploadPreviewImageClasses"
+          />
           <TIcon v-else :icon="FileIcon" />
         </span>
         <div :class="tUploadItemBodyClasses">
-          <span :title="file.name" :class="tUploadItemNameClasses">{{ file.name }}</span>
-          <span :class="tUploadItemMetaClasses">{{ formatBytes(file.size) }}{{ percentOf(file) }}</span>
+          <span :title="file.name" :class="tUploadItemNameClasses">{{
+            file.name
+          }}</span>
+          <span :class="tUploadItemMetaClasses"
+            >{{ formatBytes(file.size) }}{{ percentOf(file) }}</span
+          >
           <TProgress
-            v-if="stateOf(file).status === 'queued' || stateOf(file).status === 'uploading'"
-            :value="stateOf(file).status === 'uploading' ? stateOf(file).progress : undefined"
+            v-if="
+              stateOf(file).status === 'queued' ||
+              stateOf(file).status === 'uploading'
+            "
+            :value="
+              stateOf(file).status === 'uploading'
+                ? stateOf(file).progress
+                : undefined
+            "
             size="sm"
             :aria-label="file.name"
           />
-          <span v-if="stateOf(file).status === 'error'" :class="tUploadItemErrorClasses">{{ stateOf(file).error }}</span>
+          <span
+            v-if="stateOf(file).status === 'error'"
+            :class="tUploadItemErrorClasses"
+            >{{ stateOf(file).error }}</span
+          >
         </div>
-        <TIcon v-if="stateOf(file).status === 'done'" :icon="CircleCheck" :label="uploadedLabel" :class="tUploadDoneClasses" />
+        <TIcon
+          v-if="stateOf(file).status === 'done'"
+          :icon="CircleCheck"
+          :label="uploadedLabel"
+          :class="tUploadDoneClasses"
+        />
         <TButton
           v-if="stateOf(file).status === 'error' && upload"
           variant="ghost"

@@ -10,12 +10,21 @@ import {
   tCalendarRootClasses,
 } from '../TCalendar/TCalendar.variants'
 import { RangePresets } from './RangePresets'
-import { tRangeCalendarCellClasses, tRangeCalendarCellTriggerClasses } from './TRangeCalendar.variants'
+import {
+  tRangeCalendarCellClasses,
+  tRangeCalendarCellTriggerClasses,
+} from './TRangeCalendar.variants'
 import type { TRangeCalendarProps } from './types'
 import { useRangeSelection } from './useRangeSelection'
 
-export const rangeCellClassName = cn(tCalendarCellClasses, tRangeCalendarCellClasses)
-export const rangeTriggerClassName = cn(tCalendarCellTriggerClasses, tRangeCalendarCellTriggerClasses)
+export const rangeCellClassName = cn(
+  tCalendarCellClasses,
+  tRangeCalendarCellClasses,
+)
+export const rangeTriggerClassName = cn(
+  tCalendarCellTriggerClasses,
+  tRangeCalendarCellTriggerClasses,
+)
 
 // A month grid that picks a range of dates, written to behave like Reka's RangeCalendar (the Vue library's
 // TRangeCalendar): the first pick sets the start, the days up to the pointer or the focused day are previewed,
@@ -40,7 +49,12 @@ export function TRangeCalendar({
     props.onValueChange?.(next)
   }
 
-  const selection = useRangeSelection({ value, onCommit: commit, isBlocked: rules.isBlocked, isDisabled: rules.isDisabled })
+  const selection = useRangeSelection({
+    value,
+    onCommit: commit,
+    isBlocked: rules.isBlocked,
+    isDisabled: rules.isDisabled,
+  })
 
   return (
     <CalendarView

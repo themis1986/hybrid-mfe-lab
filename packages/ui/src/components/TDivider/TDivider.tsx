@@ -3,7 +3,12 @@ import { cn } from '../../lib/cn'
 import { tDividerVariants } from './TDivider.variants'
 import type { TDividerProps } from './types'
 
-export function TDivider({ orientation, asChild = false, className, ...props }: TDividerProps) {
+export function TDivider({
+  orientation,
+  asChild = false,
+  className,
+  ...props
+}: TDividerProps) {
   const Comp = asChild ? Slot : 'hr'
 
   // <hr> is a separator by default; a slotted element (e.g. a <div>) needs the role spelled out.

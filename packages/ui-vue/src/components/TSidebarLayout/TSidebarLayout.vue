@@ -6,7 +6,15 @@ import type { TSidebarLayoutProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TSidebarLayoutProps>(), { as: 'div' })
-const root = useRootAttrs(() => tSidebarLayoutVariants({ side: props.side, collapsed: props.collapsed, gap: props.gap }), () => ({ '--t-sidebar-width': props.sidebarWidth }))
+const root = useRootAttrs(
+  () =>
+    tSidebarLayoutVariants({
+      side: props.side,
+      collapsed: props.collapsed,
+      gap: props.gap,
+    }),
+  () => ({ '--t-sidebar-width': props.sidebarWidth }),
+)
 </script>
 
 <template>

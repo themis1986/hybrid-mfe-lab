@@ -26,7 +26,8 @@ export const tDateFieldVariants = cva(
 )
 
 // The segments row; it clips rather than wrapping when the field is narrower than the date.
-export const tDateFieldSegmentsClasses = 'flex min-w-0 flex-1 items-center overflow-hidden whitespace-nowrap'
+export const tDateFieldSegmentsClasses =
+  'flex min-w-0 flex-1 items-center overflow-hidden whitespace-nowrap'
 
 // Each segment is an editable span (role spinbutton) marked with data-reka-date-field-segment="<part>"
 // (data-reka-time-field-segment in a time field); literals are the separators between them. An empty

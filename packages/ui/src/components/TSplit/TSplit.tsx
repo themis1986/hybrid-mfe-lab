@@ -4,7 +4,15 @@ import { withStyle } from '../../lib/layout'
 import { tSplitVariants } from './TSplit.variants'
 import type { TSplitProps } from './types'
 
-export function TSplit({ ratio, minPaneWidth, gap, asChild = false, className, style, ...props }: TSplitProps) {
+export function TSplit({
+  ratio,
+  minPaneWidth,
+  gap,
+  asChild = false,
+  className,
+  style,
+  ...props
+}: TSplitProps) {
   const Comp = asChild ? Slot : 'div'
 
   return (

@@ -1,9 +1,18 @@
 import type { ComponentProps, ReactNode } from 'react'
-import type { TMediaFit, TMediaRadius, TMediaRatio, TMediaSource, TMediaTrack } from '../../lib/media'
+import type {
+  TMediaFit,
+  TMediaRadius,
+  TMediaRatio,
+  TMediaSource,
+  TMediaTrack,
+} from '../../lib/media'
 
 // `className` and `style` go on the root; every other prop (poster, loop, onPlay, onTimeUpdate…), `ref`
 // included, goes on the <video>.
-export interface TVideoProps extends Omit<ComponentProps<'video'>, 'children' | 'src'> {
+export interface TVideoProps extends Omit<
+  ComponentProps<'video'>,
+  'children' | 'src'
+> {
   /** One file. Ignored when `sources` is given. */
   src?: string
   /** Alternative files (formats, resolutions); the browser plays the first it supports. */

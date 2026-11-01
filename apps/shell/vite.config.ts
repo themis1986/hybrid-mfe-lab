@@ -1,36 +1,36 @@
-import { federation } from "@module-federation/vite";
-import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
-import vueDevTools from "vite-plugin-vue-devtools";
-import { defineConfig, loadEnv } from "vite";
+import { federation } from '@module-federation/vite'
+import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
+import vueDevTools from 'vite-plugin-vue-devtools'
+import { defineConfig, loadEnv } from 'vite'
 
-const port = 5173;
+const port = 5173
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd());
+  const env = loadEnv(mode, process.cwd())
   // Build-time settings: where each remote's entry is served from.
   const todoRemoteUrl =
-    env.VITE_TODO_REMOTE_URL || "http://localhost:5174/remoteEntry.js";
+    env.VITE_TODO_REMOTE_URL || 'http://localhost:5174/remoteEntry.js'
   const uiVueDocsRemoteUrl =
-    env.VITE_UI_VUE_DOCS_REMOTE_URL || "http://localhost:5175/remoteEntry.js";
+    env.VITE_UI_VUE_DOCS_REMOTE_URL || 'http://localhost:5175/remoteEntry.js'
   const uiReactDocsRemoteUrl =
-    env.VITE_UI_REACT_DOCS_REMOTE_URL || "http://localhost:5176/remoteEntry.js";
+    env.VITE_UI_REACT_DOCS_REMOTE_URL || 'http://localhost:5176/remoteEntry.js'
 
   return {
-    devtools: { apply: "serve" },
+    devtools: { apply: 'serve' },
     plugins: [
       federation({
-        name: "shell",
+        name: 'shell',
         remotes: {
-          todo: { type: "module", name: "todo", entry: todoRemoteUrl },
+          todo: { type: 'module', name: 'todo', entry: todoRemoteUrl },
           uiVueDocs: {
-            type: "module",
-            name: "uiVueDocs",
+            type: 'module',
+            name: 'uiVueDocs',
             entry: uiVueDocsRemoteUrl,
           },
           uiReactDocs: {
-            type: "module",
-            name: "uiReactDocs",
+            type: 'module',
+            name: 'uiReactDocs',
             entry: uiReactDocsRemoteUrl,
           },
         },
@@ -44,5 +44,5 @@ export default defineConfig(({ mode }) => {
     ],
     server: { port, strictPort: true },
     preview: { port, strictPort: true },
-  };
-});
+  }
+})

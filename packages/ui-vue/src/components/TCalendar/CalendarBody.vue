@@ -56,21 +56,36 @@ defineProps<{
       </CalendarNext>
     </CalendarHeader>
     <div data-slot="calendar-months" :class="tCalendarMonthsClasses">
-      <CalendarGrid v-for="month in grid" :key="month.value.toString()" :class="tCalendarGridClasses">
+      <CalendarGrid
+        v-for="month in grid"
+        :key="month.value.toString()"
+        :class="tCalendarGridClasses"
+      >
         <CalendarGridHead>
           <CalendarGridRow>
-            <CalendarHeadCell v-for="day in weekDays" :key="day" :class="tCalendarHeadCellClasses">
+            <CalendarHeadCell
+              v-for="day in weekDays"
+              :key="day"
+              :class="tCalendarHeadCellClasses"
+            >
               {{ day }}
             </CalendarHeadCell>
           </CalendarGridRow>
         </CalendarGridHead>
         <CalendarGridBody>
           <CalendarGridRow v-for="week in month.rows" :key="week[0].toString()">
-            <CalendarCell v-for="day in week" :key="day.toString()" :date="day" :class="tCalendarCellClasses">
+            <CalendarCell
+              v-for="day in week"
+              :key="day.toString()"
+              :date="day"
+              :class="tCalendarCellClasses"
+            >
               <CalendarCellTrigger
                 :day="day"
                 :month="month.value"
-                :class="cn(tCalendarCellTriggerClasses, tCalendarSelectedClasses)"
+                :class="
+                  cn(tCalendarCellTriggerClasses, tCalendarSelectedClasses)
+                "
               />
             </CalendarCell>
           </CalendarGridRow>

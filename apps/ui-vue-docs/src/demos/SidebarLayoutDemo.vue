@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { TSidebarLayout, TSidebarLayoutContent, TSidebarLayoutSidebar, TStack } from '@repo/ui-vue'
+import {
+  TSidebarLayout,
+  TSidebarLayoutContent,
+  TSidebarLayoutSidebar,
+  TStack,
+} from '@repo/ui-vue'
 import { ref } from 'vue'
 import DemoBlock from '../components/DemoBlock.vue'
 
@@ -22,8 +27,14 @@ const collapsed = ref(true)
         <DemoBlock class="h-full">{{ collapsed ? 'S' : 'Sidebar' }}</DemoBlock>
       </TSidebarLayoutSidebar>
       <TSidebarLayoutContent>
-        <button type="button" class="cursor-pointer border-0 bg-transparent p-0 text-left" @click="collapsed = !collapsed">
-          <DemoBlock>side="end", collapsed={{ collapsed }} (click to toggle)</DemoBlock>
+        <button
+          type="button"
+          class="cursor-pointer border-0 bg-transparent p-0 text-left"
+          @click="collapsed = !collapsed"
+        >
+          <DemoBlock
+            >side="end", collapsed={{ collapsed }} (click to toggle)</DemoBlock
+          >
         </button>
       </TSidebarLayoutContent>
     </TSidebarLayout>

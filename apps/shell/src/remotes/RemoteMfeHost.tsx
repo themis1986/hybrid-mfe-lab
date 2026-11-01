@@ -3,7 +3,10 @@ import { type ComponentType, lazy, Suspense, useEffect, useRef } from 'react'
 import { ErrorBoundary } from './ErrorBoundary'
 
 /** The federation contract every microfrontend exposes as `./mount` (typed per remote in remotes.d.ts). */
-export type MountFn = (el: HTMLElement, props: { basePath: string }) => () => void
+export type MountFn = (
+  el: HTMLElement,
+  props: { basePath: string },
+) => () => void
 
 // Renders an empty container and hands it to the remote. The remote owns everything inside it.
 function MountPoint({ mount, basePath }: { mount: MountFn; basePath: string }) {
@@ -43,7 +46,9 @@ export function createRemoteHost(
 
   return function RemoteHost() {
     return (
-      <ErrorBoundary fallback={<p>The {appName} failed to load. Is its server running?</p>}>
+      <ErrorBoundary
+        fallback={<p>The {appName} failed to load. Is its server running?</p>}
+      >
         <Suspense fallback={<RemoteLoading appName={appName} />}>
           <RemoteApp />
         </Suspense>

@@ -39,7 +39,11 @@ const reducedMotion = prefersReducedMotion()
 
 watchEffect(
   () => {
-    if (element.value) applyPlayback(element.value, { volume: props.volume, playbackRate: props.playbackRate })
+    if (element.value)
+      applyPlayback(element.value, {
+        volume: props.volume,
+        playbackRate: props.playbackRate,
+      })
   },
   { flush: 'post' },
 )
@@ -49,16 +53,26 @@ function onLoadedMetadata() {
   if (!video) return
   if (props.startTime !== undefined) video.currentTime = props.startTime
   // Loading resets the rate to the default one.
-  applyPlayback(video, { volume: props.volume, playbackRate: props.playbackRate })
+  applyPlayback(video, {
+    volume: props.volume,
+    playbackRate: props.playbackRate,
+  })
   status.value = 'loaded'
 }
 </script>
 
 <template>
-  <component :is="caption || $slots.caption ? 'figure' : 'div'" data-slot="video" :data-state="status" v-bind="root()">
+  <component
+    :is="caption || $slots.caption ? 'figure' : 'div'"
+    data-slot="video"
+    :data-state="status"
+    v-bind="root()"
+  >
     <div
       data-slot="video-frame"
-      :class="tVideoFrameVariants({ ratio: ratioPreset(ratio), radius, bordered })"
+      :class="
+        tVideoFrameVariants({ ratio: ratioPreset(ratio), radius, bordered })
+      "
       :style="{ aspectRatio: ratioValue(ratio) }"
     >
       <video
@@ -94,7 +108,11 @@ function onLoadedMetadata() {
           :default="track.default"
         />
       </video>
-      <div v-if="status === 'error'" data-slot="video-fallback" :class="mediaOverlayClasses">
+      <div
+        v-if="status === 'error'"
+        data-slot="video-fallback"
+        :class="mediaOverlayClasses"
+      >
         <slot name="fallback">
           <TIcon :icon="VideoOff" size="lg" />
           <span>{{ errorLabel }}</span>

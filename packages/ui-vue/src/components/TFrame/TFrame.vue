@@ -44,13 +44,18 @@ watchEffect(
   (onCleanup) => {
     const frame = element.value
     if (!props.autoHeight || !frame || loads.value === 0) return
-    const stop = observeContentHeight(frame, (height) => (contentHeight.value = height))
+    const stop = observeContentHeight(
+      frame,
+      (height) => (contentHeight.value = height),
+    )
     onCleanup(() => stop?.())
   },
   { flush: 'post' },
 )
 
-const measured = computed(() => props.autoHeight && contentHeight.value !== undefined)
+const measured = computed(
+  () => props.autoHeight && contentHeight.value !== undefined,
+)
 const byRatio = computed(() => !measured.value && props.height === undefined)
 
 function onLoad() {
@@ -60,11 +65,25 @@ function onLoad() {
 </script>
 
 <template>
-  <component :is="caption || $slots.caption ? 'figure' : 'div'" data-slot="frame" :data-state="status" v-bind="root()">
+  <component
+    :is="caption || $slots.caption ? 'figure' : 'div'"
+    data-slot="frame"
+    :data-state="status"
+    v-bind="root()"
+  >
     <div
       data-slot="frame-box"
-      :class="tFrameBoxVariants({ ratio: byRatio ? ratioPreset(ratio) : null, radius, bordered })"
-      :style="{ aspectRatio: byRatio ? ratioValue(ratio) : undefined, height: measured ? undefined : toLength(height) }"
+      :class="
+        tFrameBoxVariants({
+          ratio: byRatio ? ratioPreset(ratio) : null,
+          radius,
+          bordered,
+        })
+      "
+      :style="{
+        aspectRatio: byRatio ? ratioValue(ratio) : undefined,
+        height: measured ? undefined : toLength(height),
+      }"
     >
       <iframe
         ref="element"
@@ -80,7 +99,11 @@ function onLoad() {
         :style="measured ? { height: `${contentHeight}px` } : undefined"
         @load="onLoad"
       />
-      <div v-if="showLoader && status === 'loading'" data-slot="frame-loader" :class="mediaOverlayClasses">
+      <div
+        v-if="showLoader && status === 'loading'"
+        data-slot="frame-loader"
+        :class="mediaOverlayClasses"
+      >
         <TSpinner :label="loadingLabel" />
       </div>
     </div>

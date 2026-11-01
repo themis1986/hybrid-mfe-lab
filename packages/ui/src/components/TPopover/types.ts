@@ -9,7 +9,8 @@ export type TPopoverCloseProps = ComponentProps<typeof Popover.Close>
 
 // No asChild: the content renders its own header and close button around the children.
 export interface TPopoverContentProps
-  extends Omit<ComponentProps<typeof Popover.Content>, 'asChild' | 'title'>,
+  extends
+    Omit<ComponentProps<typeof Popover.Content>, 'asChild' | 'title'>,
     VariantProps<typeof tPopoverContentVariants> {
   /** A heading at the top that names the popover (aria-labelledby). Without it, pass aria-label. */
   title?: ReactNode

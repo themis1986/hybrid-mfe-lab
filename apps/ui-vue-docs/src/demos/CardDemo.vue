@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { TButton, TCard, TCardBody, TCardFooter, TCardHeader, TGrid } from '@repo/ui-vue'
+import {
+  TButton,
+  TCard,
+  TCardBody,
+  TCardFooter,
+  TCardHeader,
+  TGrid,
+} from '@repo/ui-vue'
 
 const variants = ['outline', 'filled', 'elevated'] as const
 </script>

@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { TooltipArrow, TooltipContent, TooltipPortal, TooltipProvider, TooltipRoot, TooltipTrigger } from 'reka-ui'
+import {
+  TooltipArrow,
+  TooltipContent,
+  TooltipPortal,
+  TooltipProvider,
+  TooltipRoot,
+  TooltipTrigger,
+} from 'reka-ui'
 import { useRootAttrs } from '../../lib/attrs'
-import { tTooltipArrowClasses, tTooltipContentClasses } from './TTooltip.variants'
+import {
+  tTooltipArrowClasses,
+  tTooltipContentClasses,
+} from './TTooltip.variants'
 import type { TTooltipProps } from './types'
 
 // A hint shown on hover (after `delayDuration`) and on keyboard focus (Reka Tooltip). The default slot is
@@ -22,7 +32,10 @@ withDefaults(defineProps<TTooltipProps>(), {
 const open = defineModel<boolean | undefined>('open', { default: undefined })
 const root = useRootAttrs(
   () => tTooltipContentClasses,
-  () => ({ '--t-tooltip-transform-origin': 'var(--reka-tooltip-content-transform-origin)' }),
+  () => ({
+    '--t-tooltip-transform-origin':
+      'var(--reka-tooltip-content-transform-origin)',
+  }),
 )
 </script>
 
@@ -43,7 +56,13 @@ const root = useRootAttrs(
           :collision-padding="8"
         >
           <slot name="content">{{ content }}</slot>
-          <TooltipArrow v-if="arrow" data-slot="tooltip-arrow" :width="10" :height="5" :class="tTooltipArrowClasses" />
+          <TooltipArrow
+            v-if="arrow"
+            data-slot="tooltip-arrow"
+            :width="10"
+            :height="5"
+            :class="tTooltipArrowClasses"
+          />
         </TooltipContent>
       </TooltipPortal>
     </TooltipRoot>

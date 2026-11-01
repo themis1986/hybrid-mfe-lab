@@ -16,7 +16,9 @@ const inner = useRootAttrs(() => tAccordionContentInnerClasses)
   <AccordionContent
     data-slot="accordion-content"
     :class="tCollapsibleContentClasses"
-    :style="{ '--t-collapsible-height': 'var(--reka-accordion-content-height)' }"
+    :style="{
+      '--t-collapsible-height': 'var(--reka-accordion-content-height)',
+    }"
     :as="as"
     :as-child="asChild"
   >

@@ -6,7 +6,10 @@ import { RequireAuth } from './components/RequireAuth'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { TODO_BASE_PATH, TodoMfeHost } from './remotes/TodoMfeHost'
-import { UI_REACT_DOCS_BASE_PATH, UiReactDocsHost } from './remotes/UiReactDocsHost'
+import {
+  UI_REACT_DOCS_BASE_PATH,
+  UiReactDocsHost,
+} from './remotes/UiReactDocsHost'
 import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './remotes/UiVueDocsHost'
 
 export function App() {

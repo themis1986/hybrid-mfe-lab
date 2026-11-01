@@ -4,7 +4,10 @@ import { rangeSubmitValue, type TDateRange } from '../../lib/date'
 import { dayRules, todayDate } from '../TCalendar/calendarGrid'
 import { DateSegments } from '../TDateField/DateSegments'
 import { FieldRoot } from '../TDateField/FieldRoot'
-import { tDateFieldSegmentsClasses, tDateFieldSeparatorClasses } from '../TDateField/TDateField.variants'
+import {
+  tDateFieldSegmentsClasses,
+  tDateFieldSeparatorClasses,
+} from '../TDateField/TDateField.variants'
 import type { TDateRangeFieldProps } from './types'
 import { useRangeDraft } from './useRangeDraft'
 
@@ -31,12 +34,18 @@ export function TDateRangeField({
     onValueChange?.(next)
   }
 
-  const draft = useRangeDraft(valueProp !== undefined ? valueProp : uncontrolledValue, commit, rules.isBlocked)
+  const draft = useRangeDraft(
+    valueProp !== undefined ? valueProp : uncontrolledValue,
+    commit,
+    rules.isBlocked,
+  )
   const segments = (which: 'start' | 'end') => (
     <DateSegments
       kind="date"
       value={draft[which]}
-      onValueChange={(date) => draft.update(which, date as CalendarDate | undefined)}
+      onValueChange={(date) =>
+        draft.update(which, date as CalendarDate | undefined)
+      }
       fallback={fallback}
       locale={locale}
       disabled={field.disabled}
@@ -47,8 +56,16 @@ export function TDateRangeField({
   )
 
   return (
-    <FieldRoot slot="date-field" {...field} outOfRange={draft.out} submitValue={rangeSubmitValue(draft.complete)}>
-      <div data-slot="date-field-segments" className={tDateFieldSegmentsClasses}>
+    <FieldRoot
+      slot="date-field"
+      {...field}
+      outOfRange={draft.out}
+      submitValue={rangeSubmitValue(draft.complete)}
+    >
+      <div
+        data-slot="date-field-segments"
+        className={tDateFieldSegmentsClasses}
+      >
         {segments('start')}
         <span aria-hidden className={tDateFieldSeparatorClasses}>
           –

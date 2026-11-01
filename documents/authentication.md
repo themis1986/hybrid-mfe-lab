@@ -3,6 +3,7 @@
 An onboarding guide to how the shell signs users in and decides which remotes each of them may open. It follows the code in the order it runs, so it is best read with the files open next to it. Every file named here is under `apps/shell/src/`, unless its path says otherwise.
 
 **Contents**
+
 1. [The big picture](#1-the-big-picture)
 2. [The files involved](#2-the-files-involved)
 3. [Users and grants](#3-users-and-grants)
@@ -35,18 +36,18 @@ For the shorter runtime summary, see [how-it-works.md section 4.5](how-it-works.
 
 ## 2. The files involved
 
-| File | Role |
-|---|---|
-| `apps/shell/.env.example` | The format of the mock accounts, and a starting set to copy to `apps/shell/.env.local`. |
-| `env.d.ts` | Types the `VITE_MOCK_ACCOUNTS` variable. |
-| `lib/users.ts` | The stand-in identity provider: reads and validates the mock accounts, credential and id lookups. |
-| `lib/access.ts` | The grant types and `canAccess`, the one access rule. |
-| `lib/navigation.ts` | The app registry (`NAV_ITEMS`) plus `getAccessibleItems` and `canOpenPath`. |
-| `lib/auth.ts` | The session store: `signIn`, `signOut`, `useSession`. |
-| `components/RequireAuth.tsx` | Guard: no user, redirect to `/login`. |
-| `components/RequireApp.tsx` | Guard: no access to this remote, render the "no access" page. |
-| `pages/LoginPage.tsx` | The sign-in form, and the redirect back once signed in. |
-| `App.tsx` | The route tree that places the two guards. |
+| File                         | Role                                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------------------- |
+| `apps/shell/.env.example`    | The format of the mock accounts, and a starting set to copy to `apps/shell/.env.local`.           |
+| `env.d.ts`                   | Types the `VITE_MOCK_ACCOUNTS` variable.                                                          |
+| `lib/users.ts`               | The stand-in identity provider: reads and validates the mock accounts, credential and id lookups. |
+| `lib/access.ts`              | The grant types and `canAccess`, the one access rule.                                             |
+| `lib/navigation.ts`          | The app registry (`NAV_ITEMS`) plus `getAccessibleItems` and `canOpenPath`.                       |
+| `lib/auth.ts`                | The session store: `signIn`, `signOut`, `useSession`.                                             |
+| `components/RequireAuth.tsx` | Guard: no user, redirect to `/login`.                                                             |
+| `components/RequireApp.tsx`  | Guard: no access to this remote, render the "no access" page.                                     |
+| `pages/LoginPage.tsx`        | The sign-in form, and the redirect back once signed in.                                           |
+| `App.tsx`                    | The route tree that places the two guards.                                                        |
 
 The order below goes from data (users, grants, apps) to state (the session) to UI (routes, guards, pages).
 
@@ -59,12 +60,14 @@ The order below goes from data (users, grants, apps) to state (the session) to U
 A `User` is what the rest of the shell sees: an `id`, a display `name` and a list of `grants`. Internally, each mock account also has a username and a plain-text password. Those never leave the file: `toUser` strips them before returning.
 
 The accounts are not in the code. They come from `VITE_MOCK_ACCOUNTS`, a JSON array set in `apps/shell/.env.local`:
+
 - `.env.local` is git-ignored, so each developer keeps their own accounts out of the repo. `apps/shell/.env.example` documents the format and holds a starting set to copy.
 - Vite exposes `VITE_*` variables to browser code as `import.meta.env.VITE_*` and **inlines their values into the bundle at build time**. The accounts stay out of git, not out of the browser.
 - The value is parsed and validated the first time a lookup runs (`getAccounts`), not when the module is imported. A missing or invalid value makes the lookup throw a message saying what is wrong; the login page shows it, and the rest of the shell keeps working.
 - Validation rejects an unknown `tech` or app id. Without it, a typo would give a grant that matches nothing, and the user would silently see no apps.
 
 Two lookups are exported:
+
 - `findUserByCredentials(username, password)`, used at sign-in;
 - `findUserById(id)`, used to restore a session after a reload.
 
@@ -74,13 +77,13 @@ Two lookups are exported:
 
 A grant says what a user may open. There are three kinds:
 
-| Grant | Allows |
-|---|---|
-| `{ kind: 'all' }` | Every app. |
+| Grant                    | Allows                                                  |
+| ------------------------ | ------------------------------------------------------- |
+| `{ kind: 'all' }`        | Every app.                                              |
 | `{ kind: 'tech', tech }` | Every app built with that framework (`vue` or `react`). |
-| `{ kind: 'apps', apps }` | The listed app ids. |
+| `{ kind: 'apps', apps }` | The listed app ids.                                     |
 
-A user holds a **list** of grants, and grants **combine**: the user may open an app if *any* grant allows it. So "every React app plus one named Vue app" is two grants.
+A user holds a **list** of grants, and grants **combine**: the user may open an app if _any_ grant allows it. So "every React app plus one named Vue app" is two grants.
 
 `canAccess(grants, app)` implements exactly that with `grants.some(...)`. It takes the app's `id` and `tech`, both of which come from the registry.
 
@@ -93,6 +96,7 @@ A user holds a **list** of grants, and grants **combine**: the user may open an 
 `NAV_ITEMS` lists every remote the shell can open. Each entry has an `id` (an `AppId`), a `tech`, and the base path `to` where its route lives. It feeds the sidebar menu, and it is also the registry the access rules check: a grant names apps by `id` or `tech`, and this is where those values are looked up.
 
 Two helpers build on `canAccess`:
+
 - **`getAccessibleItems(user)`** returns the entries the user may open, or none when signed out. The sidebar and the home page render only this list, so a user never sees a link they can't follow.
 - **`canOpenPath(user, pathname)`** answers "may this user open this URL?" It finds the registry entry whose base path matches the URL. If one matches, the user needs access to it. If none matches, the URL is one of the shell's own pages (such as `/`), which every signed-in user may open. The login page uses it after sign-in ([section 8](#8-step-by-step-signing-in)).
 
@@ -106,12 +110,12 @@ This is the heart of the mechanism. It keeps "who is signed in" in a plain modul
 
 It has four parts:
 
-| Part | What it is |
-|---|---|
-| `currentUser` | The value: the signed-in `User`, or `null`. |
-| `listeners` | A `Set` of callbacks to run when the value changes. |
+| Part               | What it is                                                                                                 |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `currentUser`      | The value: the signed-in `User`, or `null`.                                                                |
+| `listeners`        | A `Set` of callbacks to run when the value changes.                                                        |
 | `setSession(user)` | The only writer. Sets `currentUser`, saves or clears the id in `sessionStorage`, then runs every listener. |
-| `useSession()` | The hook components call to read the value and re-render when it changes. |
+| `useSession()`     | The hook components call to read the value and re-render when it changes.                                  |
 
 #### Startup: restoring the session
 
@@ -120,6 +124,7 @@ let currentUser: User | null = restoreSession()
 ```
 
 This line runs once, when the module is first imported, **before React renders anything**. `restoreSession` reads the user id from `sessionStorage` (key `SESSION_STORAGE_KEY`) and looks the user up again with `findUserById`. So:
+
 - the first render already knows whether someone is signed in. There is no loading state and no flash of the login page;
 - only the id is stored, never the user's grants. The grants are looked up fresh on every load, so a change to an account's grants applies on the next reload;
 - if the id no longer matches an account, storage is blocked, or the accounts are missing or invalid, the user starts signed out.
@@ -129,7 +134,10 @@ This line runs once, when the module is first imported, **before React renders a
 #### Writing: `signIn` and `signOut`
 
 ```ts
-export async function signIn(username: string, password: string): Promise<User> {
+export async function signIn(
+  username: string,
+  password: string,
+): Promise<User> {
   const user = findUserByCredentials(username, password)
   if (!user) throw new Error('…')
   setSession(user)
@@ -260,7 +268,10 @@ sequenceDiagram
 5. This time `useSession()` returns a user, so `LoginPage` takes its `if (user)` branch and works out where to go:
    ```ts
    const from = (location.state as { from?: Location } | null)?.from
-   const back = from && canOpenPath(user, from.pathname) ? `${from.pathname}${from.search}${from.hash}` : '/'
+   const back =
+     from && canOpenPath(user, from.pathname)
+       ? `${from.pathname}${from.search}${from.hash}`
+       : '/'
    ```
    - `from` is the page `RequireAuth` blocked in [section 7](#7-step-by-step-a-first-visit). It is never `/login`: `/login` is outside `RequireAuth`, so nothing ever stores it as `from`.
    - If the user opened `/login` directly, there is no state, `from` is `undefined`, and `back` is `/`.
@@ -308,6 +319,7 @@ The page reloads, every module runs again, and `restoreSession` finds the stored
 ### Replacing the mock
 
 The seams are already in place:
+
 - `signIn` becomes a request to the real server (or an IdP redirect). It is already `async`, so `LoginPage` doesn't change.
 - `restoreSession` asks the server who is signed in (a session cookie or a token) instead of reading an id from `sessionStorage`.
 - Each user's grants come from the server (claims or roles) and are mapped onto `AccessGrant`.
@@ -322,6 +334,7 @@ The seams are already in place:
 **Check access in a shell component.** Call `canAccess(user.grants, app)`, or `getAccessibleItems` / `canOpenPath`, which wrap it. Never test `grant.kind` or a user id anywhere else: keeping the rule in one function is what keeps the menu, the home page and the guards consistent.
 
 **Guard a new remote.** Follow "Adding another microfrontend" in the [README](../README.md). The auth part of it:
+
 1. add an entry to `NAV_ITEMS` with a new `AppId` and the remote's `tech`;
 2. wrap its route in `App.tsx` in `<RequireApp id="<its id>">`;
 3. give the accounts that should see it a grant in `VITE_MOCK_ACCOUNTS`: in your `apps/shell/.env.local`, and in the starting set in `apps/shell/.env.example` so other developers get it too. A user with an `all` grant, or a `tech` grant for its framework, sees it without changes.
@@ -334,14 +347,14 @@ The seams are already in place:
 
 ## 13. Common problems
 
-| Symptom | Cause |
-|---|---|
-| After sign-in the user lands on `/`, not the page they opened | The new user may not open that page (`canOpenPath` is false), or `/login` was opened directly, so there was no `from`. |
-| A new remote is missing from the menu for everyone | Its `NAV_ITEMS` entry exists, but no grant covers it (`all`, its tech or its id). |
-| A user sees a remote in the menu but gets the "no access" page | The route's `RequireApp id` doesn't match the `NAV_ITEMS` entry's `id`. |
-| A component doesn't update after sign-in or sign-out | It reads the session some other way than `useSession()` (a `sessionStorage` read, or a copy kept in `useState`), so it is never subscribed. |
-| The user is signed out after closing and reopening the tab | Expected: `sessionStorage` lives as long as the tab. |
-| A grant change doesn't apply | Reload the page: grants are looked up when the session is restored, on load. Under `pnpm preview`, rebuild: the value is inlined at build time. |
-| Sign-in says there are no accounts | `VITE_MOCK_ACCOUNTS` is unset: copy `apps/shell/.env.example` to `apps/shell/.env.local`, then reload. If the dev server doesn't pick up the new file, restart it. |
-| Sign-in says an account is invalid | That entry (counted from 0) has a missing field, an unknown grant `kind` or `tech`, or an app id that isn't in `NAV_ITEMS`. |
-| Sign-in says the value is not valid JSON | Often a trailing comma, or an unescaped `'` inside the single-quoted value. |
+| Symptom                                                        | Cause                                                                                                                                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| After sign-in the user lands on `/`, not the page they opened  | The new user may not open that page (`canOpenPath` is false), or `/login` was opened directly, so there was no `from`.                                             |
+| A new remote is missing from the menu for everyone             | Its `NAV_ITEMS` entry exists, but no grant covers it (`all`, its tech or its id).                                                                                  |
+| A user sees a remote in the menu but gets the "no access" page | The route's `RequireApp id` doesn't match the `NAV_ITEMS` entry's `id`.                                                                                            |
+| A component doesn't update after sign-in or sign-out           | It reads the session some other way than `useSession()` (a `sessionStorage` read, or a copy kept in `useState`), so it is never subscribed.                        |
+| The user is signed out after closing and reopening the tab     | Expected: `sessionStorage` lives as long as the tab.                                                                                                               |
+| A grant change doesn't apply                                   | Reload the page: grants are looked up when the session is restored, on load. Under `pnpm preview`, rebuild: the value is inlined at build time.                    |
+| Sign-in says there are no accounts                             | `VITE_MOCK_ACCOUNTS` is unset: copy `apps/shell/.env.example` to `apps/shell/.env.local`, then reload. If the dev server doesn't pick up the new file, restart it. |
+| Sign-in says an account is invalid                             | That entry (counted from 0) has a missing field, an unknown grant `kind` or `tech`, or an app id that isn't in `NAV_ITEMS`.                                        |
+| Sign-in says the value is not valid JSON                       | Often a trailing comma, or an unescaped `'` inside the single-quoted value.                                                                                        |

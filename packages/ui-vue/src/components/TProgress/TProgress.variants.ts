@@ -1,14 +1,17 @@
 import { cva } from 'class-variance-authority'
 
-export const tProgressVariants = cva('relative w-full overflow-hidden rounded-full bg-line', {
-  variants: {
-    size: {
-      sm: 'h-1',
-      md: 'h-2',
+export const tProgressVariants = cva(
+  'relative w-full overflow-hidden rounded-full bg-line',
+  {
+    variants: {
+      size: {
+        sm: 'h-1',
+        md: 'h-2',
+      },
     },
+    defaultVariants: { size: 'md' },
   },
-  defaultVariants: { size: 'md' },
-})
+)
 
 // The indicator is full width, translated left by the part not yet done (an inline translate). Without a
 // value (data-state="indeterminate", from Radix and Reka) it is a third-width bar sliding across; with

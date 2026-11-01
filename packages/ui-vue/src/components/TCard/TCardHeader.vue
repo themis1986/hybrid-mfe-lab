@@ -10,7 +10,12 @@ const root = useRootAttrs(() => tCardHeaderClasses)
 </script>
 
 <template>
-  <Primitive data-slot="card-header" v-bind="root()" :as="as" :as-child="asChild">
+  <Primitive
+    data-slot="card-header"
+    v-bind="root()"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </Primitive>
 </template>

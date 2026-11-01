@@ -41,15 +41,34 @@ export function TDialogClose(props: TDialogCloseProps) {
 }
 
 // The close button comes last, so opening focuses the first control of the content instead.
-export function TDialogContent({ size, hideClose = false, closeLabel = 'Close', className, children, ...props }: TDialogContentProps) {
+export function TDialogContent({
+  size,
+  hideClose = false,
+  closeLabel = 'Close',
+  className,
+  children,
+  ...props
+}: TDialogContentProps) {
   return (
     <Dialog.Portal>
-      <Dialog.Overlay data-slot="dialog-overlay" className={tDialogOverlayClasses} />
-      <Dialog.Content data-slot="dialog-content" className={cn(tDialogContentVariants({ size }), className)} {...props}>
+      <Dialog.Overlay
+        data-slot="dialog-overlay"
+        className={tDialogOverlayClasses}
+      />
+      <Dialog.Content
+        data-slot="dialog-content"
+        className={cn(tDialogContentVariants({ size }), className)}
+        {...props}
+      >
         {children}
         {!hideClose && (
           <Dialog.Close asChild>
-            <TButton variant="ghost" size="sm" aria-label={closeLabel} className={tDialogCloseClasses}>
+            <TButton
+              variant="ghost"
+              size="sm"
+              aria-label={closeLabel}
+              className={tDialogCloseClasses}
+            >
               <TIcon icon={X} size="sm" />
             </TButton>
           </Dialog.Close>
@@ -59,27 +78,49 @@ export function TDialogContent({ size, hideClose = false, closeLabel = 'Close', 
   )
 }
 
-export function TDialogHeader({ asChild = false, className, ...props }: TDialogHeaderProps) {
+export function TDialogHeader({
+  asChild = false,
+  className,
+  ...props
+}: TDialogHeaderProps) {
   const Comp = asChild ? Slot : 'div'
 
   return <Comp className={cn(tDialogHeaderClasses, className)} {...props} />
 }
 
 export function TDialogTitle({ className, ...props }: TDialogTitleProps) {
-  return <Dialog.Title className={cn(tDialogTitleClasses, className)} {...props} />
+  return (
+    <Dialog.Title className={cn(tDialogTitleClasses, className)} {...props} />
+  )
 }
 
-export function TDialogDescription({ className, ...props }: TDialogDescriptionProps) {
-  return <Dialog.Description className={cn(tDialogDescriptionClasses, className)} {...props} />
+export function TDialogDescription({
+  className,
+  ...props
+}: TDialogDescriptionProps) {
+  return (
+    <Dialog.Description
+      className={cn(tDialogDescriptionClasses, className)}
+      {...props}
+    />
+  )
 }
 
-export function TDialogBody({ asChild = false, className, ...props }: TDialogBodyProps) {
+export function TDialogBody({
+  asChild = false,
+  className,
+  ...props
+}: TDialogBodyProps) {
   const Comp = asChild ? Slot : 'div'
 
   return <Comp className={cn(tDialogBodyClasses, className)} {...props} />
 }
 
-export function TDialogFooter({ asChild = false, className, ...props }: TDialogFooterProps) {
+export function TDialogFooter({
+  asChild = false,
+  className,
+  ...props
+}: TDialogFooterProps) {
   const Comp = asChild ? Slot : 'div'
 
   return <Comp className={cn(tDialogFooterClasses, className)} {...props} />

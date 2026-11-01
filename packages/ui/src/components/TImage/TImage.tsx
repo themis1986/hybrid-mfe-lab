@@ -1,15 +1,32 @@
 import { ImageOff } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { cn } from '../../lib/cn'
-import { mediaCaptionClasses, mediaRootClasses, ratioPreset, ratioValue, type TMediaStatus } from '../../lib/media'
+import {
+  mediaCaptionClasses,
+  mediaRootClasses,
+  ratioPreset,
+  ratioValue,
+  type TMediaStatus,
+} from '../../lib/media'
 import { useComposedRef } from '../../lib/refs'
 import { TIcon } from '../TIcon'
-import { tImageFallbackClasses, tImageFrameVariants, tImageVariants } from './TImage.variants'
+import {
+  tImageFallbackClasses,
+  tImageFrameVariants,
+  tImageVariants,
+} from './TImage.variants'
 import type { TImageProps } from './types'
 
-function initialState(src: string | undefined, fallbackSrc: string | undefined) {
+function initialState(
+  src: string | undefined,
+  fallbackSrc: string | undefined,
+) {
   const current = src || fallbackSrc
-  return { src, current, status: (current ? 'loading' : 'error') as TMediaStatus }
+  return {
+    src,
+    current,
+    status: (current ? 'loading' : 'error') as TMediaStatus,
+  }
 }
 
 // An <img> in a box: an optional ratio, a skeleton while it loads, a fallback image and then fallback
@@ -47,7 +64,12 @@ export function TImage({
   const Root = caption != null ? 'figure' : 'div'
 
   return (
-    <Root data-slot="image" data-state={state.status} className={cn(mediaRootClasses, className)} style={style}>
+    <Root
+      data-slot="image"
+      data-state={state.status}
+      className={cn(mediaRootClasses, className)}
+      style={style}
+    >
       <div
         data-slot="image-frame"
         className={tImageFrameVariants({
@@ -83,11 +105,15 @@ export function TImage({
         />
         {failed && (
           <div data-slot="image-fallback" className={tImageFallbackClasses}>
-            {fallback ?? <TIcon icon={ImageOff} size="lg" label={alt || undefined} />}
+            {fallback ?? (
+              <TIcon icon={ImageOff} size="lg" label={alt || undefined} />
+            )}
           </div>
         )}
       </div>
-      {caption != null && <figcaption className={mediaCaptionClasses}>{caption}</figcaption>}
+      {caption != null && (
+        <figcaption className={mediaCaptionClasses}>{caption}</figcaption>
+      )}
     </Root>
   )
 }

@@ -14,13 +14,19 @@ import {
 } from '../TCalendar/TCalendar.variants'
 import { DateSegments } from '../TDateField/DateSegments'
 import { FieldRoot } from '../TDateField/FieldRoot'
-import { tDateFieldSegmentsClasses, tDateFieldTriggerClasses } from '../TDateField/TDateField.variants'
+import {
+  tDateFieldSegmentsClasses,
+  tDateFieldTriggerClasses,
+} from '../TDateField/TDateField.variants'
 import { TIcon } from '../TIcon'
 import { tDatePickerContentClasses } from './TDatePicker.variants'
 import type { TDatePickerProps } from './types'
 import { pickerContentStyle, usePickerOpen } from './usePickerOpen'
 
-const triggerClassName = cn(tCalendarCellTriggerClasses, tCalendarSelectedClasses)
+const triggerClassName = cn(
+  tCalendarCellTriggerClasses,
+  tCalendarSelectedClasses,
+)
 
 // A date field with a calendar button, written to behave like Reka's DatePicker (the Vue library's
 // TDatePicker): type the date as in TDateField, or open the calendar (a Radix Popover anchored on the field)
@@ -50,10 +56,18 @@ export function TDatePicker({
   ...field
 }: TDatePickerProps) {
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue)
-  const value = parseIsoDate(valueProp !== undefined ? valueProp : uncontrolledValue)
+  const value = parseIsoDate(
+    valueProp !== undefined ? valueProp : uncontrolledValue,
+  )
   const [isOpen, setOpen] = usePickerOpen({ open, defaultOpen, onOpenChange })
   const [fallback] = useState(todayDate)
-  const rules = dayRules({ min, max, disabled: field.disabled, isDateDisabled, isDateUnavailable })
+  const rules = dayRules({
+    min,
+    max,
+    disabled: field.disabled,
+    isDateDisabled,
+    isDateUnavailable,
+  })
 
   function commit(next: CalendarDate | undefined) {
     const iso = next && toIsoDate(next)
@@ -68,13 +82,25 @@ export function TDatePicker({
   }
 
   // As in TDateField: an unavailable or out-of-range value marks the field.
-  const outOfRange = !!value && dayRules({ min, max, isDateUnavailable }).isBlocked(value)
+  const outOfRange =
+    !!value && dayRules({ min, max, isDateUnavailable }).isBlocked(value)
 
   return (
-    <Popover.Root open={isOpen} onOpenChange={(next) => setOpen(next && !field.disabled)}>
+    <Popover.Root
+      open={isOpen}
+      onOpenChange={(next) => setOpen(next && !field.disabled)}
+    >
       <Popover.Anchor asChild>
-        <FieldRoot slot="date-picker-field" {...field} outOfRange={outOfRange} submitValue={value ? toIsoDate(value) : ''}>
-          <div data-slot="date-field-segments" className={tDateFieldSegmentsClasses}>
+        <FieldRoot
+          slot="date-picker-field"
+          {...field}
+          outOfRange={outOfRange}
+          submitValue={value ? toIsoDate(value) : ''}
+        >
+          <div
+            data-slot="date-field-segments"
+            className={tDateFieldSegmentsClasses}
+          >
             <DateSegments
               kind="date"
               value={value}

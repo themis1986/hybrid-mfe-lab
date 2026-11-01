@@ -3,9 +3,17 @@ import { type ClassValue } from 'clsx'
 import { Label } from 'reka-ui'
 import { computed, useAttrs, useId } from 'vue'
 import { cn } from '../../lib/cn'
-import { tFieldHintVariants, tFieldLabelClasses, tFieldRootClasses } from '../TField/TField.variants'
+import {
+  tFieldHintVariants,
+  tFieldLabelClasses,
+  tFieldRootClasses,
+} from '../TField/TField.variants'
 import { tInputVariants } from '../TInput/TInput.variants'
-import { tTextAreaVariants, tTextCounterClasses, tTextHintRowClasses } from './TText.variants'
+import {
+  tTextAreaVariants,
+  tTextCounterClasses,
+  tTextHintRowClasses,
+} from './TText.variants'
 import type { TTextProps } from './types'
 
 // A labelled multi-line text field: TField's layout around a textarea with TInput's look. With
@@ -23,14 +31,23 @@ const hintId = computed(() => `${textareaId.value}-hint`)
 const counterId = computed(() => `${textareaId.value}-counter`)
 const hint = computed(() => props.error ?? props.description)
 const describedBy = computed(
-  () => [hint.value && hintId.value, props.maxLength !== undefined && counterId.value].filter(Boolean).join(' ') || undefined,
+  () =>
+    [
+      hint.value && hintId.value,
+      props.maxLength !== undefined && counterId.value,
+    ]
+      .filter(Boolean)
+      .join(' ') || undefined,
 )
 
 // The textarea's padding (py-2) plus its border, around a number of lines.
 const rowsHeight = (rows: number) => `calc(${rows}lh + 1rem + 2px)`
 const autoResizeStyle = computed(() =>
   props.autoResize
-    ? { minHeight: rowsHeight(props.rows), maxHeight: props.maxRows ? rowsHeight(props.maxRows) : undefined }
+    ? {
+        minHeight: rowsHeight(props.rows),
+        maxHeight: props.maxRows ? rowsHeight(props.maxRows) : undefined,
+      }
     : undefined,
 )
 
@@ -41,7 +58,10 @@ function textareaAttrs() {
 </script>
 
 <template>
-  <div :class="cn(tFieldRootClasses, attrs.class as ClassValue)" :style="attrs.style">
+  <div
+    :class="cn(tFieldRootClasses, attrs.class as ClassValue)"
+    :style="attrs.style"
+  >
     <Label :for="textareaId" :class="tFieldLabelClasses">{{ label }}</Label>
     <textarea
       v-model="model"
@@ -63,7 +83,11 @@ function textareaAttrs() {
       >
         {{ hint }}
       </p>
-      <p v-if="maxLength !== undefined" :id="counterId" :class="tTextCounterClasses">
+      <p
+        v-if="maxLength !== undefined"
+        :id="counterId"
+        :class="tTextCounterClasses"
+      >
         {{ (model ?? '').length }} / {{ maxLength }}
       </p>
     </div>

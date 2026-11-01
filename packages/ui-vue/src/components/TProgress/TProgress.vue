@@ -2,7 +2,10 @@
 import { ProgressIndicator, ProgressRoot } from 'reka-ui'
 import { computed } from 'vue'
 import { useRootAttrs } from '../../lib/attrs'
-import { tProgressIndicatorVariants, tProgressVariants } from './TProgress.variants'
+import {
+  tProgressIndicatorVariants,
+  tProgressVariants,
+} from './TProgress.variants'
 import type { TProgressProps } from './types'
 
 // A progress bar (Reka Progress): `value` out of `max` (100); null or no value is indeterminate. Name it
@@ -11,7 +14,9 @@ defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TProgressProps>(), { max: 100 })
 const root = useRootAttrs(() => tProgressVariants({ size: props.size }))
 const percent = computed(() =>
-  props.value == null ? undefined : Math.min(100, Math.max(0, (props.value / props.max) * 100)),
+  props.value == null
+    ? undefined
+    : Math.min(100, Math.max(0, (props.value / props.max) * 100)),
 )
 </script>
 
@@ -26,7 +31,9 @@ const percent = computed(() =>
     <ProgressIndicator
       data-slot="progress-indicator"
       :class="tProgressIndicatorVariants({ tone })"
-      :style="percent === undefined ? undefined : { translate: `${percent - 100}% 0` }"
+      :style="
+        percent === undefined ? undefined : { translate: `${percent - 100}% 0` }
+      "
     />
   </ProgressRoot>
 </template>

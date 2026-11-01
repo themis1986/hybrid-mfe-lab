@@ -3,6 +3,7 @@
 This document follows one request from start to finish to show how the pieces cooperate.
 
 **Contents**
+
 1. [The pieces and how they depend on each other](#1-the-pieces-and-how-they-depend-on-each-other)
 2. [Workspace and tooling layer](#2-workspace-and-tooling-layer)
 3. [The UI package and its two entry points](#3-the-ui-package-and-its-two-entry-points)
@@ -19,16 +20,16 @@ For setup and commands, see the [README](../README.md).
 
 ## 1. The pieces and how they depend on each other
 
-| Package | Role | Tech |
-|---|---|---|
-| `apps/shell` (`@repo/shell`) | Host app: owns the URL, the layout, the navigation, sign-in and which remotes each user may open. | React 19, React Router 8 |
-| `apps/todo-mfe` (`@repo/todo-mfe`) | Remote app: built and served on its own, loaded by the shell at runtime. Built on `@repo/ui-vue`, with its state in Pinia. | Vue 3, Vue Router 5, Pinia |
-| `apps/ui-vue-docs` (`@repo/ui-vue-docs`) | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`. | Vue 3, Vue Router 5 |
-| `apps/ui-react-docs` (`@repo/ui-react-docs`) | Remote app written in React: the React library's documentation, built on `@repo/ui`. | React 19 |
-| `packages/tokens` (`@repo/tokens`) | Design tokens and the token → Tailwind theme. CSS only, no build. | CSS, Tailwind v4 |
-| `packages/ui` (`@repo/ui`) | `T`-prefixed React components, usable from React directly, and from any framework as `t-*` custom elements (an entry no app uses now). | React, Radix, Tailwind v4 |
-| `packages/ui-vue` (`@repo/ui-vue`) | The same components natively in Vue, with the same look. | Vue, Reka UI, Tailwind v4 |
-| `packages/config` (`@repo/config`) | Shared tsconfig presets. | TypeScript 6 |
+| Package                                      | Role                                                                                                                                   | Tech                       |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `apps/shell` (`@repo/shell`)                 | Host app: owns the URL, the layout, the navigation, sign-in and which remotes each user may open.                                      | React 19, React Router 8   |
+| `apps/todo-mfe` (`@repo/todo-mfe`)           | Remote app: built and served on its own, loaded by the shell at runtime. Built on `@repo/ui-vue`, with its state in Pinia.             | Vue 3, Vue Router 5, Pinia |
+| `apps/ui-vue-docs` (`@repo/ui-vue-docs`)     | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`.                                               | Vue 3, Vue Router 5        |
+| `apps/ui-react-docs` (`@repo/ui-react-docs`) | Remote app written in React: the React library's documentation, built on `@repo/ui`.                                                   | React 19                   |
+| `packages/tokens` (`@repo/tokens`)           | Design tokens and the token → Tailwind theme. CSS only, no build.                                                                      | CSS, Tailwind v4           |
+| `packages/ui` (`@repo/ui`)                   | `T`-prefixed React components, usable from React directly, and from any framework as `t-*` custom elements (an entry no app uses now). | React, Radix, Tailwind v4  |
+| `packages/ui-vue` (`@repo/ui-vue`)           | The same components natively in Vue, with the same look.                                                                               | Vue, Reka UI, Tailwind v4  |
+| `packages/config` (`@repo/config`)           | Shared tsconfig presets.                                                                                                               | TypeScript 6               |
 
 There are two kinds of dependency, and keeping them apart is the key to the architecture.
 
@@ -54,6 +55,7 @@ graph LR
 ## 2. Workspace and tooling layer
 
 **pnpm workspaces.**
+
 - `pnpm-workspace.yaml` declares `apps/*` and `packages/*` as workspace packages.
 - `"@repo/ui": "workspace:*"` makes pnpm symlink `apps/*/node_modules/@repo/ui` → `packages/ui`.
 - Third-party versions are defined once, in the `catalog:` block, and each package references them as `"catalog:"`.
@@ -62,16 +64,17 @@ graph LR
   - `strictDepBuilds`: no unapproved install scripts.
 
 **Turborepo task graph.**
+
 - Root scripts call `turbo run <task>`. Turbo runs that script in every package that has it, in dependency order.
 
-| Task | Definition (in `turbo.json`) | Consequence |
-|---|---|---|
-| `build` | `dependsOn: ["^build"]`, outputs `dist/**` | The libraries build before the apps; results are cached. |
-| `typecheck` | `dependsOn: ["^build"]` | The apps typecheck against the libraries' emitted `.d.ts` files, so the libraries are built first. |
-| `dev` | `dependsOn: ["^build"]`, persistent | The libraries are built once, then all the dev processes run together. |
-| `dev` in each library | the library's `turbo.json` adds `dependsOn: ["build"]` | Its watcher starts after the initial build, so the two never write `dist/` at once. |
+| Task                    | Definition (in `turbo.json`)                                                  | Consequence                                                                                                |
+| ----------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `build`                 | `dependsOn: ["^build"]`, outputs `dist/**`                                    | The libraries build before the apps; results are cached.                                                   |
+| `typecheck`             | `dependsOn: ["^build"]`                                                       | The apps typecheck against the libraries' emitted `.d.ts` files, so the libraries are built first.         |
+| `dev`                   | `dependsOn: ["^build"]`, persistent                                           | The libraries are built once, then all the dev processes run together.                                     |
+| `dev` in each library   | the library's `turbo.json` adds `dependsOn: ["build"]`                        | Its watcher starts after the initial build, so the two never write `dist/` at once.                        |
 | `build` in each library | the library's `turbo.json` adds `$TURBO_ROOT$/packages/tokens/**` to `inputs` | `@repo/tokens` has no build task, so its files are listed as inputs: a token change invalidates the cache. |
-| `preview` | `dependsOn: ["build"]`, persistent | Builds everything, then serves the production output. |
+| `preview`               | `dependsOn: ["build"]`, persistent                                            | Builds everything, then serves the production output.                                                      |
 
 So `pnpm dev` resolves to this sequence:
 
@@ -85,6 +88,7 @@ So `pnpm dev` resolves to this sequence:
 ```
 
 **TypeScript presets.**
+
 - `packages/config/base.json` holds the strict, shared compiler options.
 - `react.json`, `vue.json` and `node.json` add JSX and lib settings for each environment.
 - Every package has a `tsconfig.json` for browser code in `src/` and a `tsconfig.node.json` for its `vite.config.ts`.
@@ -116,20 +120,21 @@ React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `
 
 **Consumption.** `package.json#exports` maps `@repo/ui` → `dist/index.js` and `@repo/ui/register` → `dist/register.js`, each with its `.d.ts`. Apps therefore use the **built** files, which is why ui has to be built before the apps can start or typecheck (Turbo handles this).
 
-| Consumer | Import | What it gets |
-|---|---|---|
-| shell (React) | `import { … } from '@repo/ui'` | The plain React components, rendered by the shell's own React. |
-| shell (React) | `import '@repo/ui/styles.css'` (once, in `main.tsx`) | The stylesheet, bundled into the shell's CSS. |
-| shell (React) | `@import '@repo/tokens/theme.css'` (in its own `src/index.css`) | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens. |
-| todo-mfe, ui-vue-docs (Vue) | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted. |
-| ui-react-docs (React) | `import { … } from '@repo/ui'`, and `@repo/ui/styles.css` inside its own `src/styles.css` | The React components, rendered by the remote's own React; the stylesheet is injected inline by `mount.tsx` while the app is mounted. |
-| a Vue host of the bridge (none now) | `import '@repo/ui/register'` | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
+| Consumer                            | Import                                                                                            | What it gets                                                                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| shell (React)                       | `import { … } from '@repo/ui'`                                                                    | The plain React components, rendered by the shell's own React.                                                                          |
+| shell (React)                       | `import '@repo/ui/styles.css'` (once, in `main.tsx`)                                              | The stylesheet, bundled into the shell's CSS.                                                                                           |
+| shell (React)                       | `@import '@repo/tokens/theme.css'` (in its own `src/index.css`)                                   | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens.                                        |
+| todo-mfe, ui-vue-docs (Vue)         | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted.                                    |
+| ui-react-docs (React)               | `import { … } from '@repo/ui'`, and `@repo/ui/styles.css` inside its own `src/styles.css`         | The React components, rendered by the remote's own React; the stylesheet is injected inline by `mount.tsx` while the app is mounted.    |
+| a Vue host of the bridge (none now) | `import '@repo/ui/register'`                                                                      | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
 
 `"sideEffects": ["./dist/register.js", "./dist/styles.css"]` tells bundlers that these bare imports must not be tree-shaken away, even though they export nothing.
 
 **How the `t-*` custom elements work** (no app uses them now; this is how the entry behaves).
+
 - `r2wc(bridge(Component), { props })` returns a custom element class, which `register.ts` defines under a `t-*` tag (`T<Name>` → `<t-<name>>`). `bridge()` strips the `container` prop r2wc adds.
-- When the browser inserts such an element into the page, the class creates a React root *inside that element* and renders the component into it, passing the element's props.
+- When the browser inserts such an element into the page, the class creates a React root _inside that element_ and renders the component into it, passing the element's props.
 - Each declared prop is observed both as an attribute (`prop="…"`) and as a DOM property (`el.prop = …`). A change re-renders the React tree. Undeclared props never reach the component.
 - A Vue host tells its compiler to leave `t-*` tags alone (`isCustomElement` in its `vite.config.ts`). Otherwise it would try to resolve them as Vue components.
 - The rules for props, booleans, events and content, and why the stylesheet is inlined, are in [react-components-in-vue.md](react-components-in-vue.md).
@@ -174,6 +179,7 @@ sequenceDiagram
 ```
 
 Details worth knowing:
+
 - **Lazy loading:** `React.lazy` caches the module promise, so the remote is downloaded only once per page load. Later visits to `/todo-app` reuse it and only call `mount` again.
 - **Ownership:** `TodoMfeHost` (built with `createRemoteHost`, like every remote's host) renders an empty container `<div>`, and React never renders children into it. Everything inside belongs to Vue.
 - **Styles:** the remote's stylesheet arrives inside the JavaScript chunk, not as a CSS file, so nothing depends on the federation runtime loading CSS.
@@ -227,11 +233,11 @@ For a step-by-step walkthrough of the session store and the guards, see [authent
 
 The page has a single `window.history`, used by two routers:
 
-| URL | Shell (React Router) sees | MFE (Vue Router, base `/todo-app`) sees |
-|---|---|---|
-| `/` (or any other shell route) | the matching shell route | not mounted |
-| `/todo-app` | route `/todo-app/*` → `TodoMfeHost` | `/` (the MFE's root route) |
-| `/todo-app/anything` | still `/todo-app/*` (splat) | `/anything` (resolved by the MFE's own routes) |
+| URL                            | Shell (React Router) sees           | MFE (Vue Router, base `/todo-app`) sees        |
+| ------------------------------ | ----------------------------------- | ---------------------------------------------- |
+| `/` (or any other shell route) | the matching shell route            | not mounted                                    |
+| `/todo-app`                    | route `/todo-app/*` → `TodoMfeHost` | `/` (the MFE's root route)                     |
+| `/todo-app/anything`           | still `/todo-app/*` (splat)         | `/anything` (resolved by the MFE's own routes) |
 
 - The shell owns the first path segment and hands everything under `/todo-app` to the MFE.
 - The splat (`/*`) means the shell keeps the MFE mounted while its internal URL changes, so the MFE can add routes without touching the shell.
@@ -249,36 +255,36 @@ This works because each copy manages its own roots and never touches the other's
 
 The design system's stylesheet is on the page twice for the same reason: the shell's `styles.css`, and the copy the remote injects. With the same ui version on both sides the two are identical. With different versions, the remote's copy wins where they differ, because it comes later (see [react-components-in-vue.md](react-components-in-vue.md#5-styles-across-the-boundary)).
 
-The fix is federation `shared` (React as a singleton provided by the shell). It's deliberately not enabled yet, and it brings one catch: a remote's `root.unmount()` (a React remote's unmount, or the custom element's) would then run on the *same* React instance while the shell is in the middle of its commit, which React warns about. Those unmounts would need deferring (e.g. `queueMicrotask`).
+The fix is federation `shared` (React as a singleton provided by the shell). It's deliberately not enabled yet, and it brings one catch: a remote's `root.unmount()` (a React remote's unmount, or the custom element's) would then run on the _same_ React instance while the shell is in the middle of its commit, which React warns about. Those unmounts would need deferring (e.g. `queueMicrotask`).
 
 ## 7. Development vs. production
 
-| | `pnpm dev` | `pnpm build` + `pnpm preview` (or a real deploy) |
-|---|---|---|
-| **todo-mfe** | Vite dev server on :5174 serves `remoteEntry.js` and unbundled modules (`/@id/virtual:mf-exposes…`, `/node_modules/.vite/deps/…`). `server.origin` makes those URLs absolute so they resolve from the shell's page. | `dist/remoteEntry.js` + `dist/assets/*`, served from any static host. Chunks are resolved relative to the remote entry's URL. |
-| **shell** | Vite dev server on :5173; remote URL taken from env at startup. | `dist/` with the remote URL **baked in** at build time. |
-| **@repo/ui** | `vite build --watch` rewrites `dist/` on change, and both apps reload with the new code. A new Tailwind class in a component also regenerates `styles.css` and the CSS inlined in `register.js`. | Built once, before the apps. |
-| **Cross-origin** | Vite's default CORS allows any `localhost` origin. | The remote's host must allow the shell's origin (CORS) for the module scripts. |
+|                  | `pnpm dev`                                                                                                                                                                                                          | `pnpm build` + `pnpm preview` (or a real deploy)                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **todo-mfe**     | Vite dev server on :5174 serves `remoteEntry.js` and unbundled modules (`/@id/virtual:mf-exposes…`, `/node_modules/.vite/deps/…`). `server.origin` makes those URLs absolute so they resolve from the shell's page. | `dist/remoteEntry.js` + `dist/assets/*`, served from any static host. Chunks are resolved relative to the remote entry's URL. |
+| **shell**        | Vite dev server on :5173; remote URL taken from env at startup.                                                                                                                                                     | `dist/` with the remote URL **baked in** at build time.                                                                       |
+| **@repo/ui**     | `vite build --watch` rewrites `dist/` on change, and both apps reload with the new code. A new Tailwind class in a component also regenerates `styles.css` and the CSS inlined in `register.js`.                    | Built once, before the apps.                                                                                                  |
+| **Cross-origin** | Vite's default CORS allows any `localhost` origin.                                                                                                                                                                  | The remote's host must allow the shell's origin (CORS) for the module scripts.                                                |
 
 Changing where the remote lives in production means rebuilding the shell with `VITE_TODO_REMOTE_URL=<url>`. Turbo includes that variable in the shell build's cache key, so a different value produces a fresh build.
 
 ## 8. Types across the boundaries
 
-| Boundary | How types flow |
-|---|---|
-| ui → apps | `tsc` emits `.d.ts` files into `packages/ui/dist`, and `exports` points `types` at them. `@repo/ui/register` has an empty declaration (`export {}`): it's a side-effect import. Inside ui, `src/env.d.ts` loads Vite's types so the `.css` and `?inline` imports typecheck. |
-| MFE → shell | Nothing is generated. `apps/shell/src/remotes/remotes.d.ts` declares the module `todo/mount` by hand, mirroring `apps/todo-mfe/src/mount.ts`. Keep them in sync. Federation's automatic type generation is off (`dts: false`). |
-| `.vue` files | `vue-tsc` typechecks them. That's why the repo uses TypeScript 6: TypeScript 7 removed the compiler API `vue-tsc` builds on. |
+| Boundary     | How types flow                                                                                                                                                                                                                                                              |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ui → apps    | `tsc` emits `.d.ts` files into `packages/ui/dist`, and `exports` points `types` at them. `@repo/ui/register` has an empty declaration (`export {}`): it's a side-effect import. Inside ui, `src/env.d.ts` loads Vite's types so the `.css` and `?inline` imports typecheck. |
+| MFE → shell  | Nothing is generated. `apps/shell/src/remotes/remotes.d.ts` declares the module `todo/mount` by hand, mirroring `apps/todo-mfe/src/mount.ts`. Keep them in sync. Federation's automatic type generation is off (`dts: false`).                                              |
+| `.vue` files | `vue-tsc` typechecks them. That's why the repo uses TypeScript 6: TypeScript 7 removed the compiler API `vue-tsc` builds on.                                                                                                                                                |
 
 ## 9. What happens when something is missing
 
-| Situation | Result |
-|---|---|
-| The todo-mfe server is down or the URL is wrong | `import('todo/mount')` rejects (federation error `RUNTIME-008`). The error boundary shows its fallback, and the rest of the shell keeps working. Because `React.lazy` caches the failure, a reload is needed after the remote comes back. |
-| A signed-in user opens the URL of a remote they have no grant for | `RequireApp` renders the "no access" page; the remote's host never renders, so `mount` is neither downloaded nor called. |
-| A new remote is missing from everyone's menu | Its `navigation.ts` entry is there, but no account has a grant that covers it (`all`, its tech, or its id). |
-| Port 5173 or 5174 is already in use | The dev or preview server exits (`strictPort`) instead of silently moving to another port, which would break the hard-coded remote URL. |
-| `@repo/ui` isn't built | The apps can't resolve `@repo/ui` (its `exports` point into `dist/`). Running through `pnpm dev`, `build` or `typecheck` avoids this because Turbo builds ui first. |
-| A running dev server reports that a `@repo/ui` subpath "is not exported" | ui's `package.json` `exports` changed after the server started, and Vite still uses the old copy it read. Restart `pnpm dev`. The ui watcher doesn't reload its own `vite.config.ts` either. |
-| A remote's components render unstyled | Its `mount.ts` didn't inject its `src/styles.css` (imported with `?inline`). Nothing else loads a remote's CSS. |
-| A dependency was published less than 24 h ago | pnpm refuses it (`minimumReleaseAge`) and picks an older version within the range, or fails if none fits. |
+| Situation                                                                | Result                                                                                                                                                                                                                                    |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The todo-mfe server is down or the URL is wrong                          | `import('todo/mount')` rejects (federation error `RUNTIME-008`). The error boundary shows its fallback, and the rest of the shell keeps working. Because `React.lazy` caches the failure, a reload is needed after the remote comes back. |
+| A signed-in user opens the URL of a remote they have no grant for        | `RequireApp` renders the "no access" page; the remote's host never renders, so `mount` is neither downloaded nor called.                                                                                                                  |
+| A new remote is missing from everyone's menu                             | Its `navigation.ts` entry is there, but no account has a grant that covers it (`all`, its tech, or its id).                                                                                                                               |
+| Port 5173 or 5174 is already in use                                      | The dev or preview server exits (`strictPort`) instead of silently moving to another port, which would break the hard-coded remote URL.                                                                                                   |
+| `@repo/ui` isn't built                                                   | The apps can't resolve `@repo/ui` (its `exports` point into `dist/`). Running through `pnpm dev`, `build` or `typecheck` avoids this because Turbo builds ui first.                                                                       |
+| A running dev server reports that a `@repo/ui` subpath "is not exported" | ui's `package.json` `exports` changed after the server started, and Vite still uses the old copy it read. Restart `pnpm dev`. The ui watcher doesn't reload its own `vite.config.ts` either.                                              |
+| A remote's components render unstyled                                    | Its `mount.ts` didn't inject its `src/styles.css` (imported with `?inline`). Nothing else loads a remote's CSS.                                                                                                                           |
+| A dependency was published less than 24 h ago                            | pnpm refuses it (`minimumReleaseAge`) and picks an older version within the range, or fails if none fits.                                                                                                                                 |

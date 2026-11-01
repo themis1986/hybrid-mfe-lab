@@ -10,9 +10,11 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "preview": "turbo run preview"
+    "preview": "turbo run preview",
+    "format": "prettier --write ."
   },
   "devDependencies": {
+    "prettier": "catalog:",
     "turbo": "^2.11.10"
   }
 }

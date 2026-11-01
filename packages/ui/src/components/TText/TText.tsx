@@ -1,9 +1,17 @@
 import * as Label from '@radix-ui/react-label'
 import { useId, useState } from 'react'
 import { cn } from '../../lib/cn'
-import { tFieldHintVariants, tFieldLabelClasses, tFieldRootClasses } from '../TField/TField.variants'
+import {
+  tFieldHintVariants,
+  tFieldLabelClasses,
+  tFieldRootClasses,
+} from '../TField/TField.variants'
 import { tInputVariants } from '../TInput/TInput.variants'
-import { tTextAreaVariants, tTextCounterClasses, tTextHintRowClasses } from './TText.variants'
+import {
+  tTextAreaVariants,
+  tTextCounterClasses,
+  tTextHintRowClasses,
+} from './TText.variants'
 import type { TTextProps } from './types'
 
 // The textarea's padding (py-2) plus its border, around a number of lines.
@@ -35,9 +43,13 @@ export function TText({
   const counterId = `${textareaId}-counter`
   const hint = error ?? description
   // The count follows `value` when controlled, the textarea's own value otherwise.
-  const [ownLength, setOwnLength] = useState(() => String(defaultValue ?? '').length)
+  const [ownLength, setOwnLength] = useState(
+    () => String(defaultValue ?? '').length,
+  )
   const length = value !== undefined ? String(value).length : ownLength
-  const describedBy = [hint && hintId, maxLength !== undefined && counterId].filter(Boolean).join(' ')
+  const describedBy = [hint && hintId, maxLength !== undefined && counterId]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <div className={cn(tFieldRootClasses, className)} style={style}>
@@ -52,8 +64,18 @@ export function TText({
         defaultValue={defaultValue}
         aria-invalid={!!error || undefined}
         aria-describedby={describedBy || undefined}
-        className={cn(tInputVariants({ size }), tTextAreaVariants({ autoResize }))}
-        style={autoResize ? { minHeight: rowsHeight(rows), maxHeight: maxRows ? rowsHeight(maxRows) : undefined } : undefined}
+        className={cn(
+          tInputVariants({ size }),
+          tTextAreaVariants({ autoResize }),
+        )}
+        style={
+          autoResize
+            ? {
+                minHeight: rowsHeight(rows),
+                maxHeight: maxRows ? rowsHeight(maxRows) : undefined,
+              }
+            : undefined
+        }
         onChange={(event) => {
           if (value === undefined) setOwnLength(event.target.value.length)
           onChange?.(event)
@@ -63,7 +85,13 @@ export function TText({
       {(hint || maxLength !== undefined) && (
         <div className={tTextHintRowClasses}>
           {hint && (
-            <p id={hintId} role={error ? 'alert' : undefined} className={tFieldHintVariants({ tone: error ? 'error' : 'description' })}>
+            <p
+              id={hintId}
+              role={error ? 'alert' : undefined}
+              className={tFieldHintVariants({
+                tone: error ? 'error' : 'description',
+              })}
+            >
               {hint}
             </p>
           )}

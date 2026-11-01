@@ -7,7 +7,11 @@ const query = ref('')
 
 <template>
   <TStack :gap="2" class="max-w-sm">
-    <TInput v-model="query" placeholder="Type to see v-model" aria-label="Query" />
+    <TInput
+      v-model="query"
+      placeholder="Type to see v-model"
+      aria-label="Query"
+    />
     <span class="text-sm text-fg-muted">v-model: “{{ query }}”</span>
     <TInput size="sm" placeholder="Small" aria-label="Small" />
     <TInput invalid model-value="Invalid value" aria-label="Invalid" />

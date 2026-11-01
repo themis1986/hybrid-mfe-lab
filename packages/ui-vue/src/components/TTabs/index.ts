@@ -2,4 +2,9 @@ export { default as TTabs } from './TTabs.vue'
 export { default as TTabsList } from './TTabsList.vue'
 export { default as TTabsTrigger } from './TTabsTrigger.vue'
 export { default as TTabsContent } from './TTabsContent.vue'
-export type { TTabsContentProps, TTabsListProps, TTabsProps, TTabsTriggerProps } from './types'
+export type {
+  TTabsContentProps,
+  TTabsListProps,
+  TTabsProps,
+  TTabsTriggerProps,
+} from './types'

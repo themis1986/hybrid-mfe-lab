@@ -31,7 +31,10 @@ const email = ref('ada@example.com')
       <TDialogContent>
         <TDialogHeader>
           <TDialogTitle>Edit profile</TDialogTitle>
-          <TDialogDescription>v-model:open: Save closes it by setting open to false.</TDialogDescription>
+          <TDialogDescription
+            >v-model:open: Save closes it by setting open to
+            false.</TDialogDescription
+          >
         </TDialogHeader>
         <TDialogBody>
           <TStack :gap="3">
@@ -54,7 +57,9 @@ const email = ref('ada@example.com')
       <TDialogContent size="sm">
         <TDialogHeader>
           <TDialogTitle>Delete this item?</TDialogTitle>
-          <TDialogDescription>Small and uncontrolled. This can't be undone.</TDialogDescription>
+          <TDialogDescription
+            >Small and uncontrolled. This can't be undone.</TDialogDescription
+          >
         </TDialogHeader>
         <TDialogFooter>
           <TDialogClose as-child>
@@ -73,7 +78,10 @@ const email = ref('ada@example.com')
       <TDialogContent size="full">
         <TDialogHeader>
           <TDialogTitle>Full screen</TDialogTitle>
-          <TDialogDescription>size="full" fills the viewport; the body takes the free height and scrolls.</TDialogDescription>
+          <TDialogDescription
+            >size="full" fills the viewport; the body takes the free height and
+            scrolls.</TDialogDescription
+          >
         </TDialogHeader>
         <TDialogBody>
           <TStack :gap="2">

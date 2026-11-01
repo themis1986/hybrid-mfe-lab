@@ -15,9 +15,16 @@ import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useRootAttrs } from '../../lib/attrs'
 import { cn } from '../../lib/cn'
 import { filterOptions } from '../../lib/combobox'
-import { tCheckboxIconClasses, tCheckboxIndicatorClasses, tCheckboxVariants } from '../TCheckbox/TCheckbox.variants'
+import {
+  tCheckboxIconClasses,
+  tCheckboxIndicatorClasses,
+  tCheckboxVariants,
+} from '../TCheckbox/TCheckbox.variants'
 import { TIcon } from '../TIcon'
-import { tRadioIndicatorClasses, tRadioVariants } from '../TRadioGroup/TRadioGroup.variants'
+import {
+  tRadioIndicatorClasses,
+  tRadioVariants,
+} from '../TRadioGroup/TRadioGroup.variants'
 import {
   tSelectChevronClasses,
   tSelectContentClasses,
@@ -52,8 +59,16 @@ const props = withDefaults(defineProps<TComboboxProps>(), {
 // Undefined while no v-model is bound: the value then starts from defaultValue and is kept here.
 const model = defineModel<string | string[] | undefined>({ default: undefined })
 const uncontrolled = ref(props.defaultValue)
-const value = computed(() => (model.value !== undefined ? model.value : uncontrolled.value))
-const selected = computed(() => (value.value === undefined ? [] : Array.isArray(value.value) ? value.value : [value.value]))
+const value = computed(() =>
+  model.value !== undefined ? model.value : uncontrolled.value,
+)
+const selected = computed(() =>
+  value.value === undefined
+    ? []
+    : Array.isArray(value.value)
+      ? value.value
+      : [value.value],
+)
 
 function setValue(next: string | string[] | undefined) {
   uncontrolled.value = next
@@ -71,7 +86,10 @@ const inputAttrs = () => {
 }
 
 // ComboboxRoot is generic, so its instance type can't be named; this is the part of it used here.
-const rootRef = useTemplateRef<{ highlightFirstItem?: () => void; highlightItem?: (value: string) => void }>('rootRef')
+const rootRef = useTemplateRef<{
+  highlightFirstItem?: () => void
+  highlightItem?: (value: string) => void
+}>('rootRef')
 const inputRef = useTemplateRef<InstanceType<typeof ComboboxInput>>('inputRef')
 const inputElement = () => inputRef.value?.$el as HTMLInputElement | undefined
 
@@ -80,7 +98,8 @@ const open = ref(false)
 const text = ref('')
 const query = ref('')
 const filtered = computed(() => filterOptions(props.options, query.value))
-const labelOf = (v: unknown) => props.options.find((option) => option.value === v)?.label ?? ''
+const labelOf = (v: unknown) =>
+  props.options.find((option) => option.value === v)?.label ?? ''
 
 function onOpenChange(next: boolean) {
   open.value = next
@@ -112,7 +131,12 @@ function remove(v: string) {
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (props.multiple && event.key === 'Backspace' && text.value === '' && selected.value.length) {
+  if (
+    props.multiple &&
+    event.key === 'Backspace' &&
+    text.value === '' &&
+    selected.value.length
+  ) {
     event.preventDefault()
     remove(selected.value[selected.value.length - 1])
   }
@@ -137,7 +161,8 @@ function onFieldClick(event: MouseEvent) {
 
 const contentStyle = {
   '--t-select-trigger-width': 'var(--reka-combobox-trigger-width)',
-  '--t-select-available-height': 'var(--reka-combobox-content-available-height)',
+  '--t-select-available-height':
+    'var(--reka-combobox-content-available-height)',
 }
 </script>
 
@@ -163,7 +188,12 @@ const contentStyle = {
     >
       <div data-slot="combobox-values" :class="tComboboxValuesClasses">
         <template v-if="multiple">
-          <span v-for="v in selected" :key="v" data-slot="combobox-chip" :class="tComboboxChipClasses">
+          <span
+            v-for="v in selected"
+            :key="v"
+            data-slot="combobox-chip"
+            :class="tComboboxChipClasses"
+          >
             <span :class="tComboboxChipLabelClasses">{{ labelOf(v) }}</span>
             <button
               type="button"
@@ -190,7 +220,10 @@ const contentStyle = {
           @keydown="onKeydown"
         />
       </div>
-      <ComboboxTrigger aria-label="Show options" :class="tComboboxToggleClasses">
+      <ComboboxTrigger
+        aria-label="Show options"
+        :class="tComboboxToggleClasses"
+      >
         <TIcon :icon="ChevronDown" :class="tSelectChevronClasses" />
       </ComboboxTrigger>
     </ComboboxAnchor>
@@ -207,7 +240,9 @@ const contentStyle = {
         @mousedown.prevent
       >
         <ComboboxViewport :class="tSelectViewportClasses">
-          <div v-if="!filtered.length" :class="tComboboxEmptyClasses">{{ emptyText }}</div>
+          <div v-if="!filtered.length" :class="tComboboxEmptyClasses">
+            {{ emptyText }}
+          </div>
           <ComboboxItem
             v-for="option in filtered"
             :key="option.value"
@@ -221,13 +256,21 @@ const contentStyle = {
             <span
               v-if="multiple"
               aria-hidden="true"
-              :class="cn(tCheckboxVariants({ size: 'sm' }), tSelectIndicatorClasses)"
+              :class="
+                cn(tCheckboxVariants({ size: 'sm' }), tSelectIndicatorClasses)
+              "
             >
               <ComboboxItemIndicator :class="tCheckboxIndicatorClasses">
                 <TIcon :icon="Check" :class="tCheckboxIconClasses" />
               </ComboboxItemIndicator>
             </span>
-            <span v-else aria-hidden="true" :class="cn(tRadioVariants({ size: 'sm' }), tSelectIndicatorClasses)">
+            <span
+              v-else
+              aria-hidden="true"
+              :class="
+                cn(tRadioVariants({ size: 'sm' }), tSelectIndicatorClasses)
+              "
+            >
               <ComboboxItemIndicator :class="tRadioIndicatorClasses" />
             </span>
             {{ option.label }}
@@ -249,7 +292,12 @@ const contentStyle = {
       @focus="inputElement()?.focus()"
     >
       <option v-if="!multiple" value="" :selected="!selected.length" />
-      <option v-for="option in options" :key="option.value" :value="option.value" :selected="selected.includes(option.value)">
+      <option
+        v-for="option in options"
+        :key="option.value"
+        :value="option.value"
+        :selected="selected.includes(option.value)"
+      >
         {{ option.label }}
       </option>
     </select>

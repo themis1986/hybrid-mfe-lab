@@ -18,7 +18,13 @@ const photos = ref<File[]>([])
       :max-size="10_000_000"
       :upload="mockUpload"
     />
-    <TUpload label="Avatar" variant="compact" accept="image/*" name="avatar" description="One image; a new one replaces it." />
+    <TUpload
+      label="Avatar"
+      variant="compact"
+      accept="image/*"
+      name="avatar"
+      description="One image; a new one replaces it."
+    />
     <TUpload
       label="Attachments"
       multiple

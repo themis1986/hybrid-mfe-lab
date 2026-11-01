@@ -26,10 +26,16 @@ export function TSection({
   // or the slotted element's own children with it.
   return (
     <Comp className={cn(tSectionVariants({ spacing }), className)} {...props}>
-      {title != null && <Heading className={tSectionHeadingClasses}>{title}</Heading>}
-      {description != null && <p className={tSectionDescriptionClasses}>{description}</p>}
+      {title != null && (
+        <Heading className={tSectionHeadingClasses}>{title}</Heading>
+      )}
+      {description != null && (
+        <p className={tSectionDescriptionClasses}>{description}</p>
+      )}
       <Slottable child={children}>
-        {(content) => <div className={tSectionBodyVariants({ gap })}>{content}</div>}
+        {(content) => (
+          <div className={tSectionBodyVariants({ gap })}>{content}</div>
+        )}
       </Slottable>
     </Comp>
   )

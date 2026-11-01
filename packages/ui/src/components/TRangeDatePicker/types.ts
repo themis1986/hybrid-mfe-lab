@@ -3,7 +3,8 @@ import type { TCalendarBaseProps } from '../TCalendar/types'
 import type { TDateFieldBaseProps } from '../TDateField/types'
 import type { TPickerProps } from '../TDatePicker/types'
 
-export interface TRangeDatePickerProps extends TDateFieldBaseProps, TCalendarBaseProps, TPickerProps {
+export interface TRangeDatePickerProps
+  extends TDateFieldBaseProps, TCalendarBaseProps, TPickerProps {
   /** The range, in ISO dates; it changes only once both ends are set. */
   value?: TDateRange
   /** Initial range when `value` isn't set. */

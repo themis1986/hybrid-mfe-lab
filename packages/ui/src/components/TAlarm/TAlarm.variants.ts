@@ -69,4 +69,5 @@ export const tAlarmDescriptionClasses = 'm-0 leading-snug text-fg-muted'
 // Merged onto an outline TButton, between the text and the close button.
 export const tAlarmActionClasses = 'shrink-0 self-center'
 // Merged onto a ghost TButton.
-export const tAlarmCloseClasses = 'absolute end-2 top-2 h-7 w-7 px-0 text-fg-muted'
+export const tAlarmCloseClasses =
+  'absolute end-2 top-2 h-7 w-7 px-0 text-fg-muted'

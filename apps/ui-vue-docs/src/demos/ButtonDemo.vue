@@ -9,7 +9,13 @@ const clicks = ref(0)
 <template>
   <TStack :gap="3">
     <TCluster>
-      <TButton v-for="variant in variants" :key="variant" :variant="variant" @click="clicks++">{{ variant }}</TButton>
+      <TButton
+        v-for="variant in variants"
+        :key="variant"
+        :variant="variant"
+        @click="clicks++"
+        >{{ variant }}</TButton
+      >
     </TCluster>
     <TCluster>
       <TButton size="sm" label="Small" />

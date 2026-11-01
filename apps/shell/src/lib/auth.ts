@@ -38,7 +38,10 @@ function subscribe(listener: () => void) {
 }
 
 /** Async like a real sign-in request. Rejects when the credentials don't match an account. */
-export async function signIn(username: string, password: string): Promise<User> {
+export async function signIn(
+  username: string,
+  password: string,
+): Promise<User> {
   const user = findUserByCredentials(username, password)
   if (!user) throw new Error('Wrong username or password.')
   setSession(user)

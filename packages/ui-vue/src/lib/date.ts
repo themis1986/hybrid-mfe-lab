@@ -33,7 +33,9 @@ export interface TDatePreset {
 export type TTimeGranularity = 'hour' | 'minute' | 'second'
 
 /** The date an ISO string ('2026-11-01') names; undefined when it is missing or invalid. */
-export function parseIsoDate(iso: string | undefined): CalendarDate | undefined {
+export function parseIsoDate(
+  iso: string | undefined,
+): CalendarDate | undefined {
   if (!iso) return undefined
   try {
     return parseDate(iso)
@@ -60,13 +62,18 @@ export function parseIsoTime(iso: string | undefined): Time | undefined {
 const pad = (n: number) => String(n).padStart(2, '0')
 
 /** A time's ISO string: '14:30', or '14:30:15' when the field shows seconds. */
-export function toIsoTime(time: Pick<Time, 'hour' | 'minute' | 'second'>, granularity: TTimeGranularity = 'minute'): string {
+export function toIsoTime(
+  time: Pick<Time, 'hour' | 'minute' | 'second'>,
+  granularity: TTimeGranularity = 'minute',
+): string {
   const hm = `${pad(time.hour)}:${pad(time.minute)}`
   return granularity === 'second' ? `${hm}:${pad(time.second)}` : hm
 }
 
 /** The range two ISO strings name, when both are valid; a reversed range is put in order. */
-export function parseIsoRange(range: Partial<TDateRange> | undefined): { start: CalendarDate; end: CalendarDate } | undefined {
+export function parseIsoRange(
+  range: Partial<TDateRange> | undefined,
+): { start: CalendarDate; end: CalendarDate } | undefined {
   const start = parseIsoDate(range?.start)
   const end = parseIsoDate(range?.end)
   if (!start || !end) return undefined
@@ -74,7 +81,9 @@ export function parseIsoRange(range: Partial<TDateRange> | undefined): { start: 
 }
 
 /** Adapts an ISO-string matcher to one over date values (Reka's `Matcher`). */
-export function toMatcher(matcher: TDateMatcher | undefined): ((date: DateValue) => boolean) | undefined {
+export function toMatcher(
+  matcher: TDateMatcher | undefined,
+): ((date: DateValue) => boolean) | undefined {
   return matcher && ((date) => matcher(toIsoDate(date)))
 }
 
@@ -82,21 +91,31 @@ export function toMatcher(matcher: TDateMatcher | undefined): ((date: DateValue)
  * The value a range submits with its form: an ISO 8601 interval ('2026-11-01/2026-11-07'), or '' while
  * the range is incomplete, so `required` still blocks the submission.
  */
-export function rangeSubmitValue(range: Partial<TDateRange> | undefined): string {
+export function rangeSubmitValue(
+  range: Partial<TDateRange> | undefined,
+): string {
   return range?.start && range.end ? `${range.start}/${range.end}` : ''
 }
 
 /** Common ranges ending today, in the given time zone (the user's by default). */
-export function defaultRangePresets(timeZone: string = getLocalTimeZone()): TDatePreset[] {
+export function defaultRangePresets(
+  timeZone: string = getLocalTimeZone(),
+): TDatePreset[] {
   const now = today(timeZone)
   const lastMonth = now.subtract({ months: 1 })
-  const range = (start: CalendarDate, end: CalendarDate): TDateRange => ({ start: start.toString(), end: end.toString() })
+  const range = (start: CalendarDate, end: CalendarDate): TDateRange => ({
+    start: start.toString(),
+    end: end.toString(),
+  })
 
   return [
     { label: 'Today', value: range(now, now) },
     { label: 'Last 7 days', value: range(now.subtract({ days: 6 }), now) },
     { label: 'Last 30 days', value: range(now.subtract({ days: 29 }), now) },
     { label: 'This month', value: range(startOfMonth(now), now) },
-    { label: 'Last month', value: range(startOfMonth(lastMonth), endOfMonth(lastMonth)) },
+    {
+      label: 'Last month',
+      value: range(startOfMonth(lastMonth), endOfMonth(lastMonth)),
+    },
   ]
 }

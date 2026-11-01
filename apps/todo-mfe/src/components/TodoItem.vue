@@ -17,8 +17,14 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <li class="flex items-center gap-3 py-3 ps-4 pe-2 transition-colors duration-150 hover:bg-surface">
-    <TCheckbox :id="checkboxId" :model-value="todo.done" @update:model-value="emit('toggle')" />
+  <li
+    class="flex items-center gap-3 py-3 ps-4 pe-2 transition-colors duration-150 hover:bg-surface"
+  >
+    <TCheckbox
+      :id="checkboxId"
+      :model-value="todo.done"
+      @update:model-value="emit('toggle')"
+    />
     <!-- The label names the checkbox, and a click on the title toggles it too. -->
     <label
       :for="checkboxId"

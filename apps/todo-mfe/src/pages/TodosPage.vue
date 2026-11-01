@@ -18,13 +18,34 @@ import TodoList from '../components/TodoList.vue'
 import { useTodos } from '../hooks/useTodos'
 import type { TodoFilter } from '../types'
 
-const FILTERS: { value: TodoFilter; label: string; emptyTitle: string; emptyText: string }[] = [
-  { value: 'all', label: 'All', emptyTitle: 'Nothing to do yet', emptyText: 'Add your first todo above.' },
-  { value: 'open', label: 'Open', emptyTitle: 'All caught up', emptyText: 'Every todo is done. Nice work!' },
-  { value: 'done', label: 'Done', emptyTitle: 'Nothing done yet', emptyText: 'Tick a todo to mark it as done.' },
+const FILTERS: {
+  value: TodoFilter
+  label: string
+  emptyTitle: string
+  emptyText: string
+}[] = [
+  {
+    value: 'all',
+    label: 'All',
+    emptyTitle: 'Nothing to do yet',
+    emptyText: 'Add your first todo above.',
+  },
+  {
+    value: 'open',
+    label: 'Open',
+    emptyTitle: 'All caught up',
+    emptyText: 'Every todo is done. Nice work!',
+  },
+  {
+    value: 'done',
+    label: 'Done',
+    emptyTitle: 'Nothing done yet',
+    emptyText: 'Tick a todo to mark it as done.',
+  },
 ]
 
-const { announcement, openCount, doneCount, filtered, clearCompleted } = useTodos()
+const { announcement, openCount, doneCount, filtered, clearCompleted } =
+  useTodos()
 
 const filter = ref<TodoFilter>('all')
 const form = useTemplateRef('form')
@@ -38,7 +59,10 @@ function onClearCompleted() {
 
 <template>
   <TStack :gap="6">
-    <TPageHeader title="Your todos" description="Add what needs doing, tick it off when it's done.">
+    <TPageHeader
+      title="Your todos"
+      description="Add what needs doing, tick it off when it's done."
+    >
       <template #actions>
         <TButton as-child variant="ghost" size="sm">
           <RouterLink to="/">
@@ -56,11 +80,21 @@ function onClearCompleted() {
     <TTabs v-model="filter">
       <TInline wrap justify="between" :gap="3">
         <TTabsList variant="pills" aria-label="Show">
-          <TTabsTrigger v-for="f in FILTERS" :key="f.value" :value="f.value">{{ f.label }}</TTabsTrigger>
+          <TTabsTrigger v-for="f in FILTERS" :key="f.value" :value="f.value">{{
+            f.label
+          }}</TTabsTrigger>
         </TTabsList>
         <TInline :gap="2">
-          <span class="text-sm text-fg-muted tabular-nums">{{ openCount }} open · {{ doneCount }} done</span>
-          <TButton v-if="doneCount" variant="ghost" size="sm" label="Clear done" @click="onClearCompleted" />
+          <span class="text-sm text-fg-muted tabular-nums"
+            >{{ openCount }} open · {{ doneCount }} done</span
+          >
+          <TButton
+            v-if="doneCount"
+            variant="ghost"
+            size="sm"
+            label="Clear done"
+            @click="onClearCompleted"
+          />
         </TInline>
       </TInline>
       <TTabsContent v-for="f in FILTERS" :key="f.value" :value="f.value">

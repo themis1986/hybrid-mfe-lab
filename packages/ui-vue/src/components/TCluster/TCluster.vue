@@ -6,7 +6,13 @@ import type { TClusterProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TClusterProps>(), { as: 'div' })
-const root = useRootAttrs(() => tClusterVariants({ gap: props.gap, align: props.align, justify: props.justify }))
+const root = useRootAttrs(() =>
+  tClusterVariants({
+    gap: props.gap,
+    align: props.align,
+    justify: props.justify,
+  }),
+)
 </script>
 
 <template>

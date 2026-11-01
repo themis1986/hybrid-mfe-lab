@@ -5,7 +5,10 @@ import { useRootAttrs } from '../../lib/attrs'
 import { cn } from '../../lib/cn'
 import { parseIsoDate, type TDateRange, toMatcher } from '../../lib/date'
 import { rangeToIso, rangeToReka, useDateModel } from '../../lib/dateModel'
-import { tCalendarFrameClasses, tCalendarRootClasses } from '../TCalendar/TCalendar.variants'
+import {
+  tCalendarFrameClasses,
+  tCalendarRootClasses,
+} from '../TCalendar/TCalendar.variants'
 import RangeCalendarBody from './RangeCalendarBody.vue'
 import RangePresets from './RangePresets.vue'
 import type { TRangeCalendarProps } from './types'
@@ -23,7 +26,12 @@ const props = withDefaults(defineProps<TRangeCalendarProps>(), {
   presetsLabel: 'Presets',
 })
 const model = defineModel<TDateRange | undefined>({ default: undefined })
-const { draft, update } = useDateModel(model, props.defaultValue, rangeToReka, rangeToIso)
+const { draft, update } = useDateModel(
+  model,
+  props.defaultValue,
+  rangeToReka,
+  rangeToIso,
+)
 // The complete range shown, for the presets (without a v-model, the model stays undefined).
 const shown = computed(() => {
   const iso = rangeToIso(draft.value)
@@ -64,6 +72,11 @@ const max = computed(() => parseIsoDate(props.max))
       :disabled="disabled || readonly"
       @select="(range) => update(rangeToReka(range))"
     />
-    <RangeCalendarBody :grid="grid" :week-days="weekDays" :prev-label="prevLabel" :next-label="nextLabel" />
+    <RangeCalendarBody
+      :grid="grid"
+      :week-days="weekDays"
+      :prev-label="prevLabel"
+      :next-label="nextLabel"
+    />
   </RangeCalendarRoot>
 </template>

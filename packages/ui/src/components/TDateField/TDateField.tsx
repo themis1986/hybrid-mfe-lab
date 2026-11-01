@@ -23,7 +23,9 @@ export function TDateField({
   ...field
 }: TDateFieldProps) {
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue)
-  const value = parseIsoDate(valueProp !== undefined ? valueProp : uncontrolledValue)
+  const value = parseIsoDate(
+    valueProp !== undefined ? valueProp : uncontrolledValue,
+  )
   const [fallback] = useState(todayDate)
   const rules = dayRules({ min, max, isDateUnavailable })
 
@@ -36,8 +38,16 @@ export function TDateField({
   const outOfRange = !!value && rules.isBlocked(value)
 
   return (
-    <FieldRoot slot="date-field" {...field} outOfRange={outOfRange} submitValue={value ? toIsoDate(value) : ''}>
-      <div data-slot="date-field-segments" className={tDateFieldSegmentsClasses}>
+    <FieldRoot
+      slot="date-field"
+      {...field}
+      outOfRange={outOfRange}
+      submitValue={value ? toIsoDate(value) : ''}
+    >
+      <div
+        data-slot="date-field-segments"
+        className={tDateFieldSegmentsClasses}
+      >
         <DateSegments
           kind="date"
           value={value}

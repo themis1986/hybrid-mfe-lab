@@ -1,14 +1,32 @@
 <script setup lang="ts">
-import { alarm, TAlarm, TButton, TCluster, TSelect, TStack, TSwitch, type TAlarmPosition } from '@repo/ui-vue'
+import {
+  alarm,
+  TAlarm,
+  TButton,
+  TCluster,
+  TSelect,
+  TStack,
+  TSwitch,
+  type TAlarmPosition,
+} from '@repo/ui-vue'
 import { computed, ref } from 'vue'
 
-const positions = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'] as const
+const positions = [
+  'top-left',
+  'top-center',
+  'top-right',
+  'bottom-left',
+  'bottom-center',
+  'bottom-right',
+] as const
 const positionOptions = [
   { value: 'host', label: "Host's (bottom-right)" },
   ...positions.map((p) => ({ value: p, label: p })),
 ]
 const choice = ref('host')
-const position = computed(() => (choice.value === 'host' ? undefined : (choice.value as TAlarmPosition)))
+const position = computed(() =>
+  choice.value === 'host' ? undefined : (choice.value as TAlarmPosition),
+)
 
 const offline = ref(false)
 </script>
@@ -16,7 +34,13 @@ const offline = ref(false)
 <template>
   <TStack :gap="4">
     <TCluster :gap="3">
-      <TSelect v-model="choice" :options="positionOptions" size="sm" aria-label="Position" class="w-52" />
+      <TSelect
+        v-model="choice"
+        :options="positionOptions"
+        size="sm"
+        aria-label="Position"
+        class="w-52"
+      />
       <TButton
         variant="soft"
         label="Success"
@@ -25,13 +49,27 @@ const offline = ref(false)
       <TButton
         variant="soft"
         label="Error"
-        @click="alarm.error('Upload failed', { description: 'The file is larger than 10 MB.', position })"
+        @click="
+          alarm.error('Upload failed', {
+            description: 'The file is larger than 10 MB.',
+            position,
+          })
+        "
       />
-      <TButton variant="soft" label="Info" @click="alarm.info('A new version is available', { position })" />
+      <TButton
+        variant="soft"
+        label="Info"
+        @click="alarm.info('A new version is available', { position })"
+      />
       <TButton
         variant="soft"
         label="Warning"
-        @click="alarm.warning('Your session expires in 5 minutes', { position, duration: 10000 })"
+        @click="
+          alarm.warning('Your session expires in 5 minutes', {
+            position,
+            duration: 10000,
+          })
+        "
       />
     </TCluster>
     <label class="inline-flex items-center gap-2 text-sm">

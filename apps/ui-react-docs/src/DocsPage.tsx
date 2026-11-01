@@ -17,7 +17,12 @@ import { DOC_ENTRIES, DOC_GROUPS, type DocEntry, type DocProp } from './catalog'
 
 function Code({ children, label }: { children: string; label: string }) {
   return (
-    <TScrollArea orientation="horizontal" role="region" aria-label={label} className="rounded-md bg-surface">
+    <TScrollArea
+      orientation="horizontal"
+      role="region"
+      aria-label={label}
+      className="rounded-md bg-surface"
+    >
       <pre className="m-0 p-4 font-mono text-xs leading-relaxed text-fg">
         <code>{children}</code>
       </pre>
@@ -27,15 +32,27 @@ function Code({ children, label }: { children: string; label: string }) {
 
 function PropsTable({ name, props }: { name: string; props: DocProp[] }) {
   return (
-    <TScrollArea orientation="horizontal" role="region" aria-label={`${name} props`}>
+    <TScrollArea
+      orientation="horizontal"
+      role="region"
+      aria-label={`${name} props`}
+    >
       {/* A minimum width so a narrow screen scrolls the table instead of squeezing its columns. */}
       <table className="w-full min-w-xl border-collapse text-left text-sm">
         <thead>
           <tr className="text-xs tracking-wide text-fg-muted uppercase">
-            <th className="border-b border-line py-2 pr-4 font-semibold">Prop</th>
-            <th className="border-b border-line py-2 pr-4 font-semibold">Type</th>
-            <th className="border-b border-line py-2 pr-4 font-semibold">Default</th>
-            <th className="border-b border-line py-2 font-semibold">Description</th>
+            <th className="border-b border-line py-2 pr-4 font-semibold">
+              Prop
+            </th>
+            <th className="border-b border-line py-2 pr-4 font-semibold">
+              Type
+            </th>
+            <th className="border-b border-line py-2 pr-4 font-semibold">
+              Default
+            </th>
+            <th className="border-b border-line py-2 font-semibold">
+              Description
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -44,9 +61,15 @@ function PropsTable({ name, props }: { name: string; props: DocProp[] }) {
               <td className="border-b border-line py-2 pr-4 font-mono text-xs whitespace-nowrap text-accent-fg">
                 {prop.name}
               </td>
-              <td className="border-b border-line py-2 pr-4 font-mono text-xs">{prop.type}</td>
-              <td className="border-b border-line py-2 pr-4 font-mono text-xs whitespace-nowrap">{prop.default ?? '–'}</td>
-              <td className="border-b border-line py-2 text-fg-muted">{prop.description}</td>
+              <td className="border-b border-line py-2 pr-4 font-mono text-xs">
+                {prop.type}
+              </td>
+              <td className="border-b border-line py-2 pr-4 font-mono text-xs whitespace-nowrap">
+                {prop.default ?? '–'}
+              </td>
+              <td className="border-b border-line py-2 text-fg-muted">
+                {prop.description}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -58,17 +81,26 @@ function PropsTable({ name, props }: { name: string; props: DocProp[] }) {
 function Entry({ entry }: { entry: DocEntry }) {
   return (
     // scroll-mt keeps the card clear of the sticky app header when its anchor is followed.
-    <TCard id={entry.id} className="scroll-mt-[calc(var(--t-layout-header-height)+1rem)]">
+    <TCard
+      id={entry.id}
+      className="scroll-mt-[calc(var(--t-layout-header-height)+1rem)]"
+    >
       <TCardHeader>
         <h3>
           <code className="font-mono">{entry.name}</code>
         </h3>
-        {entry.parts && <span className="font-mono text-xs font-normal text-fg-muted">+ {entry.parts.join(', ')}</span>}
+        {entry.parts && (
+          <span className="font-mono text-xs font-normal text-fg-muted">
+            + {entry.parts.join(', ')}
+          </span>
+        )}
       </TCardHeader>
       <TCardBody>
         <TStack gap={4}>
           <p className="m-0 text-sm text-fg-muted">{entry.summary}</p>
-          <div className="rounded-md border border-dashed border-line p-4">{entry.demo}</div>
+          <div className="rounded-md border border-dashed border-line p-4">
+            {entry.demo}
+          </div>
           <Code label={`${entry.name} usage`}>{entry.code}</Code>
           <PropsTable name={entry.name} props={entry.props} />
         </TStack>
@@ -89,15 +121,20 @@ export function DocsPage() {
         <TPanel tone="accent" title="Getting started">
           <TStack gap={2} className="text-sm">
             <span>
-              Import the stylesheet once in the app's entry, then the components from the package. They are React
-              components, built on design tokens, Tailwind and Radix.
+              Import the stylesheet once in the app's entry, then the components
+              from the package. They are React components, built on design
+              tokens, Tailwind and Radix.
             </span>
             <Code label="Setup">{`import '@repo/ui/styles.css'
 import { TButton, TIcon, TStack } from '@repo/ui'
 import { Search } from '@repo/ui/icons'`}</Code>
             <TCluster gap={4} className="text-fg-muted">
-              <span>Spacing props take steps 0–8: 0, 4, 8, 12, 16, 24, 32, 48, 64px.</span>
-              <span>A className you pass wins over the component's own classes.</span>
+              <span>
+                Spacing props take steps 0–8: 0, 4, 8, 12, 16, 24, 32, 48, 64px.
+              </span>
+              <span>
+                A className you pass wins over the component's own classes.
+              </span>
             </TCluster>
           </TStack>
         </TPanel>
@@ -111,9 +148,13 @@ import { Search } from '@repo/ui/icons'`}</Code>
             <TStack gap={4}>
               {DOC_GROUPS.map((group) => (
                 <TStack key={group.id} gap={1}>
-                  <p className="m-0 text-xs font-semibold tracking-wider text-fg-muted uppercase">{group.label}</p>
+                  <p className="m-0 text-xs font-semibold tracking-wider text-fg-muted uppercase">
+                    {group.label}
+                  </p>
                   <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
-                    {DOC_ENTRIES.filter((entry) => entry.group === group.id).map((entry) => (
+                    {DOC_ENTRIES.filter(
+                      (entry) => entry.group === group.id,
+                    ).map((entry) => (
                       <li key={entry.id}>
                         <a
                           href={`#${entry.id}`}
@@ -132,10 +173,17 @@ import { Search } from '@repo/ui/icons'`}</Code>
           <TSidebarLayoutContent>
             <TStack gap={8}>
               {DOC_GROUPS.map((group) => (
-                <TSection key={group.id} title={group.label} description={group.description} gap={5}>
-                  {DOC_ENTRIES.filter((entry) => entry.group === group.id).map((entry) => (
-                    <Entry key={entry.id} entry={entry} />
-                  ))}
+                <TSection
+                  key={group.id}
+                  title={group.label}
+                  description={group.description}
+                  gap={5}
+                >
+                  {DOC_ENTRIES.filter((entry) => entry.group === group.id).map(
+                    (entry) => (
+                      <Entry key={entry.id} entry={entry} />
+                    ),
+                  )}
                 </TSection>
               ))}
             </TStack>

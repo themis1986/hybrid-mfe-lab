@@ -17,7 +17,13 @@ export interface TAlarmAction {
   onClick: () => void
 }
 
-export type TAlarmPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
+export type TAlarmPosition =
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right'
 
 export interface TAlarmOptions {
   /** A second, quieter line under the title. */
@@ -77,7 +83,11 @@ function createAlarmStore(): TAlarmStore {
     },
     set(item) {
       const exists = state.items.some((i) => i.id === item.id)
-      commit({ items: exists ? state.items.map((i) => (i.id === item.id ? item : i)) : [...state.items, item] })
+      commit({
+        items: exists
+          ? state.items.map((i) => (i.id === item.id ? item : i))
+          : [...state.items, item],
+      })
     },
     dismiss(id) {
       const item = state.items.find((i) => i.id === id)
@@ -86,7 +96,8 @@ function createAlarmStore(): TAlarmStore {
       item.onClose?.()
     },
     remove(id) {
-      if (state.items.some((i) => i.id === id)) commit({ items: state.items.filter((i) => i.id !== id) })
+      if (state.items.some((i) => i.id === id))
+        commit({ items: state.items.filter((i) => i.id !== id) })
     },
     registerHost(host) {
       hosts = [...hosts, host]
@@ -108,7 +119,11 @@ export function newAlarmId() {
   return `alarm-${Math.random().toString(36).slice(2)}`
 }
 
-function show(variant: TAlarmItemVariant, title: string, options: TAlarmOptions = {}) {
+function show(
+  variant: TAlarmItemVariant,
+  title: string,
+  options: TAlarmOptions = {},
+) {
   const id = newAlarmId()
   alarmStore.set({ ...options, id, variant, title })
   return id
@@ -116,10 +131,14 @@ function show(variant: TAlarmItemVariant, title: string, options: TAlarmOptions 
 
 /** Raises an alarm from anywhere; a TAlarmHost on the page shows it. Each call returns the alarm's id. */
 export const alarm = {
-  success: (title: string, options?: TAlarmOptions) => show('success', title, options),
-  error: (title: string, options?: TAlarmOptions) => show('error', title, options),
-  info: (title: string, options?: TAlarmOptions) => show('info', title, options),
-  warning: (title: string, options?: TAlarmOptions) => show('warning', title, options),
+  success: (title: string, options?: TAlarmOptions) =>
+    show('success', title, options),
+  error: (title: string, options?: TAlarmOptions) =>
+    show('error', title, options),
+  info: (title: string, options?: TAlarmOptions) =>
+    show('info', title, options),
+  warning: (title: string, options?: TAlarmOptions) =>
+    show('warning', title, options),
   /** Closes an alarm early. */
   dismiss: (id: string) => alarmStore.dismiss(id),
 }
@@ -130,7 +149,10 @@ export function toast(title: string, options?: TAlarmOptions) {
 }
 
 /** The alarms per position, oldest first. The host's own position is always present (its viewport holds F8). */
-export function groupAlarms(items: readonly TAlarmItem[], hostPosition: TAlarmPosition) {
+export function groupAlarms(
+  items: readonly TAlarmItem[],
+  hostPosition: TAlarmPosition,
+) {
   const groups = new Map<TAlarmPosition, TAlarmItem[]>([[hostPosition, []]])
   for (const item of items) {
     const position = item.position ?? hostPosition
@@ -148,5 +170,7 @@ export function alarmSwipeDirection(position: TAlarmPosition) {
 
 /** Errors and warnings interrupt a screen reader (assertive); the rest wait (polite). */
 export function alarmUrgency(variant: TAlarmItemVariant) {
-  return variant === 'error' || variant === 'warning' ? 'foreground' : 'background'
+  return variant === 'error' || variant === 'warning'
+    ? 'foreground'
+    : 'background'
 }

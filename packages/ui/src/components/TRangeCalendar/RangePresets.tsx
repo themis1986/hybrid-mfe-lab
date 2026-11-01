@@ -1,6 +1,9 @@
 import type { TDatePreset, TDateRange } from '../../lib/date'
 import { TButton } from '../TButton'
-import { tCalendarPresetClasses, tCalendarPresetsClasses } from '../TCalendar/TCalendar.variants'
+import {
+  tCalendarPresetClasses,
+  tCalendarPresetsClasses,
+} from '../TCalendar/TCalendar.variants'
 
 interface RangePresetsProps {
   presets: TDatePreset[]
@@ -11,15 +14,28 @@ interface RangePresetsProps {
 }
 
 // The presets column of a range calendar or range picker. The current range's preset is pressed.
-export function RangePresets({ presets, label, value, disabled, onSelect }: RangePresetsProps) {
+export function RangePresets({
+  presets,
+  label,
+  value,
+  disabled,
+  onSelect,
+}: RangePresetsProps) {
   return (
-    <ul data-slot="calendar-presets" aria-label={label} className={tCalendarPresetsClasses}>
+    <ul
+      data-slot="calendar-presets"
+      aria-label={label}
+      className={tCalendarPresetsClasses}
+    >
       {presets.map((preset) => (
         <li key={preset.label}>
           <TButton
             variant="ghost"
             size="sm"
-            aria-pressed={value?.start === preset.value.start && value?.end === preset.value.end}
+            aria-pressed={
+              value?.start === preset.value.start &&
+              value?.end === preset.value.end
+            }
             disabled={disabled}
             className={tCalendarPresetClasses}
             onClick={() => onSelect(preset.value)}

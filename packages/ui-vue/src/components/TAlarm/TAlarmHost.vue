@@ -1,8 +1,21 @@
 <script setup lang="ts">
 import { CircleCheck, CircleX, Info, TriangleAlert, X } from '@lucide/vue'
-import { ToastAction, ToastClose, ToastDescription, ToastProvider, ToastRoot, ToastTitle, ToastViewport } from 'reka-ui'
+import {
+  ToastAction,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastRoot,
+  ToastTitle,
+  ToastViewport,
+} from 'reka-ui'
 import { computed, onBeforeUnmount, onMounted, shallowRef } from 'vue'
-import { alarmStore, alarmSwipeDirection, alarmUrgency, groupAlarms } from '../../lib/alarm'
+import {
+  alarmStore,
+  alarmSwipeDirection,
+  alarmUrgency,
+  groupAlarms,
+} from '../../lib/alarm'
 import { TButton } from '../TButton'
 import { TIcon } from '../TIcon'
 import {
@@ -27,7 +40,12 @@ const props = withDefaults(defineProps<TAlarmHostProps>(), {
   label: 'Notifications',
 })
 
-const ICONS = { success: CircleCheck, error: CircleX, info: Info, warning: TriangleAlert }
+const ICONS = {
+  success: CircleCheck,
+  error: CircleX,
+  info: Info,
+  warning: TriangleAlert,
+}
 const swipeStyle = {
   '--t-alarm-swipe-x': 'var(--reka-toast-swipe-move-x)',
   '--t-alarm-swipe-y': 'var(--reka-toast-swipe-move-y)',
@@ -35,7 +53,11 @@ const swipeStyle = {
 
 const host = Symbol('TAlarmHost')
 const state = shallowRef(alarmStore.getState())
-const groups = computed(() => (state.value.host === host ? [...groupAlarms(state.value.items, props.position)] : []))
+const groups = computed(() =>
+  state.value.host === host
+    ? [...groupAlarms(state.value.items, props.position)]
+    : [],
+)
 
 // Closed by its timer, a swipe or its close button.
 const dismiss = (id: string) => alarmStore.dismiss(id)
@@ -43,7 +65,9 @@ const dismiss = (id: string) => alarmStore.dismiss(id)
 let unsubscribe: (() => void) | undefined
 let unregister: (() => void) | undefined
 onMounted(() => {
-  unsubscribe = alarmStore.subscribe(() => (state.value = alarmStore.getState()))
+  unsubscribe = alarmStore.subscribe(
+    () => (state.value = alarmStore.getState()),
+  )
   unregister = alarmStore.registerHost(host)
 })
 onBeforeUnmount(() => {
@@ -79,7 +103,11 @@ onBeforeUnmount(() => {
       />
       <div :class="tAlarmBodyClasses">
         <ToastTitle :class="tAlarmTitleClasses">{{ item.title }}</ToastTitle>
-        <ToastDescription v-if="item.description" :class="tAlarmDescriptionClasses">{{ item.description }}</ToastDescription>
+        <ToastDescription
+          v-if="item.description"
+          :class="tAlarmDescriptionClasses"
+          >{{ item.description }}</ToastDescription
+        >
       </div>
       <!-- alt-text describes the action for screen readers, which reach it through F8. -->
       <ToastAction v-if="item.action" as-child :alt-text="item.action.label">
@@ -92,7 +120,12 @@ onBeforeUnmount(() => {
         />
       </ToastAction>
       <ToastClose as-child>
-        <TButton variant="ghost" size="sm" aria-label="Dismiss" :class="tAlarmCloseClasses">
+        <TButton
+          variant="ghost"
+          size="sm"
+          aria-label="Dismiss"
+          :class="tAlarmCloseClasses"
+        >
           <TIcon :icon="X" size="sm" />
         </TButton>
       </ToastClose>

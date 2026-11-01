@@ -15,7 +15,9 @@ import { TSpacer } from './components/TSpacer'
 // federation runtime, to load a CSS file for it. One <style> per page, refreshed if this module re-runs (HMR).
 // It is injected before any element is defined, so the first render is already styled.
 const STYLE_ID = 't-ui-styles'
-const style = document.getElementById(STYLE_ID) ?? document.head.appendChild(document.createElement('style'))
+const style =
+  document.getElementById(STYLE_ID) ??
+  document.head.appendChild(document.createElement('style'))
 style.id = STYLE_ID
 // A divider and a spacer only work as direct children of their flex or block parent, so their hosts
 // step out of the layout (`display: contents`). A class on the host itself then has no effect.
@@ -24,8 +26,10 @@ style.textContent = `${styles}\nt-divider, t-spacer { display: contents; }`
 // r2wc passes the element itself as a `container` prop. Drop it, so components that spread their
 // props onto a DOM element don't render it as an attribute.
 function bridge<P extends object>(Component: ComponentType<P>) {
-  return ({ container: _container, ...props }: P & { container?: HTMLElement }) =>
-    createElement(Component, props as P)
+  return ({
+    container: _container,
+    ...props
+  }: P & { container?: HTMLElement }) => createElement(Component, props as P)
 }
 
 // Guard against double registration (HMR, or several MFEs bundling this entry).
@@ -42,7 +46,12 @@ function define(tag: string, element: CustomElementConstructor) {
 define(
   't-button',
   r2wc(bridge(TButton), {
-    props: { label: 'string', variant: 'string', size: 'string', disabled: 'boolean' },
+    props: {
+      label: 'string',
+      variant: 'string',
+      size: 'string',
+      disabled: 'boolean',
+    },
   }),
 )
 
@@ -62,7 +71,12 @@ define('t-input', r2wc(bridge(TInput), { props: inputProps }))
 define(
   't-field',
   r2wc(bridge(TField), {
-    props: { ...inputProps, label: 'string', description: 'string', error: 'string' },
+    props: {
+      ...inputProps,
+      label: 'string',
+      description: 'string',
+      error: 'string',
+    },
   }),
 )
 
@@ -85,5 +99,8 @@ define(
 )
 
 // Content-free layout pieces: no children cross the bridge, so only these two are registered.
-define('t-divider', r2wc(bridge(TDivider), { props: { orientation: 'string' } }))
+define(
+  't-divider',
+  r2wc(bridge(TDivider), { props: { orientation: 'string' } }),
+)
 define('t-spacer', r2wc(bridge(TSpacer)))

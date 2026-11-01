@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { TButton, TCluster, TIcon, TStack } from '@repo/ui-vue'
-import { Bell, Check, Heart, Info, Search, Settings, Star, TriangleAlert } from '@repo/ui-vue/icons'
+import {
+  Bell,
+  Check,
+  Heart,
+  Info,
+  Search,
+  Settings,
+  Star,
+  TriangleAlert,
+} from '@repo/ui-vue/icons'
 
 const gallery = { Search, Bell, Settings, Star, Heart, Check, Info }
 </script>
@@ -8,7 +17,12 @@ const gallery = { Search, Bell, Settings, Star, Heart, Check, Info }
 <template>
   <TStack :gap="4">
     <TCluster :gap="4" class="text-fg">
-      <TIcon v-for="(icon, name) in gallery" :key="name" :icon="icon" :label="name" />
+      <TIcon
+        v-for="(icon, name) in gallery"
+        :key="name"
+        :icon="icon"
+        :label="name"
+      />
     </TCluster>
     <TCluster :gap="4">
       <TIcon :icon="Star" size="sm" />

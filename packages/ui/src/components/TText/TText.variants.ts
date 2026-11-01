@@ -17,4 +17,5 @@ export const tTextAreaVariants = cva('h-auto py-2 leading-normal', {
 // margins are longhands (my, ms): an app stylesheet that also has m-0 loads after this one and would cancel
 // an ms-auto override.
 export const tTextHintRowClasses = 'flex items-start gap-3'
-export const tTextCounterClasses = 'my-0 ms-auto shrink-0 text-sm text-fg-muted tabular-nums'
+export const tTextCounterClasses =
+  'my-0 ms-auto shrink-0 text-sm text-fg-muted tabular-nums'

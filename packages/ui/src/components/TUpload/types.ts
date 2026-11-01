@@ -3,11 +3,17 @@ import type { TUploadFn, TUploadRejection } from '../../lib/upload'
 
 // `className` and `style` go on the root; every other prop (name, required, form, capture…), `ref`
 // included, goes on the native <input type="file">, which a form submits with every listed file.
-export interface TUploadProps
-  extends Omit<
-    ComponentProps<'input'>,
-    'type' | 'value' | 'defaultValue' | 'onChange' | 'accept' | 'multiple' | 'children' | 'size'
-  > {
+export interface TUploadProps extends Omit<
+  ComponentProps<'input'>,
+  | 'type'
+  | 'value'
+  | 'defaultValue'
+  | 'onChange'
+  | 'accept'
+  | 'multiple'
+  | 'children'
+  | 'size'
+> {
   /** The listed files (controlled); pair it with onValueChange. */
   value?: File[]
   /** The initial files when uncontrolled. */

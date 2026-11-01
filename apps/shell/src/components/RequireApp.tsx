@@ -6,7 +6,13 @@ import { ForbiddenPage } from '../pages/ForbiddenPage'
 
 // Wraps a remote's route. Without access, the remote's host never renders, so its `mount` module and app
 // code are never fetched (the federation runtime still fetches every remoteEntry.js at page start).
-export function RequireApp({ id, children }: { id: AppId; children: ReactNode }) {
+export function RequireApp({
+  id,
+  children,
+}: {
+  id: AppId
+  children: ReactNode
+}) {
   const user = useSession()
   const app = NAV_ITEMS.find((item) => item.id === id)
 

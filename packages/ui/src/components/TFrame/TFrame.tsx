@@ -46,7 +46,10 @@ export function TFrame({
   const frameRef = useComposedRef(own, ref)
   // A new document starts over (adjusted during render, not in an effect).
   const key = `${src ?? ''}\n${srcDoc ?? ''}`
-  const [status, setStatus] = useState({ key, value: 'loading' as TMediaStatus })
+  const [status, setStatus] = useState({
+    key,
+    value: 'loading' as TMediaStatus,
+  })
   if (status.key !== key) setStatus({ key, value: 'loading' })
   // Counts load events, including navigation inside the frame: each new document is observed again.
   const [loads, setLoads] = useState(0)
@@ -62,11 +65,23 @@ export function TFrame({
   const Root = caption != null ? 'figure' : 'div'
 
   return (
-    <Root data-slot="frame" data-state={status.value} className={cn(mediaRootClasses, className)} style={style}>
+    <Root
+      data-slot="frame"
+      data-state={status.value}
+      className={cn(mediaRootClasses, className)}
+      style={style}
+    >
       <div
         data-slot="frame-box"
-        className={tFrameBoxVariants({ ratio: byRatio ? ratioPreset(ratio) : null, radius, bordered })}
-        style={{ aspectRatio: byRatio ? ratioValue(ratio) : undefined, height: measured ? undefined : toLength(height) }}
+        className={tFrameBoxVariants({
+          ratio: byRatio ? ratioPreset(ratio) : null,
+          radius,
+          bordered,
+        })}
+        style={{
+          aspectRatio: byRatio ? ratioValue(ratio) : undefined,
+          height: measured ? undefined : toLength(height),
+        }}
       >
         <iframe
           {...props}
@@ -92,7 +107,9 @@ export function TFrame({
           </div>
         )}
       </div>
-      {caption != null && <figcaption className={mediaCaptionClasses}>{caption}</figcaption>}
+      {caption != null && (
+        <figcaption className={mediaCaptionClasses}>{caption}</figcaption>
+      )}
     </Root>
   )
 }

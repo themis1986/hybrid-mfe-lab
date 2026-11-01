@@ -4,7 +4,8 @@ import { cva } from 'class-variance-authority'
 // work, so these are only what the upload adds.
 
 // `relative` holds the visually hidden input.
-export const tUploadRootClasses = 'relative box-border flex min-w-0 flex-col gap-1.5 text-fg'
+export const tUploadRootClasses =
+  'relative box-border flex min-w-0 flex-col gap-1.5 text-fg'
 
 // The drop zone is the file input's <label>: clicking anywhere in it opens the file dialog. The input
 // itself is visually hidden just before it (`peer`), so its focus ring, disabled and invalid states are
@@ -20,7 +21,8 @@ export const tUploadDropzoneVariants = cva(
   {
     variants: {
       variant: {
-        dropzone: 'flex-col items-center justify-center gap-2 px-4 py-8 text-center',
+        dropzone:
+          'flex-col items-center justify-center gap-2 px-4 py-8 text-center',
         compact: 'flex-row flex-wrap items-center gap-3 px-3 py-2 text-start',
       },
       dragging: {

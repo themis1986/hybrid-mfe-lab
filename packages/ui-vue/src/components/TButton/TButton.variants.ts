@@ -15,11 +15,15 @@ export const tButtonVariants = cva(
   {
     variants: {
       variant: {
-        solid: 'bg-accent text-accent-contrast shadow-sm not-disabled:hover:bg-accent-hover',
+        solid:
+          'bg-accent text-accent-contrast shadow-sm not-disabled:hover:bg-accent-hover',
         soft: 'bg-accent-subtle text-accent-fg not-disabled:hover:bg-accent-subtle-hover active:bg-accent-subtle-active',
-        outline: 'border-accent-line bg-transparent text-accent-fg not-disabled:hover:bg-accent-subtle',
-        ghost: 'bg-transparent text-accent-fg not-disabled:hover:bg-accent-subtle',
-        danger: 'bg-danger text-danger-contrast shadow-sm not-disabled:hover:bg-danger-hover',
+        outline:
+          'border-accent-line bg-transparent text-accent-fg not-disabled:hover:bg-accent-subtle',
+        ghost:
+          'bg-transparent text-accent-fg not-disabled:hover:bg-accent-subtle',
+        danger:
+          'bg-danger text-danger-contrast shadow-sm not-disabled:hover:bg-danger-hover',
       },
       size: {
         sm: 'h-8 px-3 text-sm',

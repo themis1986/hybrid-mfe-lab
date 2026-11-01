@@ -4,6 +4,7 @@ export const MAX_TITLE_LENGTH = 120
 export function validateTitle(title: string): string | undefined {
   const trimmed = title.trim()
   if (!trimmed) return 'Write something to do first.'
-  if (trimmed.length > MAX_TITLE_LENGTH) return `Keep it under ${MAX_TITLE_LENGTH} characters.`
+  if (trimmed.length > MAX_TITLE_LENGTH)
+    return `Keep it under ${MAX_TITLE_LENGTH} characters.`
   return undefined
 }

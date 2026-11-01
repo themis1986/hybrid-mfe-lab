@@ -16,7 +16,11 @@ defineProps<{
     <table class="w-full min-w-xl border-collapse text-left text-sm">
       <thead>
         <tr class="text-xs tracking-wide text-fg-muted uppercase">
-          <th v-for="column in columns" :key="column" class="border-b border-line py-2 pr-4 font-semibold">
+          <th
+            v-for="column in columns"
+            :key="column"
+            class="border-b border-line py-2 pr-4 font-semibold"
+          >
             {{ column }}
           </th>
         </tr>

@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { defaultRangePresets, TButton, type TDateRange, TGrid, TRangeDatePicker } from '@repo/ui-vue'
+import {
+  defaultRangePresets,
+  TButton,
+  type TDateRange,
+  TGrid,
+  TRangeDatePicker,
+} from '@repo/ui-vue'
 import { ref } from 'vue'
 
 const presets = defaultRangePresets()
@@ -15,7 +21,9 @@ function submit(event: Event) {
 <template>
   <TGrid min-child-width="20rem" :gap="4">
     <form class="flex flex-col gap-1.5 text-sm" @submit.prevent="submit">
-      <span id="range-picker-demo" class="font-medium">Report period (required)</span>
+      <span id="range-picker-demo" class="font-medium"
+        >Report period (required)</span
+      >
       <TRangeDatePicker
         v-model="period"
         name="period"
@@ -24,10 +32,20 @@ function submit(event: Event) {
         :number-of-months="2"
         aria-labelledby="range-picker-demo"
       />
-      <span class="text-fg-muted">Value: {{ period ? `${period.start} → ${period.end}` : '—' }}</span>
-      <TButton type="submit" variant="outline" size="sm" class="self-start">Submit</TButton>
-      <span v-if="submitted" class="text-fg-muted">Submitted: {{ submitted }}</span>
+      <span class="text-fg-muted"
+        >Value: {{ period ? `${period.start} → ${period.end}` : '—' }}</span
+      >
+      <TButton type="submit" variant="outline" size="sm" class="self-start"
+        >Submit</TButton
+      >
+      <span v-if="submitted" class="text-fg-muted"
+        >Submitted: {{ submitted }}</span
+      >
     </form>
-    <TRangeDatePicker size="sm" :default-value="{ start: '2026-11-01', end: '2026-11-07' }" aria-label="Small" />
+    <TRangeDatePicker
+      size="sm"
+      :default-value="{ start: '2026-11-01', end: '2026-11-07' }"
+      aria-label="Small"
+    />
   </TGrid>
 </template>

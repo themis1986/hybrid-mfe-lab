@@ -6,6 +6,7 @@ the tokens. Placeholder content, apart from one small in-memory app; this skelet
 fit together.
 
 Documentation:
+
 - [documents/monorepo-tooling.md](documents/monorepo-tooling.md): new to the repo? pnpm, Turborepo and what
   `pnpm dev` actually runs.
 - [documents/how-it-works.md](documents/how-it-works.md): step by step, how everything connects at build time
@@ -64,14 +65,14 @@ cp apps/shell/.env.example apps/shell/.env.local   # the shell's mock sign-in ac
 pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell's dev servers
 ```
 
-| What | URL |
-|---|---|
-| Shell (open this) | http://localhost:5173 |
-| Todo MFE standalone | http://localhost:5174 |
-| Todo MFE remote entry | http://localhost:5174/remoteEntry.js |
-| Vue UI docs MFE standalone | http://localhost:5175 |
-| Vue UI docs MFE remote entry | http://localhost:5175/remoteEntry.js |
-| React UI docs MFE standalone | http://localhost:5176 |
+| What                           | URL                                  |
+| ------------------------------ | ------------------------------------ |
+| Shell (open this)              | http://localhost:5173                |
+| Todo MFE standalone            | http://localhost:5174                |
+| Todo MFE remote entry          | http://localhost:5174/remoteEntry.js |
+| Vue UI docs MFE standalone     | http://localhost:5175                |
+| Vue UI docs MFE remote entry   | http://localhost:5175/remoteEntry.js |
+| React UI docs MFE standalone   | http://localhost:5176                |
 | React UI docs MFE remote entry | http://localhost:5176/remoteEntry.js |
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
@@ -149,13 +150,13 @@ See [how-it-works.md section 4.5](documents/how-it-works.md#45-login-and-app-acc
 
 ### Two libraries on shared tokens
 
-| Import | For | What it is |
-|---|---|---|
-| `@repo/tokens/tokens.css` | the libraries' stylesheets | the design tokens (CSS custom properties) |
-| `@repo/tokens/theme.css` | any Tailwind build on the design system | the token → utility theme (`@theme inline`) |
-| `@repo/ui` + `@repo/ui/styles.css` | React apps | the `T`-prefixed React components and their stylesheet (tokens + utilities, no Preflight) |
-| `@repo/ui-vue` + `@repo/ui-vue/styles.css` | Vue apps | the same components natively in Vue, and their stylesheet |
-| `@repo/ui/icons`, `@repo/ui-vue/icons` | React / Vue apps | the icon set (Lucide), re-exported, so apps never depend on the icon package themselves |
+| Import                                     | For                                     | What it is                                                                                |
+| ------------------------------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `@repo/tokens/tokens.css`                  | the libraries' stylesheets              | the design tokens (CSS custom properties)                                                 |
+| `@repo/tokens/theme.css`                   | any Tailwind build on the design system | the token → utility theme (`@theme inline`)                                               |
+| `@repo/ui` + `@repo/ui/styles.css`         | React apps                              | the `T`-prefixed React components and their stylesheet (tokens + utilities, no Preflight) |
+| `@repo/ui-vue` + `@repo/ui-vue/styles.css` | Vue apps                                | the same components natively in Vue, and their stylesheet                                 |
+| `@repo/ui/icons`, `@repo/ui-vue/icons`     | React / Vue apps                        | the icon set (Lucide), re-exported, so apps never depend on the icon package themselves   |
 
 - The shell imports `@repo/ui/styles.css` once, in `main.tsx`, followed by its own Tailwind stylesheet
   (`src/index.css`: theme and utilities, no Preflight, plus `@repo/tokens/theme.css`).
@@ -172,8 +173,8 @@ See [how-it-works.md section 4.5](documents/how-it-works.md#45-login-and-app-acc
 `@repo/ui` still builds a third entry point that brought the React library to Vue before `@repo/ui-vue`
 existed. No app uses it now; these are its rules, should a Vue host need it again:
 
-| Import | For | What it is |
-|---|---|---|
+| Import              | For           | What it is                                                                                                                                  |
+| ------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@repo/ui/register` | any framework | injects the `@repo/ui` stylesheet as one `<style>` and defines each component as a `t-*` custom element with `@r2wc/react-to-web-component` |
 
 A host imports `@repo/ui/register` once, in `mount.ts`, and then uses the `t-*` tags in its Vue templates
@@ -246,22 +247,22 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 
 Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-workspace.yaml`; installed versions:
 
-| Package | Version | | Package | Version |
-|---|---|---|---|---|
-| pnpm | 12.16.0 | | vue | 3.5.44 |
-| turbo | 2.11.10 | | vue-router | 5.4.0 |
-| vite | 8.3.5 | | vue-tsc | 3.3.13 |
-| typescript | 6.0.3 | | @vitejs/plugin-vue | 6.0.10 |
-| react / react-dom | 19.3.1 | | @vitejs/plugin-react | 6.1.2 |
-| react-router | 8.5.0 | | @module-federation/vite | 1.23.6 |
-| @types/react(-dom) | 19.3.0 | | @r2wc/react-to-web-component | 2.1.1 |
-| @types/node | 22.20.5 | | tailwindcss / @tailwindcss/vite | 4.3.3 |
-| @radix-ui/react-dialog | 1.3.1 | | @radix-ui/react-label | 2.1.17 |
-| @radix-ui/react-slot | 1.5.0 | | class-variance-authority | 0.7.1 |
-| @radix-ui/react-switch | 1.4.1 | | reka-ui | 2.11.0 |
-| clsx | 2.1.1 | | tailwind-merge | 3.7.0 |
-| lucide-react | 1.65.0 | | @lucide/vue | 1.65.0 |
-| @internationalized/date | 3.12.4 | | pinia | 4.1.0 |
+| Package                 | Version |     | Package                         | Version |
+| ----------------------- | ------- | --- | ------------------------------- | ------- |
+| pnpm                    | 12.16.0 |     | vue                             | 3.5.44  |
+| turbo                   | 2.11.10 |     | vue-router                      | 5.4.0   |
+| vite                    | 8.3.5   |     | vue-tsc                         | 3.3.13  |
+| typescript              | 6.0.3   |     | @vitejs/plugin-vue              | 6.0.10  |
+| react / react-dom       | 19.3.1  |     | @vitejs/plugin-react            | 6.1.2   |
+| react-router            | 8.5.0   |     | @module-federation/vite         | 1.23.6  |
+| @types/react(-dom)      | 19.3.0  |     | @r2wc/react-to-web-component    | 2.1.1   |
+| @types/node             | 22.20.5 |     | tailwindcss / @tailwindcss/vite | 4.3.3   |
+| @radix-ui/react-dialog  | 1.3.1   |     | @radix-ui/react-label           | 2.1.17  |
+| @radix-ui/react-slot    | 1.5.0   |     | class-variance-authority        | 0.7.1   |
+| @radix-ui/react-switch  | 1.4.1   |     | reka-ui                         | 2.11.0  |
+| clsx                    | 2.1.1   |     | tailwind-merge                  | 3.7.0   |
+| lucide-react            | 1.65.0  |     | @lucide/vue                     | 1.65.0  |
+| @internationalized/date | 3.12.4  |     | pinia                           | 4.1.0   |
 
 ### Deviations from the original brief, and why
 

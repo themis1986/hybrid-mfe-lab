@@ -49,7 +49,10 @@ export function TVideo({
   const videoRef = useComposedRef(own, ref)
   // New sources re-create the <video> (changing its <source> children doesn't reload it) and start over.
   const key = sourcesKey(src, sources)
-  const [status, setStatus] = useState({ key, value: 'loading' as TMediaStatus })
+  const [status, setStatus] = useState({
+    key,
+    value: 'loading' as TMediaStatus,
+  })
   if (status.key !== key) setStatus({ key, value: 'loading' })
   const [reducedMotion] = useState(prefersReducedMotion)
 
@@ -61,10 +64,19 @@ export function TVideo({
   const Root = caption != null ? 'figure' : 'div'
 
   return (
-    <Root data-slot="video" data-state={status.value} className={cn(mediaRootClasses, className)} style={style}>
+    <Root
+      data-slot="video"
+      data-state={status.value}
+      className={cn(mediaRootClasses, className)}
+      style={style}
+    >
       <div
         data-slot="video-frame"
-        className={tVideoFrameVariants({ ratio: ratioPreset(ratio), radius, bordered })}
+        className={tVideoFrameVariants({
+          ratio: ratioPreset(ratio),
+          radius,
+          bordered,
+        })}
         style={{ aspectRatio: ratioValue(ratio) }}
       >
         <video
@@ -123,7 +135,9 @@ export function TVideo({
           </div>
         )}
       </div>
-      {caption != null && <figcaption className={mediaCaptionClasses}>{caption}</figcaption>}
+      {caption != null && (
+        <figcaption className={mediaCaptionClasses}>{caption}</figcaption>
+      )}
     </Root>
   )
 }

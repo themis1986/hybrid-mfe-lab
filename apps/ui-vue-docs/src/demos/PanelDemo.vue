@@ -6,7 +6,12 @@ import { TButton, TInline, TInput, TPanel, TSpacer, TStack } from '@repo/ui-vue'
   <TStack :gap="3">
     <TPanel title="Filters">
       <TInline wrap :gap="2">
-        <TInput size="sm" placeholder="Search…" aria-label="Search" class="w-48" />
+        <TInput
+          size="sm"
+          placeholder="Search…"
+          aria-label="Search"
+          class="w-48"
+        />
         <TButton size="sm" variant="soft" label="Apply" />
         <TSpacer />
         <TButton size="sm" variant="ghost" label="Reset" />

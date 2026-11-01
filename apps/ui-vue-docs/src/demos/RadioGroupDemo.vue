@@ -14,7 +14,11 @@ const plans = [
   <TCluster :gap="8" align="start">
     <div class="flex flex-col gap-3">
       <TRadioGroup v-model="plan" aria-label="Plan">
-        <label v-for="item in plans" :key="item.value" class="inline-flex items-center gap-2 text-sm">
+        <label
+          v-for="item in plans"
+          :key="item.value"
+          class="inline-flex items-center gap-2 text-sm"
+        >
           <TRadioGroupItem :value="item.value" />
           {{ item.label }}
         </label>

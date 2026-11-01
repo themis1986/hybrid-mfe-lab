@@ -19,10 +19,17 @@ const root = useRootAttrs(() => tPageHeaderClasses)
 <template>
   <Primitive v-bind="root()" :as="as">
     <div :class="tPageHeaderTextClasses">
-      <component :is="`h${headingLevel}`" v-if="title || $slots.title" :class="tPageHeaderTitleClasses">
+      <component
+        :is="`h${headingLevel}`"
+        v-if="title || $slots.title"
+        :class="tPageHeaderTitleClasses"
+      >
         <slot name="title">{{ title }}</slot>
       </component>
-      <p v-if="description || $slots.description" :class="tPageHeaderDescriptionClasses">
+      <p
+        v-if="description || $slots.description"
+        :class="tPageHeaderDescriptionClasses"
+      >
         <slot name="description">{{ description }}</slot>
       </p>
       <slot />

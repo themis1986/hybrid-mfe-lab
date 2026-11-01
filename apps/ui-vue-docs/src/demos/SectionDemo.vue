@@ -4,7 +4,11 @@ import DemoBlock from '../components/DemoBlock.vue'
 </script>
 
 <template>
-  <TSection title="Section title" description="A short description of the section." :heading-level="4">
+  <TSection
+    title="Section title"
+    description="A short description of the section."
+    :heading-level="4"
+  >
     <DemoBlock>Body item</DemoBlock>
     <DemoBlock>Body item</DemoBlock>
   </TSection>

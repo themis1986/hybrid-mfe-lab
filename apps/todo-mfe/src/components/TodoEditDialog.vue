@@ -46,17 +46,31 @@ function onInput() {
 <template>
   <TDialog v-model:open="open">
     <TDialogTrigger as-child>
-      <TButton variant="ghost" size="sm" class="w-8 px-0 text-fg-muted hover:text-fg" :aria-label="`Edit “${title}”`">
+      <TButton
+        variant="ghost"
+        size="sm"
+        class="w-8 px-0 text-fg-muted hover:text-fg"
+        :aria-label="`Edit “${title}”`"
+      >
         <TIcon :icon="Pencil" size="sm" />
       </TButton>
     </TDialogTrigger>
     <TDialogContent as="form" size="sm" novalidate @submit.prevent="save">
       <TDialogHeader>
         <TDialogTitle>Edit todo</TDialogTitle>
-        <TDialogDescription>Press Enter to save, or Escape to keep it as it was.</TDialogDescription>
+        <TDialogDescription
+          >Press Enter to save, or Escape to keep it as it
+          was.</TDialogDescription
+        >
       </TDialogHeader>
       <!-- Not in a TDialogBody: its scrolling would clip the input's focus ring, and one field never scrolls. -->
-      <TField v-model="draft" label="Title" autocomplete="off" :error="error" @input="onInput" />
+      <TField
+        v-model="draft"
+        label="Title"
+        autocomplete="off"
+        :error="error"
+        @input="onInput"
+      />
       <TDialogFooter>
         <TDialogClose as-child>
           <TButton variant="ghost" label="Cancel" />

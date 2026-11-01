@@ -14,8 +14,15 @@ import type { TCheckboxProps } from './types'
 // `defaultChecked` uncontrolled. Name it with `aria-label` or a <label htmlFor>.
 export function TCheckbox({ size, className, ...props }: TCheckboxProps) {
   return (
-    <Checkbox.Root data-slot="checkbox" className={cn(tCheckboxVariants({ size }), className)} {...props}>
-      <Checkbox.Indicator data-slot="checkbox-indicator" className={tCheckboxIndicatorClasses}>
+    <Checkbox.Root
+      data-slot="checkbox"
+      className={cn(tCheckboxVariants({ size }), className)}
+      {...props}
+    >
+      <Checkbox.Indicator
+        data-slot="checkbox-indicator"
+        className={tCheckboxIndicatorClasses}
+      >
         <TIcon icon={Check} className={tCheckboxIconClasses} />
         <TIcon icon={Minus} className={tCheckboxIndeterminateIconClasses} />
       </Checkbox.Indicator>

@@ -9,7 +9,11 @@ const props = withDefaults(defineProps<TAlarmProps>(), { variant: 'info' })
 const emit = defineEmits<{ action: [] }>()
 const open = defineModel<boolean>('open', { default: false })
 
-useAlarmItem(open, () => ({ ...props }), () => emit('action'))
+useAlarmItem(
+  open,
+  () => ({ ...props }),
+  () => emit('action'),
+)
 </script>
 
 <template>

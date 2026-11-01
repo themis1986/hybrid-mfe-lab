@@ -34,9 +34,12 @@ export const tDialogContentVariants = cva(
 
 // The header's end padding keeps its text clear of the close button.
 export const tDialogHeaderClasses = 'flex flex-col gap-1.5 pe-8'
-export const tDialogTitleClasses = 'm-0 font-sans text-lg leading-tight font-semibold'
+export const tDialogTitleClasses =
+  'm-0 font-sans text-lg leading-tight font-semibold'
 export const tDialogDescriptionClasses = 'm-0 text-sm text-fg-muted'
-export const tDialogBodyClasses = 'min-h-0 flex-1 overflow-y-auto overscroll-contain'
-export const tDialogFooterClasses = 'flex flex-wrap items-center justify-end gap-2'
+export const tDialogBodyClasses =
+  'min-h-0 flex-1 overflow-y-auto overscroll-contain'
+export const tDialogFooterClasses =
+  'flex flex-wrap items-center justify-end gap-2'
 // Merged onto a ghost TButton.
 export const tDialogCloseClasses = 'absolute end-4 top-4 w-8 px-0 text-fg-muted'

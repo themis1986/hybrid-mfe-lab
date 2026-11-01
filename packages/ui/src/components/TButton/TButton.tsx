@@ -3,7 +3,16 @@ import { cn } from '../../lib/cn'
 import { tButtonVariants } from './TButton.variants'
 import type { TButtonProps } from './types'
 
-export function TButton({ label, children, variant, size, asChild = false, className, type, ...props }: TButtonProps) {
+export function TButton({
+  label,
+  children,
+  variant,
+  size,
+  asChild = false,
+  className,
+  type,
+  ...props
+}: TButtonProps) {
   const Comp = asChild ? Slot : 'button'
 
   return (

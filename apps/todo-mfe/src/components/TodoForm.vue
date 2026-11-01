@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import { TButton, TField, TIcon } from "@repo/ui-vue";
-import { Plus } from "@repo/ui-vue/icons";
-import { ref, useId } from "vue";
-import { useTodos } from "../hooks/useTodos";
-import { validateTitle } from "../helpers/validation.helpers";
+import { TButton, TField, TIcon } from '@repo/ui-vue'
+import { Plus } from '@repo/ui-vue/icons'
+import { ref, useId } from 'vue'
+import { useTodos } from '../hooks/useTodos'
+import { validateTitle } from '../helpers/validation.helpers'
 
-const { add } = useTodos();
+const { add } = useTodos()
 
-const title = ref("");
-const error = ref<string>();
+const title = ref('')
+const error = ref<string>()
 // TField forwards the id to its input; the input is focused through it.
-const inputId = useId();
+const inputId = useId()
 
 function focus() {
-  document.getElementById(inputId)?.focus();
+  document.getElementById(inputId)?.focus()
 }
 
 function submit() {
-  error.value = validateTitle(title.value);
-  const todo = error.value ? undefined : add(title.value);
+  error.value = validateTitle(title.value)
+  const todo = error.value ? undefined : add(title.value)
   if (todo) {
-    title.value = "";
+    title.value = ''
   }
-  focus();
+  focus()
 }
 
 // The error goes as soon as the title is valid again, but only a submit shows a new one.
 function onInput() {
-  if (error.value && !validateTitle(title.value)) error.value = undefined;
+  if (error.value && !validateTitle(title.value)) error.value = undefined
 }
 
-defineExpose({ focus });
+defineExpose({ focus })
 </script>
 
 <template>

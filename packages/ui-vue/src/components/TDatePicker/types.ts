@@ -11,7 +11,8 @@ export interface TPickerProps {
   triggerLabel?: string
 }
 
-export interface TDatePickerProps extends TDateFieldBaseProps, TCalendarBaseProps, TPickerProps {
+export interface TDatePickerProps
+  extends TDateFieldBaseProps, TCalendarBaseProps, TPickerProps {
   /** Initial value when no v-model is bound. */
   defaultValue?: string
 }

@@ -6,7 +6,9 @@ import type { TPanelProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TPanelProps>(), { as: 'div' })
-const root = useRootAttrs(() => tPanelVariants({ tone: props.tone, padding: props.padding }))
+const root = useRootAttrs(() =>
+  tPanelVariants({ tone: props.tone, padding: props.padding }),
+)
 </script>
 
 <template>

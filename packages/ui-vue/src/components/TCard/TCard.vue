@@ -6,9 +6,16 @@ import type { TCardProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 // An absent boolean would cast to `false`, so dividers defaults to true explicitly.
-const props = withDefaults(defineProps<TCardProps>(), { as: 'div', dividers: true })
+const props = withDefaults(defineProps<TCardProps>(), {
+  as: 'div',
+  dividers: true,
+})
 const root = useRootAttrs(() =>
-  tCardVariants({ variant: props.variant, padding: props.padding, dividers: props.dividers }),
+  tCardVariants({
+    variant: props.variant,
+    padding: props.padding,
+    dividers: props.dividers,
+  }),
 )
 </script>
 

@@ -1,5 +1,10 @@
 import { onBeforeUnmount, type Ref, watch } from 'vue'
-import { alarmStore, newAlarmId, type TAlarmItemVariant, type TAlarmPosition } from '../../lib/alarm'
+import {
+  alarmStore,
+  newAlarmId,
+  type TAlarmItemVariant,
+  type TAlarmPosition,
+} from '../../lib/alarm'
 
 interface AlarmItemFields {
   variant: TAlarmItemVariant
@@ -14,7 +19,11 @@ interface AlarmItemFields {
 // updated in place when a field changes (so it doesn't restart), and taken away when `open` turns false or
 // the component unmounts. When the item closes itself (timeout, dismiss, swipe, its action), `open`
 // becomes false.
-export function useAlarmItem(open: Ref<boolean>, fields: () => AlarmItemFields, onAction: () => void) {
+export function useAlarmItem(
+  open: Ref<boolean>,
+  fields: () => AlarmItemFields,
+  onAction: () => void,
+) {
   const id = newAlarmId()
 
   watch(
@@ -24,7 +33,9 @@ export function useAlarmItem(open: Ref<boolean>, fields: () => AlarmItemFields, 
       alarmStore.set({
         ...item,
         id,
-        action: actionLabel ? { label: actionLabel, onClick: onAction } : undefined,
+        action: actionLabel
+          ? { label: actionLabel, onClick: onAction }
+          : undefined,
         onClose: () => (open.value = false),
       })
     },

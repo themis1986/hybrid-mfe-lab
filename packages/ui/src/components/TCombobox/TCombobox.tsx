@@ -13,9 +13,16 @@ import {
 } from 'react'
 import { cn } from '../../lib/cn'
 import { filterOptions, type TComboboxOption } from '../../lib/combobox'
-import { tCheckboxIconClasses, tCheckboxIndicatorClasses, tCheckboxVariants } from '../TCheckbox/TCheckbox.variants'
+import {
+  tCheckboxIconClasses,
+  tCheckboxIndicatorClasses,
+  tCheckboxVariants,
+} from '../TCheckbox/TCheckbox.variants'
 import { TIcon } from '../TIcon'
-import { tRadioIndicatorClasses, tRadioVariants } from '../TRadioGroup/TRadioGroup.variants'
+import {
+  tRadioIndicatorClasses,
+  tRadioVariants,
+} from '../TRadioGroup/TRadioGroup.variants'
 import {
   tSelectChevronClasses,
   tSelectContentClasses,
@@ -38,13 +45,15 @@ import type { TComboboxProps } from './types'
 
 const contentStyle = {
   '--t-select-trigger-width': 'var(--radix-popover-trigger-width)',
-  '--t-select-available-height': 'var(--radix-popover-content-available-height)',
+  '--t-select-available-height':
+    'var(--radix-popover-content-available-height)',
 } as CSSProperties
 
 const toArray = (value: string | string[] | undefined) =>
   value === undefined ? [] : Array.isArray(value) ? value : [value]
 
-const firstEnabled = (options: TComboboxOption[]) => options.find((option) => !option.disabled)?.value
+const firstEnabled = (options: TComboboxOption[]) =>
+  options.find((option) => !option.disabled)?.value
 
 // A text field that filters `options` as you type, selecting one value or, with `multiple`, several (shown
 // as chips). Radix has no combobox, so this is an input anchoring a Radix Popover, written to behave like
@@ -74,12 +83,16 @@ export function TCombobox(props: TComboboxProps) {
     'aria-labelledby': ariaLabelledby,
     'aria-describedby': ariaDescribedby,
   } = props
-  const [uncontrolledValue, setUncontrolledValue] = useState(() => toArray(props.defaultValue))
-  const selected = props.value !== undefined ? toArray(props.value) : uncontrolledValue
+  const [uncontrolledValue, setUncontrolledValue] = useState(() =>
+    toArray(props.defaultValue),
+  )
+  const selected =
+    props.value !== undefined ? toArray(props.value) : uncontrolledValue
   const [open, setOpen] = useState(false)
   // The text that filters the list: what was typed since the list last opened or closed.
   const [query, setQuery] = useState('')
-  const labelOf = (value: string | undefined) => options.find((option) => option.value === value)?.label
+  const labelOf = (value: string | undefined) =>
+    options.find((option) => option.value === value)?.label
   const selectedLabel = multiple ? '' : (labelOf(selected[0]) ?? '')
   const [inputValue, setInputValue] = useState(selectedLabel)
   const [highlighted, setHighlighted] = useState<string>()
@@ -88,11 +101,17 @@ export function TCombobox(props: TComboboxProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const baseId = useId()
   const listboxId = `${baseId}-listbox`
-  const optionId = (value: string) => `${baseId}-option-${options.findIndex((option) => option.value === value)}`
+  const optionId = (value: string) =>
+    `${baseId}-option-${options.findIndex((option) => option.value === value)}`
 
   const filtered = filterOptions(options, query)
   const enabled = filtered.filter((option) => !option.disabled)
-  const activeId = open && highlighted !== undefined && filtered.some((o) => o.value === highlighted) ? optionId(highlighted) : undefined
+  const activeId =
+    open &&
+    highlighted !== undefined &&
+    filtered.some((o) => o.value === highlighted)
+      ? optionId(highlighted)
+      : undefined
 
   // While the list is closed the input shows the selection: its label (single) or nothing (multiple).
   useEffect(() => {
@@ -100,7 +119,8 @@ export function TCombobox(props: TComboboxProps) {
   }, [open, selectedLabel])
 
   useEffect(() => {
-    if (activeId) document.getElementById(activeId)?.scrollIntoView({ block: 'nearest' })
+    if (activeId)
+      document.getElementById(activeId)?.scrollIntoView({ block: 'nearest' })
   }, [activeId])
 
   function commit(next: string[]) {
@@ -115,7 +135,10 @@ export function TCombobox(props: TComboboxProps) {
     setOpen(next)
     setQuery('')
     if (next) {
-      setHighlighted(options.find((o) => !o.disabled && selected.includes(o.value))?.value ?? firstEnabled(options))
+      setHighlighted(
+        options.find((o) => !o.disabled && selected.includes(o.value))?.value ??
+          firstEnabled(options),
+      )
       inputRef.current?.focus()
     }
   }
@@ -123,7 +146,11 @@ export function TCombobox(props: TComboboxProps) {
   function choose(option: TComboboxOption) {
     if (option.disabled) return
     if (multiple) {
-      commit(selected.includes(option.value) ? selected.filter((v) => v !== option.value) : [...selected, option.value])
+      commit(
+        selected.includes(option.value)
+          ? selected.filter((v) => v !== option.value)
+          : [...selected, option.value],
+      )
       setInputValue('')
       setQuery('')
     } else {
@@ -148,7 +175,12 @@ export function TCombobox(props: TComboboxProps) {
   // first (down) or the last (up).
   function move(direction: 1 | -1) {
     const index = enabled.findIndex((option) => option.value === highlighted)
-    const next = index < 0 ? (direction > 0 ? 0 : enabled.length - 1) : Math.min(Math.max(index + direction, 0), enabled.length - 1)
+    const next =
+      index < 0
+        ? direction > 0
+          ? 0
+          : enabled.length - 1
+        : Math.min(Math.max(index + direction, 0), enabled.length - 1)
     setHighlighted(enabled[next]?.value)
   }
 
@@ -165,10 +197,14 @@ export function TCombobox(props: TComboboxProps) {
       case 'End':
         if (!open) return
         event.preventDefault()
-        setHighlighted((event.key === 'Home' ? enabled[0] : enabled.at(-1))?.value)
+        setHighlighted(
+          (event.key === 'Home' ? enabled[0] : enabled.at(-1))?.value,
+        )
         break
       case 'Enter': {
-        const option = open ? filtered.find((o) => o.value === highlighted) : undefined
+        const option = open
+          ? filtered.find((o) => o.value === highlighted)
+          : undefined
         if (!option || event.ctrlKey || event.metaKey || event.altKey) return
         event.preventDefault()
         choose(option)
@@ -186,7 +222,13 @@ export function TCombobox(props: TComboboxProps) {
   // Tab, or anything else that moves focus out of the field and the list, closes it.
   function onBlur(event: FocusEvent) {
     const next = event.relatedTarget as Node | null
-    if (open && next && !fieldRef.current?.contains(next) && !contentRef.current?.contains(next)) setOpenState(false)
+    if (
+      open &&
+      next &&
+      !fieldRef.current?.contains(next) &&
+      !contentRef.current?.contains(next)
+    )
+      setOpenState(false)
   }
 
   // A click on the field outside the input focuses the input and opens the list; its buttons keep focus there.
@@ -201,7 +243,10 @@ export function TCombobox(props: TComboboxProps) {
   }
 
   return (
-    <Popover.Root open={open} onOpenChange={(next) => !next && setOpenState(false)}>
+    <Popover.Root
+      open={open}
+      onOpenChange={(next) => !next && setOpenState(false)}
+    >
       <Popover.Anchor asChild>
         <div
           ref={fieldRef}
@@ -217,7 +262,11 @@ export function TCombobox(props: TComboboxProps) {
                 const label = labelOf(value)
                 if (label === undefined) return null
                 return (
-                  <span key={value} data-slot="combobox-chip" className={tComboboxChipClasses}>
+                  <span
+                    key={value}
+                    data-slot="combobox-chip"
+                    className={tComboboxChipClasses}
+                  >
                     <span className={tComboboxChipLabelClasses}>{label}</span>
                     <button
                       type="button"
@@ -246,7 +295,9 @@ export function TCombobox(props: TComboboxProps) {
               aria-labelledby={ariaLabelledby}
               aria-describedby={ariaDescribedby}
               aria-invalid={invalid || undefined}
-              placeholder={multiple && selected.length ? undefined : placeholder}
+              placeholder={
+                multiple && selected.length ? undefined : placeholder
+              }
               disabled={disabled}
               value={inputValue}
               className={tComboboxInputClasses}
@@ -289,13 +340,19 @@ export function TCombobox(props: TComboboxProps) {
           onCloseAutoFocus={(event) => event.preventDefault()}
           // The field anchors the list; pressing on it isn't "outside".
           onInteractOutside={(event) => {
-            if (fieldRef.current?.contains(event.target as Node)) event.preventDefault()
+            if (fieldRef.current?.contains(event.target as Node))
+              event.preventDefault()
           }}
           // Pressing an option keeps focus in the input.
           onMouseDown={(event) => event.preventDefault()}
         >
-          <div className={tSelectViewportClasses} onPointerLeave={() => setHighlighted(undefined)}>
-            {filtered.length === 0 && <div className={tComboboxEmptyClasses}>{emptyText}</div>}
+          <div
+            className={tSelectViewportClasses}
+            onPointerLeave={() => setHighlighted(undefined)}
+          >
+            {filtered.length === 0 && (
+              <div className={tComboboxEmptyClasses}>{emptyText}</div>
+            )}
             {filtered.map((option) => {
               const isSelected = selected.includes(option.value)
 
@@ -308,23 +365,44 @@ export function TCombobox(props: TComboboxProps) {
                   aria-selected={isSelected}
                   aria-disabled={option.disabled || undefined}
                   data-state={isSelected ? 'checked' : 'unchecked'}
-                  data-highlighted={option.value === highlighted ? '' : undefined}
+                  data-highlighted={
+                    option.value === highlighted ? '' : undefined
+                  }
                   data-disabled={option.disabled ? '' : undefined}
                   className={tSelectItemClasses}
-                  onPointerMove={() => !option.disabled && setHighlighted(option.value)}
+                  onPointerMove={() =>
+                    !option.disabled && setHighlighted(option.value)
+                  }
                   onClick={() => choose(option)}
                 >
                   {multiple ? (
-                    <span aria-hidden className={cn(tCheckboxVariants({ size: 'sm' }), tSelectIndicatorClasses)}>
+                    <span
+                      aria-hidden
+                      className={cn(
+                        tCheckboxVariants({ size: 'sm' }),
+                        tSelectIndicatorClasses,
+                      )}
+                    >
                       {isSelected && (
                         <span className={tCheckboxIndicatorClasses}>
-                          <TIcon icon={Check} className={tCheckboxIconClasses} />
+                          <TIcon
+                            icon={Check}
+                            className={tCheckboxIconClasses}
+                          />
                         </span>
                       )}
                     </span>
                   ) : (
-                    <span aria-hidden className={cn(tRadioVariants({ size: 'sm' }), tSelectIndicatorClasses)}>
-                      {isSelected && <span className={tRadioIndicatorClasses} />}
+                    <span
+                      aria-hidden
+                      className={cn(
+                        tRadioVariants({ size: 'sm' }),
+                        tSelectIndicatorClasses,
+                      )}
+                    >
+                      {isSelected && (
+                        <span className={tRadioIndicatorClasses} />
+                      )}
                     </span>
                   )}
                   {option.label}

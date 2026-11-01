@@ -18,7 +18,9 @@ import type { TFieldProps } from './types'
 
 // `class` and `style` go on the root; every other attribute and listener goes on the input.
 defineOptions({ inheritAttrs: false })
-const props = withDefaults(defineProps<TFieldProps>(), { revealLabel: 'Show password' })
+const props = withDefaults(defineProps<TFieldProps>(), {
+  revealLabel: 'Show password',
+})
 const model = defineModel<string>()
 const attrs = useAttrs()
 
@@ -38,7 +40,10 @@ function inputAttrs() {
 </script>
 
 <template>
-  <div :class="cn(tFieldRootClasses, attrs.class as ClassValue)" :style="attrs.style">
+  <div
+    :class="cn(tFieldRootClasses, attrs.class as ClassValue)"
+    :style="attrs.style"
+  >
     <Label :for="inputId" :class="tFieldLabelClasses">{{ label }}</Label>
     <!-- A password input gets a toggle that shows its text. aria-pressed carries the state, so the button
          keeps one name. -->

@@ -25,8 +25,10 @@ const props = withDefaults(defineProps<TPopoverContentProps>(), {
 const root = useRootAttrs(
   () => tPopoverContentVariants({ size: props.size }),
   () => ({
-    '--t-popover-available-height': 'var(--reka-popover-content-available-height)',
-    '--t-popover-transform-origin': 'var(--reka-popover-content-transform-origin)',
+    '--t-popover-available-height':
+      'var(--reka-popover-content-available-height)',
+    '--t-popover-transform-origin':
+      'var(--reka-popover-content-transform-origin)',
   }),
 )
 // useId() is unique within one Vue app: each app on the page sets its own app.config.idPrefix.
@@ -39,7 +41,9 @@ const attrs = useAttrs()
 // changes, so Vue doesn't patch ours away.
 function nameDialog(event: Event) {
   const target = event.target as HTMLElement
-  const dialog = target.matches('[role=dialog]') ? target : target.querySelector<HTMLElement>('[role=dialog]')
+  const dialog = target.matches('[role=dialog]')
+    ? target
+    : target.querySelector<HTMLElement>('[role=dialog]')
   if (!dialog) return
   if (props.title) dialog.setAttribute('aria-labelledby', `${id}-title`)
   else if (attrs['aria-label']) dialog.removeAttribute('aria-labelledby')
@@ -59,13 +63,30 @@ function nameDialog(event: Event) {
       :aria-describedby="description ? `${id}-description` : undefined"
       @open-auto-focus="nameDialog"
     >
-      <div v-if="title || description" data-slot="popover-header" :class="tPopoverHeaderClasses">
-        <h2 v-if="title" :id="`${id}-title`" :class="tPopoverTitleClasses">{{ title }}</h2>
-        <p v-if="description" :id="`${id}-description`" :class="tPopoverDescriptionClasses">{{ description }}</p>
+      <div
+        v-if="title || description"
+        data-slot="popover-header"
+        :class="tPopoverHeaderClasses"
+      >
+        <h2 v-if="title" :id="`${id}-title`" :class="tPopoverTitleClasses">
+          {{ title }}
+        </h2>
+        <p
+          v-if="description"
+          :id="`${id}-description`"
+          :class="tPopoverDescriptionClasses"
+        >
+          {{ description }}
+        </p>
       </div>
       <slot />
       <PopoverClose v-if="!hideClose" as-child>
-        <TButton variant="ghost" size="sm" :aria-label="closeLabel" :class="tPopoverCloseClasses">
+        <TButton
+          variant="ghost"
+          size="sm"
+          :aria-label="closeLabel"
+          :class="tPopoverCloseClasses"
+        >
           <TIcon :icon="X" size="sm" />
         </TButton>
       </PopoverClose>

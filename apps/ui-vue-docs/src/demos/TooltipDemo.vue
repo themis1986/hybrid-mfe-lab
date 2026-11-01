@@ -8,7 +8,12 @@ const sides = ['top', 'right', 'bottom', 'left'] as const
 <template>
   <TStack :gap="4">
     <TCluster :gap="3">
-      <TTooltip v-for="side in sides" :key="side" :content="`Shown on the ${side}`" :side="side">
+      <TTooltip
+        v-for="side in sides"
+        :key="side"
+        :content="`Shown on the ${side}`"
+        :side="side"
+      >
         <TButton variant="outline" :label="side" />
       </TTooltip>
     </TCluster>

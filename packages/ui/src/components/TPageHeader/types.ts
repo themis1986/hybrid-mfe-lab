@@ -1,6 +1,9 @@
 import type { ComponentProps, ReactNode } from 'react'
 
-export interface TPageHeaderProps extends Omit<ComponentProps<'header'>, 'title'> {
+export interface TPageHeaderProps extends Omit<
+  ComponentProps<'header'>,
+  'title'
+> {
   /** The page title. */
   title?: ReactNode
   /** Muted text under the title. */

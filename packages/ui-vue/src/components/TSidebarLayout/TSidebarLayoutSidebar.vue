@@ -10,7 +10,12 @@ const root = useRootAttrs(() => tSidebarLayoutSidebarClasses)
 </script>
 
 <template>
-  <Primitive data-slot="sidebar-layout-sidebar" v-bind="root()" :as="as" :as-child="asChild">
+  <Primitive
+    data-slot="sidebar-layout-sidebar"
+    v-bind="root()"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </Primitive>
 </template>

@@ -9,11 +9,17 @@ export interface TComboboxOption {
 
 // Case- and accent-insensitive, as Reka's own filter (Intl.Collator, sensitivity 'base'): "zur" finds "Zürich".
 function fold(text: string) {
-  return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+  return text
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
 }
 
 /** The options whose label contains the query; all of them while it is blank. */
-export function filterOptions<T extends TComboboxOption>(options: readonly T[], query: string): T[] {
+export function filterOptions<T extends TComboboxOption>(
+  options: readonly T[],
+  query: string,
+): T[] {
   const needle = fold(query.trim())
   if (!needle) return [...options]
   return options.filter((option) => fold(option.label).includes(needle))

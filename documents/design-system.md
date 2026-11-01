@@ -3,6 +3,7 @@
 How the shared design tokens (`@repo/tokens`) become styled components in two native libraries, `@repo/ui` (React, Radix) and `@repo/ui-vue` (Vue, Reka UI), and how those components and their styles reach the apps. For the custom-element bridge, which `@repo/ui` still builds but no app uses now, see [react-components-in-vue.md](react-components-in-vue.md).
 
 **Contents**
+
 1. [Where it lives](#1-where-it-lives)
 2. [The pipeline at a glance](#2-the-pipeline-at-a-glance)
 3. [Design tokens](#3-design-tokens)
@@ -64,7 +65,7 @@ graph LR
 ```
 
 - Tokens are plain CSS variables. They work with or without Tailwind.
-- Tailwind is the authoring tool *inside* each library. Its utilities resolve to the tokens.
+- Tailwind is the authoring tool _inside_ each library. Its utilities resolve to the tokens.
 - Components only ever use token-backed utilities, never raw colours.
 - Each library builds one stylesheet; ui's is built into two forms, so React hosts and custom-element hosts both get it (see [section 7](#7-one-stylesheet-two-deliveries)).
 
@@ -72,12 +73,13 @@ graph LR
 
 ### 3.1 Two tiers
 
-| Tier | Naming | Example | Who uses it |
-|---|---|---|---|
-| 1. Primitive | `--t-<hue>-<step>` | `--t-iris-9` | Only tier 2. Components never reference a primitive. |
-| 2. Semantic | `--t-color-<role>`, `--t-radius-*`, `--t-font-*`, `--t-shadow-*`, `--t-ease-*` | `--t-color-accent` | The Tailwind bridge, and therefore every component. |
+| Tier         | Naming                                                                         | Example            | Who uses it                                          |
+| ------------ | ------------------------------------------------------------------------------ | ------------------ | ---------------------------------------------------- |
+| 1. Primitive | `--t-<hue>-<step>`                                                             | `--t-iris-9`       | Only tier 2. Components never reference a primitive. |
+| 2. Semantic  | `--t-color-<role>`, `--t-radius-*`, `--t-font-*`, `--t-shadow-*`, `--t-ease-*` | `--t-color-accent` | The Tailwind bridge, and therefore every component.  |
 
 The semantic roles fall into six groups:
+
 - **surfaces and text**: the page canvas, raised surfaces, foreground, muted foreground, lines;
 - **accent**: solid fill and its hover, the text colour on top of it, subtle fills, the accent line and accent text;
 - **danger**: the same solid trio, in red, plus a subtle fill, a line and text;
@@ -85,7 +87,7 @@ The semantic roles fall into six groups:
 - **focus**: the focus-ring colour;
 - **overlay**: the translucent backdrop behind modal content (a black-alpha step, the same in both schemes).
 
-A component asks for a *role* ("accent fill"), never a *colour* ("iris 9"). Swapping the brand colour is therefore a change to tier 2 only.
+A component asks for a _role_ ("accent fill"), never a _colour_ ("iris 9"). Swapping the brand colour is therefore a change to tier 2 only.
 
 Tier 2 also holds **layout sizes** that Tailwind's scale has no step for: container widths (`--t-container-*`) and the app-level sidebar and header sizes (`--t-layout-*`). Components read them with Tailwind's variable shorthand (`max-w-(--t-container-md)`). They are deliberately not mapped into `@theme`: Tailwind's `--container-*` names also drive its `@container` breakpoints. Spacing and type sizes have no tokens. They use Tailwind's own scale, like every other component.
 
@@ -93,22 +95,22 @@ Tier 2 also holds **layout sizes** that Tailwind's scale has no step for: contai
 
 The colour scales are [Radix Colors](https://www.radix-ui.com/colors) (MIT), vendored as hex values into `tokens.css`:
 
-| Scale | Role | Why |
-|---|---|---|
-| Iris | accent | A calm blue-violet that reads well both as a solid fill and as text. |
-| Slate | neutrals | Radix's natural pairing for Iris: a cool grey with a hint of the same hue. |
-| Red | danger | Built on the same 12-step model, so its steps line up with the other two. |
+| Scale              | Role                   | Why                                                                                                                               |
+| ------------------ | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Iris               | accent                 | A calm blue-violet that reads well both as a solid fill and as text.                                                              |
+| Slate              | neutrals               | Radix's natural pairing for Iris: a cool grey with a hint of the same hue.                                                        |
+| Red                | danger                 | Built on the same 12-step model, so its steps line up with the other two.                                                         |
 | Green, Blue, Amber | success, info, warning | The conventional status hues, on the same model. Amber's solid (step 9) is a light yellow, so warning text and icons use step 11. |
 
 What makes the system work is that **every step has a fixed job**, the same in every scale and in both themes ([Radix: understanding the scale](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale)):
 
-| Steps | Job |
-|---|---|
-| 1–2 | app and subtle backgrounds |
-| 3–5 | component fills: normal, hover, pressed |
-| 6–8 | borders and separators; 8 also serves as the focus ring |
-| 9–10 | solid fills and their hover state |
-| 11–12 | low- and high-contrast text |
+| Steps | Job                                                     |
+| ----- | ------------------------------------------------------- |
+| 1–2   | app and subtle backgrounds                              |
+| 3–5   | component fills: normal, hover, pressed                 |
+| 6–8   | borders and separators; 8 also serves as the focus ring |
+| 9–10  | solid fills and their hover state                       |
+| 11–12 | low- and high-contrast text                             |
 
 The scales are tuned with the APCA contrast model: text on steps 11–12 over the step 1–2 backgrounds is designed to stay readable in both themes. Mapping each role to the step with the matching job keeps that guarantee. The type tokens are system font stacks. A web font would need its own delivery story across federation (see [section 9](#9-things-worth-knowing)).
 
@@ -129,7 +131,9 @@ Each library imports `@repo/tokens/tokens.css` into the `base` cascade layer. An
 
 ```css
 /* in a host's own stylesheet */
-:root { --t-color-accent: #0d74ce; }
+:root {
+  --t-color-accent: #0d74ce;
+}
 ```
 
 ## 4. The Tailwind layer
@@ -158,9 +162,9 @@ Each library's `styles/index.css` is the only file its Tailwind compiles. The tw
 
 ```css
 @theme inline {
-  --color-*: initial;                       /* drop Tailwind's default palette */
-  --color-<role>: var(--t-color-<role>);    /* one line per semantic colour */
-  --radius-md: var(--t-radius-md);          /* standard Tailwind names, token values */
+  --color-*: initial; /* drop Tailwind's default palette */
+  --color-<role>: var(--t-color-<role>); /* one line per semantic colour */
+  --radius-md: var(--t-radius-md); /* standard Tailwind names, token values */
   --font-sans: var(--t-font-sans);
 }
 ```
@@ -191,6 +195,7 @@ For components with real behaviour (dialogs, selects, tabs), the recipe wraps th
 **Dates and times are ISO strings.** Components take and emit `'2026-11-01'`, `'14:30'` or `{ start, end }`, never a date object. `@internationalized/date`, the date type Reka works with, stays inside the libraries: `lib/date.ts`, identical in both, converts at their edges. Radix has no date primitives, so the React side reproduces the DOM, `data-*` attributes and keys of Reka's date parts, and the shared class strings style both.
 
 **Decorative indicators.** A form control can't sit inside another interactive role (an option, for example), so a composite that needs a control's look there renders an `aria-hidden` span with the control's variants, imported from its variants file. This works without state classes because each such control is split in two:
+
 - the root draws the unchecked look;
 - an indicator that the primitive mounts only while checked covers it with the checked look.
 
@@ -216,12 +221,13 @@ const tNameVariants = cva('<base classes>', {
 Layout components hold children, so they are never registered as custom elements: children can't cross the bridge (see [react-components-in-vue.md](react-components-in-vue.md#45-content)). Vue apps get them natively from `@repo/ui-vue`. They follow the same recipe in both libraries, with these additions.
 
 - **Stateless.** Anything that collapses or switches sides is a prop (a modifier class) that the caller controls.
-- **Intrinsic, not viewport-responsive.** A component can end up inside a microfrontend slot of unknown width, so it adapts to its *container*:
+- **Intrinsic, not viewport-responsive.** A component can end up inside a microfrontend slot of unknown width, so it adapts to its _container_:
   - `flex-wrap` with a basis or min-width;
   - `repeat(auto-fit, minmax(min(100%, X), 1fr))`;
   - `min(100%, X)` wherever a fixed minimum could overflow a narrow container.
 
-  No viewport breakpoints (`md:` and the like). The only exception is the page-level app frame, which uses one documented `max-md:` query, because it *is* the viewport.
+  No viewport breakpoints (`md:` and the like). The only exception is the page-level app frame, which uses one documented `max-md:` query, because it _is_ the viewport.
+
 - **Shared scales.** Gap, padding and alignment props use the maps in `lib/layout.ts`, where steps 0–8 cover Tailwind's 0–64px spacing. Defaults go in `cva`'s `defaultVariants`. A caller's `className` wins through `cn`, as usual.
 - **Lengths from props** become CSS variables on the root when children or an expression use them, and plain inline styles otherwise. Either way they are merged into the caller's `style` (`withStyle`), never replace it.
 - **Parts and root modifiers.** A component with parts exports them from the same folder. When the root has to restyle a part (order, width), the part carries a `data-slot` attribute and the root targets only its direct children (`[&>[data-slot=…]]:…`). That keeps nested instances independent and needs no React context.
@@ -234,19 +240,19 @@ Layout components hold children, so they are never registered as custom elements
 
 `@repo/ui-vue` has the same components, props and look as `@repo/ui`. What changes is the Vue form:
 
-| Concern | React (`@repo/ui`) | Vue (`@repo/ui-vue`) |
-|---|---|---|
-| Element swap | Radix `Slot` behind `asChild` | Reka `Primitive`: `as` (an element or component) and `asChild` |
-| Behaviour primitives | Radix (e.g. its label) | Reka UI, the Vue port of Radix |
-| Content | `children`, and props for named areas | the default slot, and named slots for named areas |
-| Caller's class | `cn(variants, className)` | `inheritAttrs: false` + `useRootAttrs()`, which runs the caller's `class` through the same `cn` |
-| Inline lengths | merged into `style` (`withStyle`) | bound as `[vars, $attrs.style]` |
-| Prop types | `VariantProps<typeof tNameVariants>` | written out in `types.ts`: `defineProps` can't derive runtime props from a computed type |
-| Inputs | controlled `value` + `onChange` | `defineModel()`, so `v-model` works |
-| Open / expanded state | `<state>` + `on<State>Change`, or `default<State>` | `v-model:<state>` (`defineModel('<state>')`), or `default<State>` |
-| Fallback content | `a ?? b` between node props | nested `<slot>`s: `<slot name="a"><slot name="b" /></slot>` |
-| Generated ids | — (one React root per app) | `useId()`, unique per app: each Vue app on the page sets its own `app.config.idPrefix` |
-| Structure around content | `Slottable` keeps `asChild` working | `as` only: the root changes, the inner structure stays |
+| Concern                  | React (`@repo/ui`)                                 | Vue (`@repo/ui-vue`)                                                                            |
+| ------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Element swap             | Radix `Slot` behind `asChild`                      | Reka `Primitive`: `as` (an element or component) and `asChild`                                  |
+| Behaviour primitives     | Radix (e.g. its label)                             | Reka UI, the Vue port of Radix                                                                  |
+| Content                  | `children`, and props for named areas              | the default slot, and named slots for named areas                                               |
+| Caller's class           | `cn(variants, className)`                          | `inheritAttrs: false` + `useRootAttrs()`, which runs the caller's `class` through the same `cn` |
+| Inline lengths           | merged into `style` (`withStyle`)                  | bound as `[vars, $attrs.style]`                                                                 |
+| Prop types               | `VariantProps<typeof tNameVariants>`               | written out in `types.ts`: `defineProps` can't derive runtime props from a computed type        |
+| Inputs                   | controlled `value` + `onChange`                    | `defineModel()`, so `v-model` works                                                             |
+| Open / expanded state    | `<state>` + `on<State>Change`, or `default<State>` | `v-model:<state>` (`defineModel('<state>')`), or `default<State>`                               |
+| Fallback content         | `a ?? b` between node props                        | nested `<slot>`s: `<slot name="a"><slot name="b" /></slot>`                                     |
+| Generated ids            | — (one React root per app)                         | `useId()`, unique per app: each Vue app on the page sets its own `app.config.idPrefix`          |
+| Structure around content | `Slottable` keeps `asChild` working                | `as` only: the root changes, the inner structure stays                                          |
 
 **The class strings are the contract.** Every `*.variants.ts`, and the maps in `lib/layout.ts`, are identical in both libraries; their built stylesheets contain the same utilities. Change a variant in both libraries, or they stop looking the same.
 
@@ -259,6 +265,7 @@ Layout components hold children, so they are never registered as custom elements
 ### 5.3 Icons
 
 Both libraries use [Lucide](https://lucide.dev) (ISC): `lucide-react` and `@lucide/vue` are released together, with the same version and the same icon names, so the two libraries offer the same set.
+
 - **One import source.** Each library re-exports the whole set from its `./icons` entry (`export * from …`). Apps import icons from there and never depend on the Lucide packages themselves, so one catalog version keeps React and Vue in step. Keep both catalog ranges equal.
 - **Unused icons cost nothing.** The entry stays a bare re-export of an external package, so each app's production build keeps only the icons it imports.
 - **The icon component** takes the icon itself as a prop (a component, not a name) and maps the design-system sizes through `cva`. Colour is `currentColor`: an icon takes the surrounding text colour, and a `text-*` class tints it.
@@ -267,26 +274,27 @@ Both libraries use [Lucide](https://lucide.dev) (ISC): `lucide-react` and `@luci
 
 ## 6. Naming conventions
 
-| Thing | Pattern | Notes |
-|---|---|---|
-| Component | `T<Name>` | the public export of both libraries |
-| Props type | `T<Name>Props` | exported as a type |
-| Custom element | `<t-<name>>` | the kebab-case of `T<Name>`, defined in `register.ts` |
-| Design tokens | `--t-*` | primitives `--t-<hue>-<step>`, semantics `--t-color-<role>` and so on |
+| Thing               | Pattern                    | Notes                                                                                                    |
+| ------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Component           | `T<Name>`                  | the public export of both libraries                                                                      |
+| Props type          | `T<Name>Props`             | exported as a type                                                                                       |
+| Custom element      | `<t-<name>>`               | the kebab-case of `T<Name>`, defined in `register.ts`                                                    |
+| Design tokens       | `--t-*`                    | primitives `--t-<hue>-<step>`, semantics `--t-color-<role>` and so on                                    |
 | Injected stylesheet | `<style id="t-ui-styles">` | one per page (see [react-components-in-vue.md](react-components-in-vue.md#5-styles-across-the-boundary)) |
 
 A Vue host of the bridge makes its compiler treat every `t-*` tag as a custom element (`isCustomElement` in its `vite.config.ts`), so the `t-` prefix is reserved for design-system elements in Vue templates.
 
 ## 7. One stylesheet, two deliveries
 
-| Consumer | How it gets the CSS | Built by |
-|---|---|---|
-| React host (the shell) | `import '@repo/ui/styles.css'` once, in its entry | `index.ts` imports `styles/index.css`; Vite library mode extracts it to `dist/styles.css` (`build.lib.cssFileName: 'styles'`) and removes the import from the JavaScript. |
-| Vue remote on `@repo/ui-vue` | its own `src/styles.css` imports `@repo/ui-vue/styles.css`; `mount.ts` imports that file with `?inline` and injects it as a `<style>` while mounted | ui-vue's `dist/styles.css`, built like ui's. Inlined because a federated remote can't count on its host or on federation to load a CSS file. |
-| React remote on `@repo/ui` | the same: its own `src/styles.css` imports `@repo/ui/styles.css`, injected inline by its mount module | ui's `dist/styles.css`. Inside the shell, these rules duplicate the shell's copy; with the same ui version they are identical. |
-| Custom-element host (none now) | nothing to do: `import '@repo/ui/register'` brings it | `register.ts` imports `styles/index.css?inline`, a string compiled by the same Tailwind plugin, and writes it into one `<style>` before defining any element. |
+| Consumer                       | How it gets the CSS                                                                                                                                 | Built by                                                                                                                                                                  |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| React host (the shell)         | `import '@repo/ui/styles.css'` once, in its entry                                                                                                   | `index.ts` imports `styles/index.css`; Vite library mode extracts it to `dist/styles.css` (`build.lib.cssFileName: 'styles'`) and removes the import from the JavaScript. |
+| Vue remote on `@repo/ui-vue`   | its own `src/styles.css` imports `@repo/ui-vue/styles.css`; `mount.ts` imports that file with `?inline` and injects it as a `<style>` while mounted | ui-vue's `dist/styles.css`, built like ui's. Inlined because a federated remote can't count on its host or on federation to load a CSS file.                              |
+| React remote on `@repo/ui`     | the same: its own `src/styles.css` imports `@repo/ui/styles.css`, injected inline by its mount module                                               | ui's `dist/styles.css`. Inside the shell, these rules duplicate the shell's copy; with the same ui version they are identical.                                            |
+| Custom-element host (none now) | nothing to do: `import '@repo/ui/register'` brings it                                                                                               | `register.ts` imports `styles/index.css?inline`, a string compiled by the same Tailwind plugin, and writes it into one `<style>` before defining any element.             |
 
 An app that runs **its own Tailwind** (the shell, every remote) imports `@repo/tokens/theme.css` into its Tailwind stylesheet:
+
 - its own utilities (`bg-surface`, `text-fg-muted`, …) then resolve to the same tokens, and off-system colours don't exist there either;
 - it skips Preflight for the same reason the libraries do: microfrontends render inside the shell's page;
 - it loads after the library stylesheet. Utilities that both builds generate are identical, so the duplicates are harmless.
@@ -296,6 +304,7 @@ An app that runs **its own Tailwind** (the shell, every remote) imports `@repo/t
 Why the custom-element path can't just use the CSS file is explained in [react-components-in-vue.md](react-components-in-vue.md#5-styles-across-the-boundary).
 
 Build details:
+
 - `@tailwindcss/vite` runs in each library's `vite.config.ts`. It compiles `.css` and `.css?inline` alike; it skips only `?raw`, `?url` and `?worker`.
 - In `vite build --watch`, Tailwind registers every scanned source file as a watch dependency. A new class in a `.tsx` file therefore rebuilds both `dist/styles.css` and the string inside `dist/register.js`.
 - `package.json` exports `./styles.css` (and `./icons`), and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
@@ -328,5 +337,5 @@ Build details:
   - It sits at `z-50`, above the app frame's sticky header (`z-10`).
   - It goes away with the app: `root.unmount()` (React) and `app.unmount()` (Vue) remove portalled and teleported content too.
   - Parts that only wrap behaviour (the root, a trigger, a close) carry no classes and pass their props straight to the primitive.
-- **Fonts are system stacks.** A web font would need its files served from somewhere both the shell and a federated remote can reach. `url()`s in the inlined CSS resolve against the *page*, not the remote. Decide the hosting before adding one.
+- **Fonts are system stacks.** A web font would need its files served from somewhere both the shell and a federated remote can reach. `url()`s in the inlined CSS resolve against the _page_, not the remote. Decide the hosting before adding one.
 - **Colours are sRGB hex.** Radix also publishes Display-P3 versions of each scale. Adding them is a tier-1-only change inside an `@supports (color: color(display-p3 1 1 1))` block.

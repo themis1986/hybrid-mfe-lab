@@ -27,13 +27,19 @@ export function TPageHeader({
       <Slottable child={children}>
         {(content) => (
           <div className={tPageHeaderTextClasses}>
-            {title != null && <Heading className={tPageHeaderTitleClasses}>{title}</Heading>}
-            {description != null && <p className={tPageHeaderDescriptionClasses}>{description}</p>}
+            {title != null && (
+              <Heading className={tPageHeaderTitleClasses}>{title}</Heading>
+            )}
+            {description != null && (
+              <p className={tPageHeaderDescriptionClasses}>{description}</p>
+            )}
             {content}
           </div>
         )}
       </Slottable>
-      {actions != null && <div className={tPageHeaderActionsClasses}>{actions}</div>}
+      {actions != null && (
+        <div className={tPageHeaderActionsClasses}>{actions}</div>
+      )}
     </Comp>
   )
 }

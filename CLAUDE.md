@@ -5,11 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 A pnpm + Turborepo microfrontends skeleton:
+
 - **`apps/shell`** (`@repo/shell`, React 19 + React Router 8) is the host. At runtime it loads three remotes through Module Federation (`@module-federation/vite`):
   - **`apps/todo-mfe`** (`@repo/todo-mfe`, Vue 3 + Vue Router 5);
   - **`apps/ui-vue-docs`** (`@repo/ui-vue-docs`, Vue 3 + Vue Router 5), the Vue library's documentation;
   - **`apps/ui-react-docs`** (`@repo/ui-react-docs`, React 19), the React library's documentation.
-  The shell itself renders only the frame (header, menu, theme choice, user menu), the login page and the home page. It owns sign-in and decides which remotes each user may open.
+    The shell itself renders only the frame (header, menu, theme choice, user menu), the login page and the home page. It owns sign-in and decides which remotes each user may open.
 - Two component libraries with the same `T`-prefixed components and the same look ("Option B": two native libraries sharing the tokens):
   - **`packages/ui`** (`@repo/ui`): React + Radix + Tailwind v4;
   - **`packages/ui-vue`** (`@repo/ui-vue`): Vue 3 + Reka UI + Tailwind v4.
@@ -18,6 +19,7 @@ A pnpm + Turborepo microfrontends skeleton:
 - Every Vue app is on `@repo/ui-vue`. `@repo/ui` still builds the custom-element bridge (`@repo/ui/register`, "Option A"), but no app uses it.
 
 The content is placeholder, apart from the todo MFE, a small working app that keeps its data in memory only. The repo exists to prove the wiring.
+
 - README.md: setup, the version table and the rationale for each deviation.
 - `documents/how-it-works.md`: the full build-time and runtime walkthrough.
 - `documents/module-federation-explained.md`: beginner's guide to the federation config.
@@ -28,6 +30,7 @@ The content is placeholder, apart from the todo MFE, a small working app that ke
 - `documents/authentication.md`: onboarding walkthrough of the shell's session store, guards and access rule.
 
 Current scope limits:
+
 - a minimal design system (tokens, Tailwind styles, placeholder components) only: no Storybook, icon set or web fonts;
 - no persistence or backend: app state lives in memory;
 - no state management beyond Pinia in a Vue remote; no real identity provider (the shell's login uses mock accounts), testing framework, linting, CI or Docker.
@@ -51,6 +54,7 @@ pnpm --filter @repo/todo-mfe dev   # any single package/task
 ```
 
 **No tests or linter.** To verify, run the apps:
+
 - the shell at http://localhost:5173 (its own routes and each remote's route);
 - each remote standalone: http://localhost:5174, :5175 and :5176.
 
@@ -59,6 +63,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 ## Architecture: how the pieces connect
 
 **Runtime composition (shell → remotes).**
+
 - The shell's `src/` is split by role: `components/` (app-frame pieces), `pages/`, `remotes/` (everything that loads a remote, plus the hand-written `remotes.d.ts`), `lib/` (plain logic: menu config, theme). `App.tsx`, `main.tsx` and `index.css` stay at the root. Imports are relative; there is no path alias.
 - Each remote exposes `./mount` (`src/mount.ts`) with the contract
   `mount(el: HTMLElement, props: { basePath: string }) => unmount`.
@@ -76,6 +81,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - **Dev mode, React remote:** inside the shell, its component modules pass `@vitejs/plugin-react`'s preamble check thanks to the shell's own preamble. Editing one of its files while it's hosted reloads the page instead of hot-updating; standalone, Fast Refresh works normally. Don't add `reactRefreshHost` unless hosted HMR becomes necessary: it makes the remote's standalone dev server depend on the shell's.
 
 **Auth and app access (shell only).**
+
 - Remotes know nothing about auth; the `mount` contract carries no user. The shell decides which remotes may mount.
 - `src/lib/users.ts` is a stand-in identity provider: plain-text passwords, dev only. Only `src/lib/auth.ts` calls it, so a real backend or IdP replaces it there.
   - The accounts are a JSON array in `VITE_MOCK_ACCOUNTS`, set in `apps/shell/.env.local` (git-ignored); `apps/shell/.env.example` documents the format and holds a starting set. Vite inlines it into the bundle: it keeps the accounts out of git, not out of the browser.
@@ -89,16 +95,19 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - This is client-side gating, not security: remote files stay publicly reachable. Real enforcement needs the server (remote assets behind auth, or a per-user remote manifest).
 
 **Styles of a federated remote.**
+
 - A remote can't rely on its host, or on federation (`bundleAllCSS` is off), to load a CSS file. Its CSS travels inside its JavaScript.
 - A remote on a component library has one stylesheet, `src/styles.css`: the library's stylesheet (`@repo/ui-vue/styles.css` or `@repo/ui/styles.css`) plus its own Tailwind (no Preflight, `@repo/tokens/theme.css`). Its mount module imports it with `?inline`, injects it as `<style id="<app>-styles">` and removes it on unmount. Don't use SFC `<style>` blocks or CSS file imports in a remote. A React remote's copy of `@repo/ui`'s rules duplicates the shell's; they are identical, so that's harmless.
 
 **Inside a Vue remote (logic, state).**
+
 - Logic lives in composables in `src/hooks/`. Components render and call them; they hold no business logic.
 - App state is a Pinia setup store in `src/stores/`. Components never use a store directly: a hook hands them a readonly view of its state plus its actions. The store itself returns its state writable, as Pinia's devtools and plugins require.
 - `mount.ts` creates the Pinia instance (`app.use(createPinia())`) inside `mount`, never at module scope: the federated module stays cached between mounts, so module-level state would carry over into the next mount.
 - Shared types go in `src/types.ts`, pages in `src/pages/`, the rest of the components in `src/components/`.
 
 **React UI inside Vue (custom-element bridge, unused).** No app uses it now; the entry stays in `@repo/ui` until it is removed. If a Vue host uses it again, these rules apply.
+
 - `@repo/ui` has three JS entries and a stylesheet:
   - `.` exports the React components (`T<Name>`, `T<Name>Props`);
   - `./icons` re-exports the icon set (see the libraries below);
@@ -115,6 +124,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - A component that reports changes through a callback (not a native event) maps it in r2wc `events` (`onCheckedChange` → a `checkedchange` CustomEvent, value in `detail`). Hosts of elements that must be direct children of a flex or block parent (divider, spacer) get `display: contents` from the CSS string in `register.ts`.
 
 **Tokens (`packages/tokens`).**
+
 - CSS only, no build step: `tokens.css` and `theme.css`, exported as `@repo/tokens/tokens.css` and `@repo/tokens/theme.css`.
 - `tokens.css`: primitives `--t-<hue>-<step>` (Radix Colors scales, each a `light-dark(<light>, <dark>)` pair) and semantic `--t-color-<role>` etc. Status roles (`success`, `info`, `warning`, and `danger` as error) each have a solid, `-subtle`, `-line` and `-fg`. Components use semantic tokens only, via Tailwind utilities, and never `dark:` classes.
 - **Light/dark:** `:root { color-scheme: light dark }` follows the OS; `data-theme="light|dark"` on `<html>` forces a scheme for the whole page, remotes included.
@@ -127,6 +137,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Consumers list it as a devDependency: it is compiled into their CSS at build time. Because it has no build task, each library's `turbo.json` lists `$TURBO_ROOT$/packages/tokens/**` as a `build` input, so a token change invalidates the cache.
 
 **Component libraries (`packages/ui`, `packages/ui-vue`).**
+
 - Each library's `src/styles/index.css` imports Tailwind's `theme.css` and `utilities.css` **without Preflight** (a library must not reset its host page), `@repo/tokens/tokens.css` into `layer(base)`, and `@repo/tokens/theme.css`. Only classes used inside that library's `src` exist in its stylesheet.
 - Variants use `cva`; classes are merged with `cn` (`src/lib/cn.ts`). Without Preflight, base classes must reset UA defaults themselves.
 - **The class strings in each `*.variants.ts`, and `src/lib/layout.ts`'s maps, are identical in both libraries.** Change them in both, or the libraries stop looking the same.
@@ -157,6 +168,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - The shell runs its own Tailwind (`apps/shell/src/index.css`): theme + utilities **without Preflight** (remotes render inside its page), plus `@repo/tokens/theme.css`. It loads after `@repo/ui/styles.css`.
 
 **Libraries are consumed from `dist/`, not source.**
+
 - Apps resolve them through the package `exports` (`dist/*.js` + `dist/*.d.ts` + `dist/styles.css`). A change in a library's `src` reaches the apps only after a rebuild; `pnpm dev` keeps a watcher running for each library.
 - `build` runs `vite build`, then emits the `.d.ts` files: `tsc -p tsconfig.build.json` in ui, `vue-tsc -p tsconfig.build.json` in ui-vue.
 - In ui, `@tailwindcss/vite` compiles `src/styles/index.css` twice: imported by `index.ts` it becomes `dist/styles.css` (`build.lib.cssFileName: 'styles'`); imported with `?inline` by `register.ts` it becomes a string in `register.js`. ui-vue only builds `dist/styles.css`. `dist/index.d.ts` keeps the CSS import line; that's expected and harmless (`skipLibCheck`).
@@ -166,6 +178,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - A running `pnpm dev` doesn't pick up changes to a library's `package.json` `exports` or `vite.config.ts`, or new workspace packages: restart it.
 
 **Federation config.**
+
 - `shared: {}` everywhere, so each remote bundles its own framework (Vue, or React for a React remote). This is a known, accepted duplication; sharing is a planned optimization. If React becomes a shared singleton, every `root.unmount()` run from the shell (a React remote's unmount, the custom element's) would run during the shell's commit and must be deferred.
 - Remotes must use `type: 'module'` in the shell's `remotes`.
 - Each remote sets `server.origin` so its dev-server URLs resolve when loaded from the shell.
@@ -186,6 +199,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 ## Adding another microfrontend
 
 Follow the steps in README.md ("Adding another microfrontend"):
+
 1. A new `apps/<name>` exposing the same `mount` contract, with a unique federation `name` and a fixed port. A Vue remote uses `@repo/ui-vue` and sets `app.config.idPrefix`; a React remote uses `@repo/ui` and creates its root with an `identifierPrefix`. Either injects its stylesheet inline.
 2. In the shell:
    - a `remotes` entry with its own `VITE_*_REMOTE_URL` variable (also added to the root `turbo.json` `build.env`);

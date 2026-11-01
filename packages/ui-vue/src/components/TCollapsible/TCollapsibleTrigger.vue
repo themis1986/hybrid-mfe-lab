@@ -6,7 +6,11 @@ defineProps<TCollapsibleTriggerProps>()
 </script>
 
 <template>
-  <CollapsibleTrigger data-slot="collapsible-trigger" :as="as" :as-child="asChild">
+  <CollapsibleTrigger
+    data-slot="collapsible-trigger"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </CollapsibleTrigger>
 </template>

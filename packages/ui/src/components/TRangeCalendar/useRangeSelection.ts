@@ -20,7 +20,12 @@ const between = (date: CalendarDate, start: CalendarDate, end: CalendarDate) =>
 // the days between it and the hovered or focused day are highlighted (when none of them is blocked), the
 // second pick sets the end, in either order. A pick on the lone start clears it; a pick once both ends are
 // set starts over. Escape while picking returns to the committed range. Only complete ranges are committed.
-export function useRangeSelection({ value, onCommit, isBlocked, isDisabled }: RangeSelectionOptions) {
+export function useRangeSelection({
+  value,
+  onCommit,
+  isBlocked,
+  isDisabled,
+}: RangeSelectionOptions) {
   const committed = parseIsoRange(value)
   const [start, setStart] = useState(committed?.start)
   const [end, setEnd] = useState(committed?.end)
@@ -40,10 +45,12 @@ export function useRangeSelection({ value, onCommit, isBlocked, isDisabled }: Ra
   // The range from a to b, in order, unless a blocked day lies in it.
   function openRange(a: CalendarDate, b: CalendarDate) {
     const [from, to] = a.compare(b) <= 0 ? [a, b] : [b, a]
-    for (let day = from; day.compare(to) <= 0; day = day.add({ days: 1 })) if (isBlocked(day)) return undefined
+    for (let day = from; day.compare(to) <= 0; day = day.add({ days: 1 }))
+      if (isBlocked(day)) return undefined
     return { start: from, end: to }
   }
-  const highlight = start && !end && active ? openRange(start, active) : undefined
+  const highlight =
+    start && !end && active ? openRange(start, active) : undefined
 
   function complete(a: CalendarDate, b: CalendarDate) {
     const [from, to] = a.compare(b) <= 0 ? [a, b] : [b, a]
@@ -79,17 +86,24 @@ export function useRangeSelection({ value, onCommit, isBlocked, isDisabled }: Ra
   }
 
   const isSelected = (date: CalendarDate) =>
-    (!!start && isSameDay(date, start)) || (!!end && isSameDay(date, end)) || (!!start && !!end && between(date, start, end))
+    (!!start && isSameDay(date, start)) ||
+    (!!end && isSameDay(date, end)) ||
+    (!!start && !!end && between(date, start, end))
 
   const dayAttributes = (date: CalendarDate, unavailable: boolean) => {
-    const inHighlight = !!highlight && date.compare(highlight.start) >= 0 && date.compare(highlight.end) <= 0
+    const inHighlight =
+      !!highlight &&
+      date.compare(highlight.start) >= 0 &&
+      date.compare(highlight.end) <= 0
     return {
       'data-selected': (isSelected(date) && !unavailable) || undefined,
       'data-selection-start': (!!start && isSameDay(date, start)) || undefined,
       'data-selection-end': (!!end && isSameDay(date, end)) || undefined,
       'data-highlighted': (inHighlight && !unavailable) || undefined,
-      'data-highlighted-start': (!!highlight && isSameDay(date, highlight.start)) || undefined,
-      'data-highlighted-end': (!!highlight && isSameDay(date, highlight.end)) || undefined,
+      'data-highlighted-start':
+        (!!highlight && isSameDay(date, highlight.start)) || undefined,
+      'data-highlighted-end':
+        (!!highlight && isSameDay(date, highlight.end)) || undefined,
     } as Record<string, true | undefined>
   }
 
@@ -105,8 +119,12 @@ export function useRangeSelection({ value, onCommit, isBlocked, isDisabled }: Ra
     isSelected,
     dayAttributes,
     hasSelectedDate: !!(start || end),
-    isSelectedDisabled: start && end ? startDisabled && endDisabled : startDisabled || endDisabled,
-    selectedFocusable: start && !startDisabled ? start : end && !endDisabled ? end : undefined,
+    isSelectedDisabled:
+      start && end
+        ? startDisabled && endDisabled
+        : startDisabled || endDisabled,
+    selectedFocusable:
+      start && !startDisabled ? start : end && !endDisabled ? end : undefined,
     invalid: startDisabled || endDisabled,
   }
 }

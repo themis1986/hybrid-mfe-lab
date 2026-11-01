@@ -10,7 +10,9 @@ export const useTodoStore = defineStore('todos', () => {
   // What the page's one live region says; every action that changes a todo sets it.
   const announcement = ref('')
 
-  const openCount = computed(() => todos.value.filter((todo) => !todo.done).length)
+  const openCount = computed(
+    () => todos.value.filter((todo) => !todo.done).length,
+  )
   const doneCount = computed(() => todos.value.length - openCount.value)
 
   function announce(text: string) {
@@ -28,7 +30,12 @@ export const useTodoStore = defineStore('todos', () => {
   /** Adds a todo at the top. Returns it, or undefined when the title is invalid. */
   function add(title: string): Todo | undefined {
     if (validateTitle(title)) return undefined
-    const todo: Todo = { id: crypto.randomUUID(), title: title.trim(), done: false, createdAt: Date.now() }
+    const todo: Todo = {
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      done: false,
+      createdAt: Date.now(),
+    }
     todos.value.unshift(todo)
     announce(`Added “${todo.title}”.`)
     return todo
@@ -63,5 +70,15 @@ export const useTodoStore = defineStore('todos', () => {
     announce(`Cleared ${count} done ${count === 1 ? 'todo' : 'todos'}.`)
   }
 
-  return { todos, announcement, openCount, doneCount, add, update, toggle, remove, clearCompleted }
+  return {
+    todos,
+    announcement,
+    openCount,
+    doneCount,
+    add,
+    update,
+    toggle,
+    remove,
+    clearCompleted,
+  }
 })

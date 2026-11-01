@@ -50,8 +50,10 @@ const field = useRootAttrs(() => tDateFieldVariants({ size: props.size }))
 const min = computed(() => parseIsoDate(props.min))
 const max = computed(() => parseIsoDate(props.max))
 const contentStyle = {
-  '--t-popover-available-height': 'var(--reka-popover-content-available-height)',
-  '--t-popover-transform-origin': 'var(--reka-popover-content-transform-origin)',
+  '--t-popover-available-height':
+    'var(--reka-popover-content-available-height)',
+  '--t-popover-transform-origin':
+    'var(--reka-popover-content-transform-origin)',
 }
 </script>
 
@@ -84,11 +86,19 @@ const contentStyle = {
       :aria-invalid="invalid || undefined"
     >
       <div data-slot="date-field-segments" :class="tDateFieldSegmentsClasses">
-        <DatePickerInput v-for="(item, i) in segments" :key="i" :part="item.part" :class="tDateFieldSegmentClasses">
+        <DatePickerInput
+          v-for="(item, i) in segments"
+          :key="i"
+          :part="item.part"
+          :class="tDateFieldSegmentClasses"
+        >
           {{ item.value }}
         </DatePickerInput>
       </div>
-      <DatePickerTrigger :aria-label="triggerLabel" :class="tDateFieldTriggerClasses">
+      <DatePickerTrigger
+        :aria-label="triggerLabel"
+        :class="tDateFieldTriggerClasses"
+      >
         <TIcon :icon="Calendar" size="sm" />
       </DatePickerTrigger>
     </DatePickerField>
@@ -101,8 +111,17 @@ const contentStyle = {
       :class="tDatePickerContentClasses"
       :style="contentStyle"
     >
-      <DatePickerCalendar v-slot="{ grid, weekDays }" :calendar-label="label" :class="tCalendarRootClasses">
-        <CalendarBody :grid="grid" :week-days="weekDays" :prev-label="prevLabel" :next-label="nextLabel" />
+      <DatePickerCalendar
+        v-slot="{ grid, weekDays }"
+        :calendar-label="label"
+        :class="tCalendarRootClasses"
+      >
+        <CalendarBody
+          :grid="grid"
+          :week-days="weekDays"
+          :prev-label="prevLabel"
+          :next-label="nextLabel"
+        />
       </DatePickerCalendar>
     </DatePickerContent>
   </DatePickerRoot>

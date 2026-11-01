@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui'
 import { useRootAttrs } from '../../lib/attrs'
-import { tSliderClasses, tSliderRangeClasses, tSliderThumbVariants, tSliderTrackVariants } from './TSlider.variants'
+import {
+  tSliderClasses,
+  tSliderRangeClasses,
+  tSliderThumbVariants,
+  tSliderTrackVariants,
+} from './TSlider.variants'
 import type { TSliderProps } from './types'
 
 // A slider (Reka Slider): v-model, or defaultValue, as number arrays. One entry per thumb: [50] is a single
@@ -9,10 +14,13 @@ import type { TSliderProps } from './types'
 defineOptions({ inheritAttrs: false })
 // The explicit undefined default keeps "not set" apart from an empty value, so Reka's own default applies
 // and the slider is only controlled when v-model is bound.
-const props = withDefaults(defineProps<TSliderProps>(), { defaultValue: undefined })
+const props = withDefaults(defineProps<TSliderProps>(), {
+  defaultValue: undefined,
+})
 const model = defineModel<number[] | undefined>({ default: undefined })
 const root = useRootAttrs(() => tSliderClasses)
-const thumbLabelAt = (i: number) => (Array.isArray(props.thumbLabel) ? props.thumbLabel[i] : props.thumbLabel)
+const thumbLabelAt = (i: number) =>
+  Array.isArray(props.thumbLabel) ? props.thumbLabel[i] : props.thumbLabel
 </script>
 
 <template>
@@ -32,7 +40,10 @@ const thumbLabelAt = (i: number) => (Array.isArray(props.thumbLabel) ? props.thu
     :as="as"
     :as-child="asChild"
   >
-    <SliderTrack data-slot="slider-track" :class="tSliderTrackVariants({ size })">
+    <SliderTrack
+      data-slot="slider-track"
+      :class="tSliderTrackVariants({ size })"
+    >
       <SliderRange data-slot="slider-range" :class="tSliderRangeClasses" />
     </SliderTrack>
     <SliderThumb

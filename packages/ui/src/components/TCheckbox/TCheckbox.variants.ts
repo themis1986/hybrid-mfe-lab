@@ -25,5 +25,7 @@ export const tCheckboxVariants = cva(
 // -inset-px also covers the root's border. The indicator carries data-state, which picks the icon.
 export const tCheckboxIndicatorClasses =
   'group absolute -inset-px grid place-items-center rounded-[inherit] bg-accent text-accent-contrast'
-export const tCheckboxIconClasses = 'size-3/4 stroke-3 group-data-[state=indeterminate]:hidden'
-export const tCheckboxIndeterminateIconClasses = 'hidden size-3/4 stroke-3 group-data-[state=indeterminate]:block'
+export const tCheckboxIconClasses =
+  'size-3/4 stroke-3 group-data-[state=indeterminate]:hidden'
+export const tCheckboxIndeterminateIconClasses =
+  'hidden size-3/4 stroke-3 group-data-[state=indeterminate]:block'

@@ -1,7 +1,18 @@
 import * as Toast from '@radix-ui/react-toast'
 import { CircleCheck, CircleX, Info, TriangleAlert, X } from 'lucide-react'
-import { type CSSProperties, useEffect, useState, useSyncExternalStore } from 'react'
-import { alarmStore, alarmSwipeDirection, alarmUrgency, groupAlarms, type TAlarmItem } from '../../lib/alarm'
+import {
+  type CSSProperties,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from 'react'
+import {
+  alarmStore,
+  alarmSwipeDirection,
+  alarmUrgency,
+  groupAlarms,
+  type TAlarmItem,
+} from '../../lib/alarm'
 import { TButton } from '../TButton'
 import { TIcon } from '../TIcon'
 import {
@@ -16,7 +27,12 @@ import {
 } from './TAlarm.variants'
 import type { TAlarmHostProps } from './types'
 
-const ICONS = { success: CircleCheck, error: CircleX, info: Info, warning: TriangleAlert }
+const ICONS = {
+  success: CircleCheck,
+  error: CircleX,
+  info: Info,
+  warning: TriangleAlert,
+}
 
 const swipeStyle = {
   '--t-alarm-swipe-x': 'var(--radix-toast-swipe-move-x)',
@@ -27,7 +43,11 @@ const swipeStyle = {
 // <TAlarm>. Mount one per app, at its root. Only the first host mounted on the page renders, so inside the
 // shell the shell's host shows the microfrontends' alarms too. Each position in use gets its own Radix
 // Toast provider and viewport; the host's own one answers F8.
-export function TAlarmHost({ position = 'bottom-right', duration = 5000, label = 'Notifications' }: TAlarmHostProps) {
+export function TAlarmHost({
+  position = 'bottom-right',
+  duration = 5000,
+  label = 'Notifications',
+}: TAlarmHostProps) {
   const [host] = useState(() => Symbol('TAlarmHost'))
   const state = useSyncExternalStore(alarmStore.subscribe, alarmStore.getState)
 
@@ -35,23 +55,30 @@ export function TAlarmHost({ position = 'bottom-right', duration = 5000, label =
 
   if (state.host !== host) return null
 
-  return [...groupAlarms(state.items, position)].map(([groupPosition, items]) => {
-    const isOwn = groupPosition === position
+  return [...groupAlarms(state.items, position)].map(
+    ([groupPosition, items]) => {
+      const isOwn = groupPosition === position
 
-    return (
-      <Toast.Provider key={groupPosition} duration={duration} swipeDirection={alarmSwipeDirection(groupPosition)} label={label}>
-        {items.map((item) => (
-          <Alarm key={item.id} item={item} />
-        ))}
-        <Toast.Viewport
-          data-slot="alarm-viewport"
-          hotkey={isOwn ? undefined : []}
-          label={isOwn ? `${label} ({hotkey})` : label}
-          className={tAlarmViewportVariants({ position: groupPosition })}
-        />
-      </Toast.Provider>
-    )
-  })
+      return (
+        <Toast.Provider
+          key={groupPosition}
+          duration={duration}
+          swipeDirection={alarmSwipeDirection(groupPosition)}
+          label={label}
+        >
+          {items.map((item) => (
+            <Alarm key={item.id} item={item} />
+          ))}
+          <Toast.Viewport
+            data-slot="alarm-viewport"
+            hotkey={isOwn ? undefined : []}
+            label={isOwn ? `${label} ({hotkey})` : label}
+            className={tAlarmViewportVariants({ position: groupPosition })}
+          />
+        </Toast.Provider>
+      )
+    },
+  )
 }
 
 function Alarm({ item }: { item: TAlarmItem }) {
@@ -67,19 +94,40 @@ function Alarm({ item }: { item: TAlarmItem }) {
       className={tAlarmVariants({ variant })}
       style={swipeStyle}
     >
-      {variant !== 'neutral' && <TIcon icon={ICONS[variant]} size="md" className={tAlarmIconVariants({ variant })} />}
+      {variant !== 'neutral' && (
+        <TIcon
+          icon={ICONS[variant]}
+          size="md"
+          className={tAlarmIconVariants({ variant })}
+        />
+      )}
       <div className={tAlarmBodyClasses}>
         <Toast.Title className={tAlarmTitleClasses}>{item.title}</Toast.Title>
-        {item.description && <Toast.Description className={tAlarmDescriptionClasses}>{item.description}</Toast.Description>}
+        {item.description && (
+          <Toast.Description className={tAlarmDescriptionClasses}>
+            {item.description}
+          </Toast.Description>
+        )}
       </div>
       {/* altText describes the action for screen readers, which reach it through F8. */}
       {item.action && (
         <Toast.Action asChild altText={item.action.label}>
-          <TButton variant="outline" size="sm" label={item.action.label} onClick={item.action.onClick} className={tAlarmActionClasses} />
+          <TButton
+            variant="outline"
+            size="sm"
+            label={item.action.label}
+            onClick={item.action.onClick}
+            className={tAlarmActionClasses}
+          />
         </Toast.Action>
       )}
       <Toast.Close asChild>
-        <TButton variant="ghost" size="sm" aria-label="Dismiss" className={tAlarmCloseClasses}>
+        <TButton
+          variant="ghost"
+          size="sm"
+          aria-label="Dismiss"
+          className={tAlarmCloseClasses}
+        >
           <TIcon icon={X} size="sm" />
         </TButton>
       </Toast.Close>

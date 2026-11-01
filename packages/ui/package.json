@@ -3,8 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "files": ["dist"],
-  "sideEffects": ["./dist/register.js", "./dist/styles.css"],
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "./dist/register.js",
+    "./dist/styles.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

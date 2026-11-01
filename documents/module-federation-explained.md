@@ -3,6 +3,7 @@
 A beginner's guide to the federation configuration in this repo: what problem it solves, what each option means, and what happens in the browser. It assumes no prior knowledge of Module Federation.
 
 **Contents**
+
 1. [The problem](#1-the-problem)
 2. [The core idea: host, remote and the catalog](#2-the-core-idea-host-remote-and-the-catalog)
 3. [The remote's configuration](#3-the-remotes-configuration)
@@ -34,13 +35,13 @@ Module Federation solves this: **at runtime, the browser fetches a piece of code
 
 Think of a mall (the host) and a shop (the remote) in its own building.
 
-| Analogy | Module Federation term | In this repo |
-|---|---|---|
-| The mall | **Host**: the app that consumes code from elsewhere | `apps/shell` |
-| The shop in its own building | **Remote**: the app that offers code to others | `apps/todo-mfe` |
-| The shop's catalog: what it sells and where each item is stored | **Remote entry**: a small generated file listing the exposed modules | `remoteEntry.js` |
-| The items the shop sells | **Exposed modules** | `./mount` |
-| The shop's address, stored in the mall's address book | **Remote entry URL** | `http://localhost:5174/remoteEntry.js` |
+| Analogy                                                         | Module Federation term                                               | In this repo                           |
+| --------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------- |
+| The mall                                                        | **Host**: the app that consumes code from elsewhere                  | `apps/shell`                           |
+| The shop in its own building                                    | **Remote**: the app that offers code to others                       | `apps/todo-mfe`                        |
+| The shop's catalog: what it sells and where each item is stored | **Remote entry**: a small generated file listing the exposed modules | `remoteEntry.js`                       |
+| The items the shop sells                                        | **Exposed modules**                                                  | `./mount`                              |
+| The shop's address, stored in the mall's address book           | **Remote entry URL**                                                 | `http://localhost:5174/remoteEntry.js` |
 
 The flow in one sentence: the host knows only the **address of the catalog**. When it needs something, it fetches the catalog, finds out where the item lives, fetches that, and uses it.
 
@@ -50,10 +51,10 @@ Both sides use the same plugin, `@module-federation/vite`, configured through th
 
 "The catalog" exists in two forms, and it is easy to mix them up:
 
-| | What it is | Where it lives | Who reads it |
-|---|---|---|---|
-| **`exposes`** in `vite.config.ts` | The **instruction**: what to offer, as a public name plus a source file | Your source code, on your machine | The build tool, at build time. The browser never sees it. |
-| **`remoteEntry.js`** | The **generated result**: the same catalog as a file the browser can run | The build output, served by the remote's server | The federation runtime in the browser, at runtime |
+|                                   | What it is                                                               | Where it lives                                  | Who reads it                                              |
+| --------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------- | --------------------------------------------------------- |
+| **`exposes`** in `vite.config.ts` | The **instruction**: what to offer, as a public name plus a source file  | Your source code, on your machine               | The build tool, at build time. The browser never sees it. |
+| **`remoteEntry.js`**              | The **generated result**: the same catalog as a file the browser can run | The build output, served by the remote's server | The federation runtime in the browser, at runtime         |
 
 Think of `exposes` as the recipe and `remoteEntry.js` as the finished dish. The browser can't read `vite.config.ts`, so the build translates it:
 
@@ -88,13 +89,13 @@ federation({
 })
 ```
 
-| Option | Meaning |
-|---|---|
-| `name` | The remote's identity. Hosts use it to refer to this app. |
+| Option     | Meaning                                                                                                     |
+| ---------- | ----------------------------------------------------------------------------------------------------------- |
+| `name`     | The remote's identity. Hosts use it to refer to this app.                                                   |
 | `filename` | The name of the generated catalog file. The build writes it, and the server serves it at `/remoteEntry.js`. |
-| `exposes` | The public list of what this app offers, as `publicName: realFile` pairs. |
-| `shared` | Libraries to share with other apps. Empty means nothing is shared (see [section 6](#6-the-other-options)). |
-| `dts` | Whether to generate TypeScript types for consumers. Off here (see [section 6](#6-the-other-options)). |
+| `exposes`  | The public list of what this app offers, as `publicName: realFile` pairs.                                   |
+| `shared`   | Libraries to share with other apps. Empty means nothing is shared (see [section 6](#6-the-other-options)).  |
+| `dts`      | Whether to generate TypeScript types for consumers. Off here (see [section 6](#6-the-other-options)).       |
 
 **`exposes` is the only door, and it is the source of the catalog.** At build time the plugin turns this setting into `remoteEntry.js` (see [source versus generated output](#source-versus-generated-output)). Everything not listed is private:
 
@@ -119,14 +120,14 @@ federation({
 })
 ```
 
-| Option | Meaning |
-|---|---|
-| `name` | The host's own identity. |
-| `remotes` | The address book: which remotes this app can load, and where their catalogs are. |
-| `remotes.todo` (the key) | The nickname used in code. It is the first half of the import specifier: `import('todo/mount')` means "remote `todo`, exposed module `./mount`". |
-| `name: 'todo'` | The remote's own `name`. It must match the `name` in the remote's config. |
-| `entry` | The URL of the catalog. It comes from `VITE_TODO_REMOTE_URL`, or defaults to `http://localhost:5174/remoteEntry.js`. |
-| `type: 'module'` | How to load the catalog. `'module'` loads it as a standard ES module with `import()`, which is what a Vite-built remote produces. The alternative, `'var'`, is for older webpack-style remotes loaded as classic scripts. |
+| Option                   | Meaning                                                                                                                                                                                                                   |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                   | The host's own identity.                                                                                                                                                                                                  |
+| `remotes`                | The address book: which remotes this app can load, and where their catalogs are.                                                                                                                                          |
+| `remotes.todo` (the key) | The nickname used in code. It is the first half of the import specifier: `import('todo/mount')` means "remote `todo`, exposed module `./mount`".                                                                          |
+| `name: 'todo'`           | The remote's own `name`. It must match the `name` in the remote's config.                                                                                                                                                 |
+| `entry`                  | The URL of the catalog. It comes from `VITE_TODO_REMOTE_URL`, or defaults to `http://localhost:5174/remoteEntry.js`.                                                                                                      |
+| `type: 'module'`         | How to load the catalog. `'module'` loads it as a standard ES module with `import()`, which is what a Vite-built remote produces. The alternative, `'var'`, is for older webpack-style remotes loaded as classic scripts. |
 
 Two things to notice:
 
@@ -191,12 +192,12 @@ The result is a Vue app living inside a div on a React-rendered page. React owns
 
 The same steps in the mall analogy:
 
-| Step | Analogy |
-|---|---|
-| 3 | You find the shop's address and ask for its catalog. |
-| 4 | The catalog says "item `./mount` is in the box on this shelf", and the shop hands you the box. |
-| 5 | You unpack the box and find a tool: the `mount` function. |
-| 6 | You put the tool on a spot in your own mall (the div) and switch it on. The shop's staff (Vue) then run that spot. |
+| Step | Analogy                                                                                                            |
+| ---- | ------------------------------------------------------------------------------------------------------------------ |
+| 3    | You find the shop's address and ask for its catalog.                                                               |
+| 4    | The catalog says "item `./mount` is in the box on this shelf", and the shop hands you the box.                     |
+| 5    | You unpack the box and find a tool: the `mount` function.                                                          |
+| 6    | You put the tool on a spot in your own mall (the div) and switch it on. The shop's staff (Vue) then run that spot. |
 
 The snippet above comes from a production build. The dev server (`pnpm dev`) serves unbundled modules instead, so the file names differ, but the same lookup happens.
 
@@ -252,16 +253,16 @@ The rule behind steps 4 and 5: the shell hands the remote a DOM node and a funct
 
 ## 8. Common mistakes and how they show up
 
-| Symptom | Likely cause |
-|---|---|
-| The shell shows its error fallback, and the console has a federation error (`RUNTIME-008`) | The remote's server isn't running, or `entry` points at the wrong URL. |
-| The error persists after starting the server | `React.lazy` caches the failure. Reload the page. |
-| The dev server exits immediately with a port error | The port is taken. `strictPort` is working as intended; free the port. |
-| Changing `VITE_TODO_REMOTE_URL` has no effect | The value is read at **build** time. Rebuild the shell. |
-| Dev: the remote's chunk loads but its other files return 404 from the shell's port | `server.origin` is missing or wrong in the remote's Vite config. |
-| The remote entry loads, but the console says the module `todo/…` isn't found | The key in `exposes` doesn't match what the host imports (for example `./mount` vs `./Mount`). |
-| TypeScript says it cannot find module `todo/mount` | The declaration in `remotes.d.ts` is missing or its module name is wrong. |
-| It compiles but fails at runtime with a wrong call | `remotes.d.ts` has drifted from the real `mount` signature. |
+| Symptom                                                                                    | Likely cause                                                                                   |
+| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| The shell shows its error fallback, and the console has a federation error (`RUNTIME-008`) | The remote's server isn't running, or `entry` points at the wrong URL.                         |
+| The error persists after starting the server                                               | `React.lazy` caches the failure. Reload the page.                                              |
+| The dev server exits immediately with a port error                                         | The port is taken. `strictPort` is working as intended; free the port.                         |
+| Changing `VITE_TODO_REMOTE_URL` has no effect                                              | The value is read at **build** time. Rebuild the shell.                                        |
+| Dev: the remote's chunk loads but its other files return 404 from the shell's port         | `server.origin` is missing or wrong in the remote's Vite config.                               |
+| The remote entry loads, but the console says the module `todo/…` isn't found               | The key in `exposes` doesn't match what the host imports (for example `./mount` vs `./Mount`). |
+| TypeScript says it cannot find module `todo/mount`                                         | The declaration in `remotes.d.ts` is missing or its module name is wrong.                      |
+| It compiles but fails at runtime with a wrong call                                         | `remotes.d.ts` has drifted from the real `mount` signature.                                    |
 
 ## 9. Summary
 

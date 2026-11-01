@@ -3,6 +3,7 @@
 An onboarding guide for engineers new to this repo. It explains what happens between typing `pnpm run dev` and seeing the apps start, and where each piece of that is configured.
 
 **Contents**
+
 1. [The big picture](#1-the-big-picture)
 2. [What happens when you run `pnpm run dev`](#2-what-happens-when-you-run-pnpm-run-dev)
 3. [Where everything is configured](#3-where-everything-is-configured)
@@ -22,24 +23,24 @@ For what the apps do at runtime, see [how-it-works.md](how-it-works.md). For set
 
 This repo is a **monorepo**: several packages in one git repository that depend on each other.
 
-| Package | Role |
-|---|---|
-| `apps/shell` | The host app. |
-| `apps/todo-mfe`, `apps/ui-vue-docs`, `apps/ui-react-docs` | Remote apps that the shell loads at runtime. |
-| `packages/tokens` | Design tokens shared by both component libraries (CSS only, no build). |
-| `packages/ui` | React components (the shell and the React docs remote). |
-| `packages/ui-vue` | The same components natively in Vue (the Vue remotes). |
-| `packages/config` | Shared TypeScript presets. |
+| Package                                                   | Role                                                                   |
+| --------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `apps/shell`                                              | The host app.                                                          |
+| `apps/todo-mfe`, `apps/ui-vue-docs`, `apps/ui-react-docs` | Remote apps that the shell loads at runtime.                           |
+| `packages/tokens`                                         | Design tokens shared by both component libraries (CSS only, no build). |
+| `packages/ui`                                             | React components (the shell and the React docs remote).                |
+| `packages/ui-vue`                                         | The same components natively in Vue (the Vue remotes).                 |
+| `packages/config`                                         | Shared TypeScript presets.                                             |
 
 Three tools cooperate to make that work, and each has a separate job:
 
-| Tool | Job |
-|---|---|
-| **pnpm** | Installs dependencies and links the workspace packages to each other. |
-| **Turborepo** (`turbo`) | Runs scripts across packages in the right order, and caches results. |
-| **Vite** (inside each package) | Does the actual building and serving. |
+| Tool                           | Job                                                                   |
+| ------------------------------ | --------------------------------------------------------------------- |
+| **pnpm**                       | Installs dependencies and links the workspace packages to each other. |
+| **Turborepo** (`turbo`)        | Runs scripts across packages in the right order, and caches results.  |
+| **Vite** (inside each package) | Does the actual building and serving.                                 |
 
-Keeping them apart is the key to reading any command in this repo: Turbo decides *what runs when*, and the scripts inside each package decide *what actually happens*.
+Keeping them apart is the key to reading any command in this repo: Turbo decides _what runs when_, and the scripts inside each package decide _what actually happens_.
 
 ## 2. What happens when you run `pnpm run dev`
 
@@ -81,26 +82,26 @@ This is the only link between `pnpm run dev` and Turbo. pnpm does not know Turbo
 
 **Step 5.** For `dev`, Turbo finds every package with a `dev` script and starts them:
 
-| Package | Its `dev` script | Result |
-|---|---|---|
+| Package                    | Its `dev` script     | Result                                                      |
+| -------------------------- | -------------------- | ----------------------------------------------------------- |
 | `@repo/ui`, `@repo/ui-vue` | `vite build --watch` | Rebuilds the library's `dist/` whenever its source changes. |
-| `@repo/todo-mfe` | `vite` | Dev server on `:5174`. |
-| `@repo/ui-vue-docs` | `vite` | Dev server on `:5175`. |
-| `@repo/ui-react-docs` | `vite` | Dev server on `:5176`. |
-| `@repo/shell` | `vite` | Dev server on `:5173`. |
+| `@repo/todo-mfe`           | `vite`               | Dev server on `:5174`.                                      |
+| `@repo/ui-vue-docs`        | `vite`               | Dev server on `:5175`.                                      |
+| `@repo/ui-react-docs`      | `vite`               | Dev server on `:5176`.                                      |
+| `@repo/shell`              | `vite`               | Dev server on `:5173`.                                      |
 
 The output you see is prefixed with `package:task` (for example `@repo/ui:build:`), which is Turbo labelling interleaved logs from several processes.
 
 ## 3. Where everything is configured
 
-| File | Controls |
-|---|---|
-| `package.json` (root) | The root scripts (`dev`, `build`, `typecheck`, `preview`), each of which is `turbo run <task>`. Also pins `packageManager` (the pnpm version) and `engines` (the Node version). |
-| `pnpm-workspace.yaml` | Which folders are packages, and the `catalog:` of dependency versions. |
-| `turbo.json` (root) | The tasks: what each depends on, whether it is cached, whether it is long-running. |
-| `packages/ui/turbo.json` | One override of the root rules, for that package only (see [section 6](#6-why-packagesui-has-its-own-turbojson)). |
-| `<package>/package.json` | The real commands for that package (`vite`, `vite build`, `tsc`, …) and its dependencies. |
-| `.turbo/` | Turbo's local cache and logs. Generated, and git-ignored. |
+| File                     | Controls                                                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `package.json` (root)    | The root scripts (`dev`, `build`, `typecheck`, `preview`), each of which is `turbo run <task>`. Also pins `packageManager` (the pnpm version) and `engines` (the Node version). |
+| `pnpm-workspace.yaml`    | Which folders are packages, and the `catalog:` of dependency versions.                                                                                                          |
+| `turbo.json` (root)      | The tasks: what each depends on, whether it is cached, whether it is long-running.                                                                                              |
+| `packages/ui/turbo.json` | One override of the root rules, for that package only (see [section 6](#6-why-packagesui-has-its-own-turbojson)).                                                               |
+| `<package>/package.json` | The real commands for that package (`vite`, `vite build`, `tsc`, …) and its dependencies.                                                                                       |
+| `.turbo/`                | Turbo's local cache and logs. Generated, and git-ignored.                                                                                                                       |
 
 There are only two `turbo.json` files in the repo: the root one and the one in `packages/ui`. The apps have none because the root rules are enough for them.
 
@@ -139,10 +140,10 @@ A link makes the folder visible, but not every file in it is importable. The pac
 
 **The two parts of the specifier.**
 
-| Part | Meaning |
-|---|---|
+| Part         | Meaning                                                                                                                                                                    |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `workspace:` | Resolve from the monorepo, never from the registry. If no workspace package has that name, `pnpm install` fails instead of quietly downloading a package of the same name. |
-| `*` | Accept any version. A local package has only one version, so there is nothing to choose. |
+| `*`          | Accept any version. A local package has only one version, so there is nothing to choose.                                                                                   |
 
 `workspace:^` and `workspace:~` also exist, and they behave the same as `*` locally. They differ only when a package is packed or published: pnpm replaces `workspace:*` with the package's exact version, and `workspace:^` with `^<version>`. Every package here is `"private": true` and is never published, so the difference does not come up. `*` is the simplest choice.
 
@@ -154,10 +155,10 @@ A link makes the folder visible, but not every file in it is importable. The pac
 
 **`workspace:` versus `catalog:`.** Both appear in the same files, but they do different jobs:
 
-| Specifier | Resolves to |
-|---|---|
-| `"@repo/ui": "workspace:*"` | The local folder `packages/ui`, as a symlink. |
-| `"react": "catalog:"` | A registry version, taken from the single list in `pnpm-workspace.yaml`. |
+| Specifier                   | Resolves to                                                              |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `"@repo/ui": "workspace:*"` | The local folder `packages/ui`, as a symlink.                            |
+| `"react": "catalog:"`       | A registry version, taken from the single list in `pnpm-workspace.yaml`. |
 
 pnpm also allows a catalog entry to point at a workspace package, but this repo does not do that.
 
@@ -165,12 +166,12 @@ pnpm also allows a catalog entry to point at a workspace package, but this repo 
 
 The root `turbo.json` defines four tasks:
 
-| Task | `dependsOn` | Cached? | Long-running? | Consequence |
-|---|---|---|---|---|
-| `build` | `^build` | Yes (outputs `dist/**`) | No | The libraries build before the apps that use them. |
-| `typecheck` | `^build` | Yes | No | Apps typecheck against the libraries' built `.d.ts` files, so those are built first. |
-| `dev` | `^build` | No | Yes | The libraries are built once, then all the dev processes run together. |
-| `preview` | `build` | No | Yes | Builds everything, then serves the production output. |
+| Task        | `dependsOn` | Cached?                 | Long-running? | Consequence                                                                          |
+| ----------- | ----------- | ----------------------- | ------------- | ------------------------------------------------------------------------------------ |
+| `build`     | `^build`    | Yes (outputs `dist/**`) | No            | The libraries build before the apps that use them.                                   |
+| `typecheck` | `^build`    | Yes                     | No            | Apps typecheck against the libraries' built `.d.ts` files, so those are built first. |
+| `dev`       | `^build`    | No                      | Yes           | The libraries are built once, then all the dev processes run together.               |
+| `preview`   | `build`     | No                      | Yes           | Builds everything, then serves the production output.                                |
 
 ### Reading `dependsOn`
 
@@ -215,7 +216,7 @@ A package can override the root task rules for itself. `packages/ui/turbo.json` 
 
 **Why it is needed.** ui's `dev` is `vite build --watch`, and its `build` is `vite build && tsc -p tsconfig.build.json`. The second command writes the `.d.ts` files into `dist/`. If both started at once, the watcher and the initial build would write `dist/` simultaneously, and the declaration files could be lost or clash. Making `dev` depend on `build` means the full build, declarations included, runs once, and then the watcher starts.
 
-**Why the root rule cannot cover it.** The root `dev` rule is `^build`, which only covers *other* packages, and ui has none to wait for. Writing `build` (without the caret) in the root would make every app build itself before its own dev server, which is pointless. So the exception sits with the one package that needs it.
+**Why the root rule cannot cover it.** The root `dev` rule is `^build`, which only covers _other_ packages, and ui has none to wait for. Writing `build` (without the caret) in the root would make every app build itself before its own dev server, which is pointless. So the exception sits with the one package that needs it.
 
 **The general rule:** put a setting in the root `turbo.json` when it applies to every package. Add a `turbo.json` inside a package only when that package needs a different rule.
 
@@ -256,19 +257,19 @@ This starts the shell and its dependencies' builds, but not the todo MFE. The sh
 
 ## 9. Common problems
 
-| Symptom | Cause and fix |
-|---|---|
-| The dev server exits with a port error | `5173`, `5174`, `5175` or `5176` is already in use. The ports are `strictPort`, so the server exits instead of moving. Free the port. |
-| Stopping one process stopped everything | Expected: all `dev` tasks are persistent children of one Turbo run. |
-| An app cannot resolve `@repo/ui` | `packages/ui/dist` is missing. Run through `pnpm dev`, `build` or `typecheck`, which build ui first. |
-| An app shows old ui code or old ui types | ui has not been rebuilt since the change. `pnpm dev` keeps a watcher running for this. |
-| A dev server says a `@repo/ui` subpath "is not exported" | ui's `exports` changed while `pnpm dev` was running. Vite keeps the `package.json` it read at startup, and the ui watcher keeps its original `vite.config.ts`. Restart `pnpm dev` after changing either. |
-| The shell still points at an old remote URL | `VITE_TODO_REMOTE_URL` is read at build time. Rebuild the shell with the new value. |
-| `pnpm install` rejects a version | It was published less than 24 hours ago (`minimumReleaseAge`). |
-| `pnpm install` fails on a dependency's install script | `strictDepBuilds`: the script is not approved. |
-| `pnpm install` fails on a `workspace:*` dependency | No package in the workspace has that name. Check the spelling against the target's `name` field, and that its folder matches a pattern in `pnpm-workspace.yaml`. |
-| An import of a workspace package fails to resolve although the link exists | The package's `exports` points at files that do not exist yet, usually an unbuilt `dist/`. |
-| `turbo: command not found` | Dependencies are not installed. Run `pnpm install` at the root, and run scripts through `pnpm`. |
+| Symptom                                                                    | Cause and fix                                                                                                                                                                                            |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The dev server exits with a port error                                     | `5173`, `5174`, `5175` or `5176` is already in use. The ports are `strictPort`, so the server exits instead of moving. Free the port.                                                                    |
+| Stopping one process stopped everything                                    | Expected: all `dev` tasks are persistent children of one Turbo run.                                                                                                                                      |
+| An app cannot resolve `@repo/ui`                                           | `packages/ui/dist` is missing. Run through `pnpm dev`, `build` or `typecheck`, which build ui first.                                                                                                     |
+| An app shows old ui code or old ui types                                   | ui has not been rebuilt since the change. `pnpm dev` keeps a watcher running for this.                                                                                                                   |
+| A dev server says a `@repo/ui` subpath "is not exported"                   | ui's `exports` changed while `pnpm dev` was running. Vite keeps the `package.json` it read at startup, and the ui watcher keeps its original `vite.config.ts`. Restart `pnpm dev` after changing either. |
+| The shell still points at an old remote URL                                | `VITE_TODO_REMOTE_URL` is read at build time. Rebuild the shell with the new value.                                                                                                                      |
+| `pnpm install` rejects a version                                           | It was published less than 24 hours ago (`minimumReleaseAge`).                                                                                                                                           |
+| `pnpm install` fails on a dependency's install script                      | `strictDepBuilds`: the script is not approved.                                                                                                                                                           |
+| `pnpm install` fails on a `workspace:*` dependency                         | No package in the workspace has that name. Check the spelling against the target's `name` field, and that its folder matches a pattern in `pnpm-workspace.yaml`.                                         |
+| An import of a workspace package fails to resolve although the link exists | The package's `exports` points at files that do not exist yet, usually an unbuilt `dist/`.                                                                                                               |
+| `turbo: command not found`                                                 | Dependencies are not installed. Run `pnpm install` at the root, and run scripts through `pnpm`.                                                                                                          |
 
 ## 10. Recipes
 

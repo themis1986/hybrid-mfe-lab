@@ -5,7 +5,11 @@ import { computed } from 'vue'
 import { useRootAttrs } from '../../lib/attrs'
 import { parseIsoDate, toIsoDate, toMatcher } from '../../lib/date'
 import { useDateModel } from '../../lib/dateModel'
-import { tDateFieldSegmentClasses, tDateFieldSegmentsClasses, tDateFieldVariants } from './TDateField.variants'
+import {
+  tDateFieldSegmentClasses,
+  tDateFieldSegmentsClasses,
+  tDateFieldVariants,
+} from './TDateField.variants'
 import type { TDateFieldProps } from './types'
 
 // A date typed into segments (Reka DateField), in the locale's order: type digits (it moves on by itself),
@@ -45,7 +49,12 @@ const max = computed(() => parseIsoDate(props.max))
     @update:model-value="(value) => update(value as DateValue | undefined)"
   >
     <div data-slot="date-field-segments" :class="tDateFieldSegmentsClasses">
-      <DateFieldInput v-for="(item, i) in segments" :key="i" :part="item.part" :class="tDateFieldSegmentClasses">
+      <DateFieldInput
+        v-for="(item, i) in segments"
+        :key="i"
+        :part="item.part"
+        :class="tDateFieldSegmentClasses"
+      >
         {{ item.value }}
       </DateFieldInput>
     </div>

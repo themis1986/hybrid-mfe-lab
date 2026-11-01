@@ -6,7 +6,15 @@ import type { TGridProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TGridProps>(), { as: 'div' })
-const root = useRootAttrs(() => tGridVariants({ cols: props.minChildWidth === undefined ? props.cols : null, auto: props.minChildWidth !== undefined, gap: props.gap }), () => ({ '--t-grid-min': props.minChildWidth }))
+const root = useRootAttrs(
+  () =>
+    tGridVariants({
+      cols: props.minChildWidth === undefined ? props.cols : null,
+      auto: props.minChildWidth !== undefined,
+      gap: props.gap,
+    }),
+  () => ({ '--t-grid-min': props.minChildWidth }),
+)
 </script>
 
 <template>

@@ -10,6 +10,5 @@ const root = useRootAttrs(() => tSpacerClasses)
 </script>
 
 <template>
-  <Primitive v-bind="root()" :as="as" :as-child="asChild">
-  </Primitive>
+  <Primitive v-bind="root()" :as="as" :as-child="asChild"> </Primitive>
 </template>

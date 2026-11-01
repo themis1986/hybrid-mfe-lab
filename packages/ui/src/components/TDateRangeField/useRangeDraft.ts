@@ -28,14 +28,18 @@ export function useRangeDraft(
   function update(which: 'start' | 'end', date: CalendarDate | undefined) {
     const next = { ...draft, [which]: date }
     setDraft(next)
-    if (next.start && next.end) onCommit({ start: toIsoDate(next.start), end: toIsoDate(next.end) })
+    if (next.start && next.end)
+      onCommit({ start: toIsoDate(next.start), end: toIsoDate(next.end) })
     else if (!next.start && !next.end) onCommit(undefined)
   }
 
   const { start, end } = draft
   const out =
-    (!!start && isBlocked(start)) || (!!end && isBlocked(end)) || (!!start && !!end && end.compare(start) < 0)
-  const complete: TDateRange | undefined = start && end ? { start: toIsoDate(start), end: toIsoDate(end) } : undefined
+    (!!start && isBlocked(start)) ||
+    (!!end && isBlocked(end)) ||
+    (!!start && !!end && end.compare(start) < 0)
+  const complete: TDateRange | undefined =
+    start && end ? { start: toIsoDate(start), end: toIsoDate(end) } : undefined
 
   return { start, end, update, out, complete }
 }

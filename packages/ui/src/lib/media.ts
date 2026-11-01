@@ -56,7 +56,8 @@ export const radiusVariants = {
 } as const
 
 // The root holds the media box and its caption. It is a <figure> when there is a caption (UA margins reset).
-export const mediaRootClasses = 'm-0 box-border flex min-w-0 flex-col items-start gap-2 text-fg'
+export const mediaRootClasses =
+  'm-0 box-border flex min-w-0 flex-col items-start gap-2 text-fg'
 export const mediaCaptionClasses = 'text-sm text-fg-muted'
 // Covers the media box: the loader of a frame, the error state of a video.
 export const mediaOverlayClasses = [
@@ -92,17 +93,29 @@ export function toAllow(value: string | string[] | undefined) {
 }
 
 /** A key that changes with the sources: the media element is re-created then, since changing <source> children doesn't reload it. */
-export function sourcesKey(src: string | undefined, sources: TMediaSource[] | undefined) {
-  return sources?.length ? sources.map((source) => source.src).join(' ') : (src ?? '')
+export function sourcesKey(
+  src: string | undefined,
+  sources: TMediaSource[] | undefined,
+) {
+  return sources?.length
+    ? sources.map((source) => source.src).join(' ')
+    : (src ?? '')
 }
 
 export function prefersReducedMotion() {
-  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  return (
+    typeof matchMedia === 'function' &&
+    matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 }
 
 /** Sets the playback properties that have no HTML attribute; undefined leaves the element's own value. */
-export function applyPlayback(el: HTMLMediaElement, options: { volume?: number; playbackRate?: number }) {
-  if (options.volume !== undefined) el.volume = Math.min(1, Math.max(0, options.volume))
+export function applyPlayback(
+  el: HTMLMediaElement,
+  options: { volume?: number; playbackRate?: number },
+) {
+  if (options.volume !== undefined)
+    el.volume = Math.min(1, Math.max(0, options.volume))
   if (options.playbackRate !== undefined) el.playbackRate = options.playbackRate
 }
 
@@ -111,7 +124,10 @@ export function applyPlayback(el: HTMLMediaElement, options: { volume?: number; 
  * is same-origin (srcdoc, or a same-origin URL without a sandbox that removes allow-same-origin); returns
  * undefined otherwise. Returns the function that stops observing.
  */
-export function observeContentHeight(frame: HTMLIFrameElement, onHeight: (height: number) => void) {
+export function observeContentHeight(
+  frame: HTMLIFrameElement,
+  onHeight: (height: number) => void,
+) {
   let doc: Document | null = null
   try {
     doc = frame.contentDocument

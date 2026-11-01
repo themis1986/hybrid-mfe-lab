@@ -6,7 +6,14 @@ import type { TScrollAreaProps } from './types'
 
 // A scrollable region must be reachable by keyboard, so it is focusable by default (a caller's own
 // tabIndex wins). Callers should also pass role="region" and an aria-label naming the content.
-export function TScrollArea({ orientation, maxHeight, asChild = false, className, style, ...props }: TScrollAreaProps) {
+export function TScrollArea({
+  orientation,
+  maxHeight,
+  asChild = false,
+  className,
+  style,
+  ...props
+}: TScrollAreaProps) {
   const Comp = asChild ? Slot : 'div'
 
   return (

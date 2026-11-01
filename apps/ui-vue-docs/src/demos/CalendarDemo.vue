@@ -4,8 +4,11 @@ import { ref } from 'vue'
 
 // Today as an ISO date, in the viewer's time zone.
 const now = new Date()
-const today = [now.getFullYear(), now.getMonth() + 1, now.getDate()].map((n) => String(n).padStart(2, '0')).join('-')
-const isWeekend = (iso: string) => [0, 6].includes(new Date(`${iso}T00:00`).getDay())
+const today = [now.getFullYear(), now.getMonth() + 1, now.getDate()]
+  .map((n) => String(n).padStart(2, '0'))
+  .join('-')
+const isWeekend = (iso: string) =>
+  [0, 6].includes(new Date(`${iso}T00:00`).getDay())
 
 const date = ref<string>()
 const booking = ref<string>()
@@ -26,7 +29,10 @@ const booking = ref<string>()
         locale="en-GB"
         label="Delivery day"
       />
-      <span class="text-fg-muted">From today, weekdays only (en-GB, Monday first): {{ booking ?? '—' }}</span>
+      <span class="text-fg-muted"
+        >From today, weekdays only (en-GB, Monday first):
+        {{ booking ?? '—' }}</span
+      >
     </div>
   </TGrid>
 </template>

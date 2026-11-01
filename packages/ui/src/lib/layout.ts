@@ -53,7 +53,14 @@ export const justifyVariants = {
 } as const
 
 /** Merges prop-driven values (including `--t-*` custom properties) into a caller's `style`; undefined values are skipped. */
-export function withStyle(style: CSSProperties | undefined, extra: Record<string, string | number | undefined>) {
-  const defined = Object.entries(extra).filter(([, value]) => value !== undefined)
-  return defined.length === 0 ? style : ({ ...style, ...Object.fromEntries(defined) } as CSSProperties)
+export function withStyle(
+  style: CSSProperties | undefined,
+  extra: Record<string, string | number | undefined>,
+) {
+  const defined = Object.entries(extra).filter(
+    ([, value]) => value !== undefined,
+  )
+  return defined.length === 0
+    ? style
+    : ({ ...style, ...Object.fromEntries(defined) } as CSSProperties)
 }

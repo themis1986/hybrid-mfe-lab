@@ -37,17 +37,25 @@ const services = [
   'search-indexer',
 ]
   .map((s) => ({ value: s, label: s, disabled: false }))
-  .concat({ value: 'legacy-ftp', label: 'legacy-ftp (retired)', disabled: true })
+  .concat({
+    value: 'legacy-ftp',
+    label: 'legacy-ftp (retired)',
+    disabled: true,
+  })
 
 const zone = ref<string>()
 const watched = ref<string[]>(['auth', 'billing'])
-const zoneLabel = computed(() => timeZones.find((z) => z.value === zone.value)?.label)
+const zoneLabel = computed(
+  () => timeZones.find((z) => z.value === zone.value)?.label,
+)
 </script>
 
 <template>
   <TGrid min-child-width="16rem" :gap="4">
     <div class="flex flex-col gap-1.5">
-      <label for="combobox-demo-zone" class="text-sm font-medium">Time zone</label>
+      <label for="combobox-demo-zone" class="text-sm font-medium"
+        >Time zone</label
+      >
       <TCombobox
         id="combobox-demo-zone"
         v-model="zone"
@@ -55,10 +63,14 @@ const zoneLabel = computed(() => timeZones.find((z) => z.value === zone.value)?.
         :options="timeZones"
         placeholder="Search time zones…"
       />
-      <span class="text-sm text-fg-muted">Selected: {{ zoneLabel ?? '—' }}</span>
+      <span class="text-sm text-fg-muted"
+        >Selected: {{ zoneLabel ?? '—' }}</span
+      >
     </div>
     <div class="flex flex-col gap-1.5">
-      <label for="combobox-demo-services" class="text-sm font-medium">Services to watch</label>
+      <label for="combobox-demo-services" class="text-sm font-medium"
+        >Services to watch</label
+      >
       <TCombobox
         id="combobox-demo-services"
         v-model="watched"
@@ -67,9 +79,22 @@ const zoneLabel = computed(() => timeZones.find((z) => z.value === zone.value)?.
         :options="services"
         placeholder="Search services…"
       />
-      <span class="text-sm text-fg-muted">Watching: {{ watched.join(', ') || '—' }}</span>
+      <span class="text-sm text-fg-muted"
+        >Watching: {{ watched.join(', ') || '—' }}</span
+      >
     </div>
-    <TCombobox :options="timeZones" size="sm" invalid placeholder="Invalid, small" aria-label="Invalid" />
-    <TCombobox :options="timeZones" disabled default-value="UTC" aria-label="Disabled" />
+    <TCombobox
+      :options="timeZones"
+      size="sm"
+      invalid
+      placeholder="Invalid, small"
+      aria-label="Invalid"
+    />
+    <TCombobox
+      :options="timeZones"
+      disabled
+      default-value="UTC"
+      aria-label="Disabled"
+    />
   </TGrid>
 </template>

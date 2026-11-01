@@ -35,7 +35,11 @@ const reducedMotion = prefersReducedMotion()
 
 watchEffect(
   () => {
-    if (element.value) applyPlayback(element.value, { volume: props.volume, playbackRate: props.playbackRate })
+    if (element.value)
+      applyPlayback(element.value, {
+        volume: props.volume,
+        playbackRate: props.playbackRate,
+      })
   },
   { flush: 'post' },
 )
@@ -45,13 +49,21 @@ function onLoadedMetadata() {
   if (!audio) return
   if (props.startTime !== undefined) audio.currentTime = props.startTime
   // Loading resets the rate to the default one.
-  applyPlayback(audio, { volume: props.volume, playbackRate: props.playbackRate })
+  applyPlayback(audio, {
+    volume: props.volume,
+    playbackRate: props.playbackRate,
+  })
   status.value = 'loaded'
 }
 </script>
 
 <template>
-  <component :is="caption || $slots.caption ? 'figure' : 'div'" data-slot="audio" :data-state="status" v-bind="root()">
+  <component
+    :is="caption || $slots.caption ? 'figure' : 'div'"
+    data-slot="audio"
+    :data-state="status"
+    v-bind="root()"
+  >
     <audio
       :key="key"
       ref="element"
@@ -74,7 +86,11 @@ function onLoadedMetadata() {
         @error="index === sources!.length - 1 && (status = 'error')"
       />
     </audio>
-    <div v-if="status === 'error'" data-slot="audio-fallback" :class="tAudioFallbackClasses">
+    <div
+      v-if="status === 'error'"
+      data-slot="audio-fallback"
+      :class="tAudioFallbackClasses"
+    >
       <slot name="fallback">
         <TIcon :icon="VolumeX" size="sm" />
         <span>{{ errorLabel }}</span>

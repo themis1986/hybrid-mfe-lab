@@ -28,7 +28,10 @@ import {
   tCalendarMonthsClasses,
   tCalendarNavClasses,
 } from '../TCalendar/TCalendar.variants'
-import { tRangeCalendarCellClasses, tRangeCalendarCellTriggerClasses } from './TRangeCalendar.variants'
+import {
+  tRangeCalendarCellClasses,
+  tRangeCalendarCellTriggerClasses,
+} from './TRangeCalendar.variants'
 
 // The header and the month grids of a range calendar, inside a Reka RangeCalendarRoot (TRangeCalendar's own,
 // or the one DateRangePickerCalendar renders). `grid` and `weekDays` are the root's slot props.
@@ -42,7 +45,10 @@ defineProps<{
 
 <template>
   <div data-slot="calendar-body" :class="tCalendarBodyClasses">
-    <RangeCalendarHeader data-slot="calendar-header" :class="tCalendarHeaderClasses">
+    <RangeCalendarHeader
+      data-slot="calendar-header"
+      :class="tCalendarHeaderClasses"
+    >
       <RangeCalendarPrev as-child :aria-label="prevLabel">
         <TButton variant="ghost" size="sm" :class="tCalendarNavClasses">
           <TIcon :icon="ChevronLeft" size="sm" class="rtl:-scale-x-100" />
@@ -56,16 +62,27 @@ defineProps<{
       </RangeCalendarNext>
     </RangeCalendarHeader>
     <div data-slot="calendar-months" :class="tCalendarMonthsClasses">
-      <RangeCalendarGrid v-for="month in grid" :key="month.value.toString()" :class="tCalendarGridClasses">
+      <RangeCalendarGrid
+        v-for="month in grid"
+        :key="month.value.toString()"
+        :class="tCalendarGridClasses"
+      >
         <RangeCalendarGridHead>
           <RangeCalendarGridRow>
-            <RangeCalendarHeadCell v-for="day in weekDays" :key="day" :class="tCalendarHeadCellClasses">
+            <RangeCalendarHeadCell
+              v-for="day in weekDays"
+              :key="day"
+              :class="tCalendarHeadCellClasses"
+            >
               {{ day }}
             </RangeCalendarHeadCell>
           </RangeCalendarGridRow>
         </RangeCalendarGridHead>
         <RangeCalendarGridBody>
-          <RangeCalendarGridRow v-for="week in month.rows" :key="week[0].toString()">
+          <RangeCalendarGridRow
+            v-for="week in month.rows"
+            :key="week[0].toString()"
+          >
             <RangeCalendarCell
               v-for="day in week"
               :key="day.toString()"
@@ -75,7 +92,12 @@ defineProps<{
               <RangeCalendarCellTrigger
                 :day="day"
                 :month="month.value"
-                :class="cn(tCalendarCellTriggerClasses, tRangeCalendarCellTriggerClasses)"
+                :class="
+                  cn(
+                    tCalendarCellTriggerClasses,
+                    tRangeCalendarCellTriggerClasses,
+                  )
+                "
               />
             </RangeCalendarCell>
           </RangeCalendarGridRow>

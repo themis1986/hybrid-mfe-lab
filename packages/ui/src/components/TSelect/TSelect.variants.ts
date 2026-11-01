@@ -18,7 +18,8 @@ export const tSelectContentClasses = [
   'overflow-hidden rounded-md border border-line bg-canvas font-sans text-fg shadow-lg outline-none',
   'transition-opacity duration-150 ease-out starting:opacity-0 motion-reduce:transition-none',
 ].join(' ')
-export const tSelectViewportClasses = 'min-h-0 flex-1 overflow-y-auto p-1 outline-none'
+export const tSelectViewportClasses =
+  'min-h-0 flex-1 overflow-y-auto p-1 outline-none'
 
 // Radix and Reka set data-highlighted, data-state and data-disabled on their items; the React multiple
 // list sets the same attributes on its options.

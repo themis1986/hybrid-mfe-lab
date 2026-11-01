@@ -10,7 +10,12 @@ const root = useRootAttrs(() => tCardFooterClasses)
 </script>
 
 <template>
-  <Primitive data-slot="card-footer" v-bind="root()" :as="as" :as-child="asChild">
+  <Primitive
+    data-slot="card-footer"
+    v-bind="root()"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </Primitive>
 </template>

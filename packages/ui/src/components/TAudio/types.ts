@@ -3,7 +3,10 @@ import type { TMediaSource } from '../../lib/media'
 
 // `className` and `style` go on the root; every other prop (loop, muted, aria-label, onPlay, onEnded…),
 // `ref` included, goes on the <audio>.
-export interface TAudioProps extends Omit<ComponentProps<'audio'>, 'children' | 'src'> {
+export interface TAudioProps extends Omit<
+  ComponentProps<'audio'>,
+  'children' | 'src'
+> {
   /** One file. Ignored when `sources` is given. */
   src?: string
   /** Alternative files (formats); the browser plays the first it supports. */

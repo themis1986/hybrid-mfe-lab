@@ -1,9 +1,20 @@
 import { Maximize2 } from 'lucide-react'
 import { TButton } from '../TButton'
 import { TCard, TCardBody, TCardHeader } from '../TCard'
-import { TDialog, TDialogBody, TDialogContent, TDialogHeader, TDialogTitle, TDialogTrigger } from '../TDialog'
+import {
+  TDialog,
+  TDialogBody,
+  TDialogContent,
+  TDialogHeader,
+  TDialogTitle,
+  TDialogTrigger,
+} from '../TDialog'
 import { TIcon } from '../TIcon'
-import { tWidgetExpandClasses, tWidgetExpandedHeaderClasses, tWidgetHeaderClasses } from './TWidget.variants'
+import {
+  tWidgetExpandClasses,
+  tWidgetExpandedHeaderClasses,
+  tWidgetHeaderClasses,
+} from './TWidget.variants'
 import type { TWidgetProps } from './types'
 
 // A card whose expand button opens an expanded view in a dialog (full screen by default). The dialog is
@@ -28,12 +39,23 @@ export function TWidget({
   const dialogHeader = expandedHeader ?? header
 
   return (
-    <TDialog open={expanded} defaultOpen={defaultExpanded} onOpenChange={onExpandedChange}>
+    <TDialog
+      open={expanded}
+      defaultOpen={defaultExpanded}
+      onOpenChange={onExpandedChange}
+    >
       <TCard data-slot="widget" variant={variant} padding={padding} {...props}>
         <TCardHeader>
-          <div className={tWidgetHeaderClasses}>{header ?? <Heading>{title}</Heading>}</div>
+          <div className={tWidgetHeaderClasses}>
+            {header ?? <Heading>{title}</Heading>}
+          </div>
           <TDialogTrigger asChild>
-            <TButton variant="ghost" size="sm" aria-label={`${expandLabel} ${title}`} className={tWidgetExpandClasses}>
+            <TButton
+              variant="ghost"
+              size="sm"
+              aria-label={`${expandLabel} ${title}`}
+              className={tWidgetExpandClasses}
+            >
               <TIcon icon={Maximize2} size="sm" />
             </TButton>
           </TDialogTrigger>

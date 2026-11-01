@@ -9,17 +9,24 @@ const expanded = ref(false)
 <template>
   <TGrid min-child-width="16rem" :gap="3">
     <TWidget title="Visitors">
-      <span class="text-sm text-fg-muted">Expanded, the same content renders again in the dialog.</span>
+      <span class="text-sm text-fg-muted"
+        >Expanded, the same content renders again in the dialog.</span
+      >
     </TWidget>
     <TWidget v-model:expanded="expanded" title="Sales" variant="elevated">
       <template #header>
         <h3>Sales</h3>
-        <span class="rounded-full border border-accent-line px-2.5 py-0.5 text-xs text-accent-fg">+12%</span>
+        <span
+          class="rounded-full border border-accent-line px-2.5 py-0.5 text-xs text-accent-fg"
+          >+12%</span
+        >
       </template>
       <TStack :gap="2">
         <DemoBlock>Order 1</DemoBlock>
         <DemoBlock>Order 2</DemoBlock>
-        <span class="text-sm text-fg-muted">v-model:expanded: {{ expanded ? 'expanded' : 'collapsed' }}</span>
+        <span class="text-sm text-fg-muted"
+          >v-model:expanded: {{ expanded ? 'expanded' : 'collapsed' }}</span
+        >
       </TStack>
       <template #expanded-content>
         <TStack :gap="2">

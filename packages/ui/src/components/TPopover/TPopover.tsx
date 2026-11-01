@@ -22,8 +22,10 @@ import type {
 } from './types'
 
 const contentStyle = {
-  '--t-popover-available-height': 'var(--radix-popover-content-available-height)',
-  '--t-popover-transform-origin': 'var(--radix-popover-content-transform-origin)',
+  '--t-popover-available-height':
+    'var(--radix-popover-content-available-height)',
+  '--t-popover-transform-origin':
+    'var(--radix-popover-content-transform-origin)',
 } as CSSProperties
 
 // A panel that opens from a trigger and holds any content: a few related fields, filters, a short form
@@ -93,7 +95,12 @@ export function TPopoverContent({
         {children}
         {!hideClose && (
           <Popover.Close asChild>
-            <TButton variant="ghost" size="sm" aria-label={closeLabel} className={tPopoverCloseClasses}>
+            <TButton
+              variant="ghost"
+              size="sm"
+              aria-label={closeLabel}
+              className={tPopoverCloseClasses}
+            >
               <TIcon icon={X} size="sm" />
             </TButton>
           </Popover.Close>
@@ -103,8 +110,18 @@ export function TPopoverContent({
   )
 }
 
-export function TPopoverFooter({ asChild = false, className, ...props }: TPopoverFooterProps) {
+export function TPopoverFooter({
+  asChild = false,
+  className,
+  ...props
+}: TPopoverFooterProps) {
   const Comp = asChild ? Slot : 'div'
 
-  return <Comp data-slot="popover-footer" className={cn(tPopoverFooterClasses, className)} {...props} />
+  return (
+    <Comp
+      data-slot="popover-footer"
+      className={cn(tPopoverFooterClasses, className)}
+      {...props}
+    />
+  )
 }

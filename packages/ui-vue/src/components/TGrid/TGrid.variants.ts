@@ -13,7 +13,9 @@ export const tGridVariants = cva('box-border grid', {
       5: 'grid-cols-5',
       6: 'grid-cols-6',
     },
-    auto: { true: 'grid-cols-[repeat(auto-fit,minmax(min(100%,var(--t-grid-min,16rem)),1fr))]' },
+    auto: {
+      true: 'grid-cols-[repeat(auto-fit,minmax(min(100%,var(--t-grid-min,16rem)),1fr))]',
+    },
     gap: gapVariants,
   },
   defaultVariants: { cols: 1, gap: 3 },

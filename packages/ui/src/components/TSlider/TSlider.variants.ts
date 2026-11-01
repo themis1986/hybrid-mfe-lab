@@ -7,15 +7,18 @@ export const tSliderClasses = [
   'data-[orientation=vertical]:flex-col data-disabled:cursor-not-allowed data-disabled:opacity-50',
 ].join(' ')
 
-export const tSliderTrackVariants = cva('relative grow overflow-hidden rounded-full bg-control', {
-  variants: {
-    size: {
-      sm: 'data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-1',
-      md: 'data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:w-1.5',
+export const tSliderTrackVariants = cva(
+  'relative grow overflow-hidden rounded-full bg-control',
+  {
+    variants: {
+      size: {
+        sm: 'data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-1',
+        md: 'data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:w-1.5',
+      },
     },
+    defaultVariants: { size: 'md' },
   },
-  defaultVariants: { size: 'md' },
-})
+)
 
 export const tSliderRangeClasses =
   'absolute rounded-full bg-accent data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full'

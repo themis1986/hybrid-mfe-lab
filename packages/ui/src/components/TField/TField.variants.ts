@@ -18,4 +18,5 @@ export const tFieldRootClasses = 'flex flex-col gap-1.5'
 // `px-*` shorthand in an app that loads its own Tailwind after the library's.
 export const tFieldControlClasses = 'relative *:data-[slot=field-input]:pe-10'
 // Merged onto a ghost TButton, centred vertically inside the input.
-export const tFieldRevealClasses = 'absolute inset-y-0 end-1 my-auto h-7 w-7 px-0 text-fg-muted'
+export const tFieldRevealClasses =
+  'absolute inset-y-0 end-1 my-auto h-7 w-7 px-0 text-fg-muted'

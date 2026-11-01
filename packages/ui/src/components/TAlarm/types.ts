@@ -1,6 +1,11 @@
 import type { TAlarmPosition, TAlarmVariant } from '../../lib/alarm'
 
-export type { TAlarmAction, TAlarmOptions, TAlarmPosition, TAlarmVariant } from '../../lib/alarm'
+export type {
+  TAlarmAction,
+  TAlarmOptions,
+  TAlarmPosition,
+  TAlarmVariant,
+} from '../../lib/alarm'
 
 export interface TAlarmHostProps {
   /** Where alarms appear unless one asks for another position. */

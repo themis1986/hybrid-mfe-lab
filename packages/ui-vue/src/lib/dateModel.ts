@@ -5,7 +5,8 @@ import { parseIsoRange, type TDateRange, toIsoDate } from './date'
 type IsoValue = string | TDateRange | undefined
 
 function isSame(a: IsoValue, b: IsoValue) {
-  if (typeof a === 'object' && typeof b === 'object') return a.start === b.start && a.end === b.end
+  if (typeof a === 'object' && typeof b === 'object')
+    return a.start === b.start && a.end === b.end
   return a === b
 }
 
@@ -49,7 +50,10 @@ export function rangeToReka(iso: TDateRange | undefined): DateRange {
 }
 
 /** A Reka range's ISO form: undefined once cleared, `skip` while only one end is picked. */
-export function rangeToIso(range: DateRange | null | undefined): TDateRange | undefined | 'skip' {
-  if (range?.start && range.end) return { start: toIsoDate(range.start), end: toIsoDate(range.end) }
+export function rangeToIso(
+  range: DateRange | null | undefined,
+): TDateRange | undefined | 'skip' {
+  if (range?.start && range.end)
+    return { start: toIsoDate(range.start), end: toIsoDate(range.end) }
   return range?.start || range?.end ? 'skip' : undefined
 }

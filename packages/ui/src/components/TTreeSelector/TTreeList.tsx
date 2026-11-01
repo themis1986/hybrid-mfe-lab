@@ -1,5 +1,13 @@
 import { Check, ChevronRight, Minus } from 'lucide-react'
-import { type CSSProperties, type KeyboardEvent, useEffect, useId, useMemo, useRef, useState } from 'react'
+import {
+  type CSSProperties,
+  type KeyboardEvent,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { cn } from '../../lib/cn'
 import {
   flattenVisible,
@@ -16,8 +24,14 @@ import {
   tCheckboxVariants,
 } from '../TCheckbox/TCheckbox.variants'
 import { TIcon } from '../TIcon'
-import { tRadioIndicatorClasses, tRadioVariants } from '../TRadioGroup/TRadioGroup.variants'
-import { tSelectIndicatorClasses, tSelectViewportClasses } from '../TSelect/TSelect.variants'
+import {
+  tRadioIndicatorClasses,
+  tRadioVariants,
+} from '../TRadioGroup/TRadioGroup.variants'
+import {
+  tSelectIndicatorClasses,
+  tSelectViewportClasses,
+} from '../TSelect/TSelect.variants'
 import {
   tTreeChevronClasses,
   tTreeChevronSpacerClasses,
@@ -62,7 +76,11 @@ export function TTreeList({
 }: TTreeListProps) {
   const rows = flattenVisible(options, expanded)
   const baseId = useId()
-  const rowIds = useMemo(() => new Map([...index.keys()].map((value, i) => [value, `${baseId}-${i}`])), [index, baseId])
+  const rowIds = useMemo(
+    () =>
+      new Map([...index.keys()].map((value, i) => [value, `${baseId}-${i}`])),
+    [index, baseId],
+  )
   const [focused, setFocused] = useState<string>()
   const typeahead = useRef({ text: '', timer: 0 })
 
@@ -70,14 +88,22 @@ export function TTreeList({
   const isEnabled = (i: number) => !entryOf(rows[i].node).disabled
   // A parent is selected (aria-selected) only in multiple mode, once its whole subtree is.
   const isSelected = (node: TTreeNode) =>
-    (multiple || !isTreeParent(node)) && nodeState(entryOf(node), selected) === 'checked'
-  const tabStop = rows.some((row) => row.node.value === focused && !entryOf(row.node).disabled)
+    (multiple || !isTreeParent(node)) &&
+    nodeState(entryOf(node), selected) === 'checked'
+  const tabStop = rows.some(
+    (row) => row.node.value === focused && !entryOf(row.node).disabled,
+  )
     ? focused
     : rows.find((row) => !entryOf(row.node).disabled)?.node.value
 
   useEffect(() => {
-    const target = rows.find((row) => !entryOf(row.node).disabled && isSelected(row.node)) ?? rows.find((row) => !entryOf(row.node).disabled)
-    if (target) document.getElementById(rowIds.get(target.node.value)!)?.focus({ preventScroll: true })
+    const target =
+      rows.find((row) => !entryOf(row.node).disabled && isSelected(row.node)) ??
+      rows.find((row) => !entryOf(row.node).disabled)
+    if (target)
+      document
+        .getElementById(rowIds.get(target.node.value)!)
+        ?.focus({ preventScroll: true })
   }, [])
 
   function focusRow(i: number) {
@@ -112,7 +138,10 @@ export function TTreeList({
     const start = state.text.length === 1 ? current + 1 : Math.max(current, 0)
     for (let n = 0; n < rows.length; n++) {
       const i = (start + n) % rows.length
-      if (isEnabled(i) && rows[i].node.label.toLowerCase().startsWith(state.text)) {
+      if (
+        isEnabled(i) &&
+        rows[i].node.label.toLowerCase().startsWith(state.text)
+      ) {
         focusRow(i)
         return
       }
@@ -123,7 +152,8 @@ export function TTreeList({
     const current = rows.findIndex((row) => row.node.value === focused)
     const row = rows[current]
     const entry = row && entryOf(row.node)
-    const isOpenParent = !!entry && isTreeParent(row.node) && expanded.includes(row.node.value)
+    const isOpenParent =
+      !!entry && isTreeParent(row.node) && expanded.includes(row.node.value)
 
     switch (event.key) {
       case 'ArrowDown':
@@ -146,7 +176,8 @@ export function TTreeList({
       case 'ArrowLeft':
         if (!entry || entry.disabled) break
         if (isOpenParent) onToggleExpanded(row.node.value)
-        else if (entry.parent) focusRow(rows.findIndex((r) => r.node === entry.parent!.node))
+        else if (entry.parent)
+          focusRow(rows.findIndex((r) => r.node === entry.parent!.node))
         break
       case 'Enter':
       case ' ':
@@ -155,7 +186,13 @@ export function TTreeList({
       case 'Tab':
         break
       default:
-        if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return
+        if (
+          event.key.length !== 1 ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.altKey
+        )
+          return
         search(event.key, current)
     }
     event.preventDefault()
@@ -213,22 +250,49 @@ export function TTreeList({
               <span aria-hidden className={tTreeChevronSpacerClasses} />
             )}
             {multiple ? (
-              <span aria-hidden className={cn(tCheckboxVariants({ size: 'sm' }), tSelectIndicatorClasses)}>
+              <span
+                aria-hidden
+                className={cn(
+                  tCheckboxVariants({ size: 'sm' }),
+                  tSelectIndicatorClasses,
+                )}
+              >
                 {state !== 'unchecked' && (
-                  <span data-state={state} className={tCheckboxIndicatorClasses}>
+                  <span
+                    data-state={state}
+                    className={tCheckboxIndicatorClasses}
+                  >
                     <TIcon icon={Check} className={tCheckboxIconClasses} />
-                    <TIcon icon={Minus} className={tCheckboxIndeterminateIconClasses} />
+                    <TIcon
+                      icon={Minus}
+                      className={tCheckboxIndeterminateIconClasses}
+                    />
                   </span>
                 )}
               </span>
             ) : (
               !parent && (
-                <span aria-hidden className={cn(tRadioVariants({ size: 'sm' }), tSelectIndicatorClasses)}>
-                  {state === 'checked' && <span className={tRadioIndicatorClasses} />}
+                <span
+                  aria-hidden
+                  className={cn(
+                    tRadioVariants({ size: 'sm' }),
+                    tSelectIndicatorClasses,
+                  )}
+                >
+                  {state === 'checked' && (
+                    <span className={tRadioIndicatorClasses} />
+                  )}
                 </span>
               )
             )}
-            <span className={cn(tTreeLabelClasses, !multiple && parent && tTreeParentLabelClasses)}>{node.label}</span>
+            <span
+              className={cn(
+                tTreeLabelClasses,
+                !multiple && parent && tTreeParentLabelClasses,
+              )}
+            >
+              {node.label}
+            </span>
           </div>
         )
       })}

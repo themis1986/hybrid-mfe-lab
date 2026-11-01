@@ -1,4 +1,8 @@
-import { type CalendarDateTime, Time, toCalendarDateTime } from '@internationalized/date'
+import {
+  type CalendarDateTime,
+  Time,
+  toCalendarDateTime,
+} from '@internationalized/date'
 import { useState } from 'react'
 import { parseIsoTime, toIsoTime } from '../../lib/date'
 import { todayDate } from '../TCalendar/calendarGrid'
@@ -25,7 +29,9 @@ export function TTimeField({
   ...field
 }: TTimeFieldProps) {
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue)
-  const time = parseIsoTime(valueProp !== undefined ? valueProp : uncontrolledValue)
+  const time = parseIsoTime(
+    valueProp !== undefined ? valueProp : uncontrolledValue,
+  )
   const value = time && onToday(time)
   // An empty field works on midnight, as Reka's.
   const [fallback] = useState(() => onToday(new Time(0, 0, 0)))
@@ -33,16 +39,29 @@ export function TTimeField({
   const maxTime = parseIsoTime(max)
 
   function commit(next: SegmentDate | undefined) {
-    const iso = next ? toIsoTime(next as CalendarDateTime, granularity) : undefined
+    const iso = next
+      ? toIsoTime(next as CalendarDateTime, granularity)
+      : undefined
     if (valueProp === undefined) setUncontrolledValue(iso)
     onValueChange?.(iso)
   }
 
-  const outOfRange = !!time && ((!!minTime && time.compare(minTime) < 0) || (!!maxTime && time.compare(maxTime) > 0))
+  const outOfRange =
+    !!time &&
+    ((!!minTime && time.compare(minTime) < 0) ||
+      (!!maxTime && time.compare(maxTime) > 0))
 
   return (
-    <FieldRoot slot="time-field" {...field} outOfRange={outOfRange} submitValue={time ? toIsoTime(time, granularity) : ''}>
-      <div data-slot="date-field-segments" className={tDateFieldSegmentsClasses}>
+    <FieldRoot
+      slot="time-field"
+      {...field}
+      outOfRange={outOfRange}
+      submitValue={time ? toIsoTime(time, granularity) : ''}
+    >
+      <div
+        data-slot="date-field-segments"
+        className={tDateFieldSegmentsClasses}
+      >
         <DateSegments
           kind="time"
           value={value}

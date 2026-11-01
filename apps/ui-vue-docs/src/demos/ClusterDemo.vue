@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { TCluster } from '@repo/ui-vue'
 
-const tags = ['design', 'layout', 'tokens', 'react', 'vue', 'tailwind', 'reka', 'federation', 'a11y']
+const tags = [
+  'design',
+  'layout',
+  'tokens',
+  'react',
+  'vue',
+  'tailwind',
+  'reka',
+  'federation',
+  'a11y',
+]
 </script>
 
 <template>

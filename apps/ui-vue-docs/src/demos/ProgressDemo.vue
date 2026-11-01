@@ -10,7 +10,12 @@ const upload = ref(35)
     <div class="flex items-center gap-3 text-sm">
       <TProgress :value="upload" aria-label="Upload" />
       <span class="w-10 tabular-nums">{{ upload }}%</span>
-      <TButton size="sm" variant="soft" label="+15" @click="upload = Math.min(100, upload + 15)" />
+      <TButton
+        size="sm"
+        variant="soft"
+        label="+15"
+        @click="upload = Math.min(100, upload + 15)"
+      />
     </div>
     <TProgress :value="100" tone="success" aria-label="Complete" />
     <TProgress :value="70" tone="warning" size="sm" aria-label="Storage" />

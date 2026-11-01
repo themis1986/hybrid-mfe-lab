@@ -9,7 +9,11 @@ const props = defineProps<TToastProps>()
 const emit = defineEmits<{ action: [] }>()
 const open = defineModel<boolean>('open', { default: false })
 
-useAlarmItem(open, () => ({ ...props, variant: 'neutral' }), () => emit('action'))
+useAlarmItem(
+  open,
+  () => ({ ...props, variant: 'neutral' }),
+  () => emit('action'),
+)
 </script>
 
 <template>

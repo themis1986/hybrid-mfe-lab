@@ -2,16 +2,30 @@
 import { ImageOff } from '@lucide/vue'
 import { ref, watch } from 'vue'
 import { useSplitAttrs } from '../../lib/attrs'
-import { mediaCaptionClasses, mediaRootClasses, ratioPreset, ratioValue, type TMediaStatus } from '../../lib/media'
+import {
+  mediaCaptionClasses,
+  mediaRootClasses,
+  ratioPreset,
+  ratioValue,
+  type TMediaStatus,
+} from '../../lib/media'
 import { TIcon } from '../TIcon'
-import { tImageFallbackClasses, tImageFrameVariants, tImageVariants } from './TImage.variants'
+import {
+  tImageFallbackClasses,
+  tImageFrameVariants,
+  tImageVariants,
+} from './TImage.variants'
 import type { TImageProps } from './types'
 
 // An <img> in a box: an optional ratio, a skeleton while it loads, a fallback image and then the fallback
 // slot when it fails, and an optional caption (the root is then a <figure>). The root's data-state is
 // loading, loaded or error. `class` and `style` go on the root; every other attribute and listener on the <img>.
 defineOptions({ inheritAttrs: false })
-const props = withDefaults(defineProps<TImageProps>(), { placeholder: 'skeleton', loading: 'lazy', decoding: 'async' })
+const props = withDefaults(defineProps<TImageProps>(), {
+  placeholder: 'skeleton',
+  loading: 'lazy',
+  decoding: 'async',
+})
 const { root, inner } = useSplitAttrs(() => mediaRootClasses)
 const element = ref<HTMLImageElement | null>(null)
 defineExpose({ element })
@@ -28,13 +42,19 @@ watch(
 )
 
 function onError() {
-  if (props.fallbackSrc && current.value !== props.fallbackSrc) current.value = props.fallbackSrc
+  if (props.fallbackSrc && current.value !== props.fallbackSrc)
+    current.value = props.fallbackSrc
   else status.value = 'error'
 }
 </script>
 
 <template>
-  <component :is="caption || $slots.caption ? 'figure' : 'div'" data-slot="image" :data-state="status" v-bind="root()">
+  <component
+    :is="caption || $slots.caption ? 'figure' : 'div'"
+    data-slot="image"
+    :data-state="status"
+    v-bind="root()"
+  >
     <div
       data-slot="image-frame"
       :class="
@@ -55,12 +75,22 @@ function onError() {
         :alt="alt"
         :loading="loading"
         :decoding="decoding"
-        :class="tImageVariants({ sized: ratio !== undefined, fit, failed: status === 'error' })"
+        :class="
+          tImageVariants({
+            sized: ratio !== undefined,
+            fit,
+            failed: status === 'error',
+          })
+        "
         :style="position ? { objectPosition: position } : undefined"
         @load="status = 'loaded'"
         @error="onError"
       />
-      <div v-if="status === 'error'" data-slot="image-fallback" :class="tImageFallbackClasses">
+      <div
+        v-if="status === 'error'"
+        data-slot="image-fallback"
+        :class="tImageFallbackClasses"
+      >
         <slot name="fallback">
           <TIcon :icon="ImageOff" size="lg" :label="alt || undefined" />
         </slot>

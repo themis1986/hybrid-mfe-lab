@@ -2,7 +2,10 @@ import type { ComponentProps, ReactNode } from 'react'
 import type { TMediaFit, TMediaRadius, TMediaRatio } from '../../lib/media'
 
 // `className` and `style` go on the root; every other prop, `ref` included, goes on the <img>.
-export interface TImageProps extends Omit<ComponentProps<'img'>, 'children' | 'placeholder'> {
+export interface TImageProps extends Omit<
+  ComponentProps<'img'>,
+  'children' | 'placeholder'
+> {
   src?: string
   /** Text alternative. Required: pass '' for a decorative image. */
   alt: string

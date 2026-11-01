@@ -6,7 +6,9 @@ import type { TDividerProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TDividerProps>(), { as: 'hr' })
-const root = useRootAttrs(() => tDividerVariants({ orientation: props.orientation }))
+const root = useRootAttrs(() =>
+  tDividerVariants({ orientation: props.orientation }),
+)
 </script>
 
 <template>

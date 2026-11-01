@@ -12,18 +12,22 @@ export const tCalendarRootClasses = [
 ].join(' ')
 
 // Added to the root of a calendar shown on its own; inside a picker, the popover is the frame.
-export const tCalendarFrameClasses = 'rounded-lg border border-line bg-canvas p-3 shadow-sm'
+export const tCalendarFrameClasses =
+  'rounded-lg border border-line bg-canvas p-3 shadow-sm'
 
 export const tCalendarBodyClasses = 'flex min-w-0 flex-col gap-3'
 export const tCalendarHeaderClasses = 'flex items-center justify-between gap-2'
-export const tCalendarHeadingClasses = 'flex-1 text-center text-sm font-semibold'
+export const tCalendarHeadingClasses =
+  'flex-1 text-center text-sm font-semibold'
 // Merged onto a ghost TButton (size sm): square, muted icon.
 export const tCalendarNavClasses = 'w-8 px-0 text-fg-muted'
 
 // Several months sit side by side and wrap below each other when the space runs out.
 export const tCalendarMonthsClasses = 'flex flex-wrap gap-4'
-export const tCalendarGridClasses = 'm-0 border-collapse border-spacing-0 select-none'
-export const tCalendarHeadCellClasses = 'size-9 p-0 text-center text-xs font-normal text-fg-muted'
+export const tCalendarGridClasses =
+  'm-0 border-collapse border-spacing-0 select-none'
+export const tCalendarHeadCellClasses =
+  'size-9 p-0 text-center text-xs font-normal text-fg-muted'
 export const tCalendarCellClasses = 'relative p-0 text-center'
 
 // A day. Days outside the month a grid shows are hidden: with several months they repeat a neighbour's.

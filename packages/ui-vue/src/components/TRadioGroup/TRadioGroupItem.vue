@@ -18,6 +18,9 @@ const root = useRootAttrs(() => tRadioVariants({ size: props.size }))
     :as="as"
     :as-child="asChild"
   >
-    <RadioGroupIndicator data-slot="radio-group-indicator" :class="tRadioIndicatorClasses" />
+    <RadioGroupIndicator
+      data-slot="radio-group-indicator"
+      :class="tRadioIndicatorClasses"
+    />
   </RadioGroupItem>
 </template>

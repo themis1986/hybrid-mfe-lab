@@ -1,2 +1,7 @@
 export { TCombobox } from './TCombobox'
-export type { TComboboxMultipleProps, TComboboxOption, TComboboxProps, TComboboxSingleProps } from './types'
+export type {
+  TComboboxMultipleProps,
+  TComboboxOption,
+  TComboboxProps,
+  TComboboxSingleProps,
+} from './types'

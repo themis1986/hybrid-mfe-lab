@@ -4,12 +4,18 @@ import { computed, ref } from 'vue'
 
 const username = ref('taken')
 const password = ref('secret')
-const error = computed(() => (username.value === 'taken' ? 'That username is taken.' : undefined))
+const error = computed(() =>
+  username.value === 'taken' ? 'That username is taken.' : undefined,
+)
 </script>
 
 <template>
   <TGrid min-child-width="14rem" :gap="4">
-    <TField label="Email" placeholder="you@example.com" description="We never share it." />
+    <TField
+      label="Email"
+      placeholder="you@example.com"
+      description="We never share it."
+    />
     <TField v-model="username" label="Username" :error="error" />
     <TField v-model="password" label="Password" type="password" />
   </TGrid>

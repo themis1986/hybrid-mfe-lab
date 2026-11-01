@@ -1,2 +1,7 @@
 export { TSelect } from './TSelect'
-export type { TSelectMultipleProps, TSelectOption, TSelectProps, TSelectSingleProps } from './types'
+export type {
+  TSelectMultipleProps,
+  TSelectOption,
+  TSelectProps,
+  TSelectSingleProps,
+} from './types'

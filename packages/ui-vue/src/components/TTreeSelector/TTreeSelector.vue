@@ -31,7 +31,10 @@ import {
 } from '../TCheckbox/TCheckbox.variants'
 import { TIcon } from '../TIcon'
 import { tInputVariants } from '../TInput/TInput.variants'
-import { tRadioIndicatorClasses, tRadioVariants } from '../TRadioGroup/TRadioGroup.variants'
+import {
+  tRadioIndicatorClasses,
+  tRadioVariants,
+} from '../TRadioGroup/TRadioGroup.variants'
 import {
   tSelectChevronClasses,
   tSelectContentClasses,
@@ -56,29 +59,43 @@ import type { TTreeSelectorProps } from './types'
 // focus and expansion; its selection events are prevented and handled by lib/tree.ts, shared with React.
 // Name it with `aria-label` or a <label for> pointing at its `id`. The caller's attributes go on the trigger.
 defineOptions({ inheritAttrs: false })
-const props = withDefaults(defineProps<TTreeSelectorProps>(), { defaultValue: undefined, valueMode: 'leaves' })
+const props = withDefaults(defineProps<TTreeSelectorProps>(), {
+  defaultValue: undefined,
+  valueMode: 'leaves',
+})
 const model = defineModel<string | string[] | undefined>({ default: undefined })
 const attrs = useAttrs()
-const trigger = useRootAttrs(() => cn(tInputVariants({ size: props.size }), tSelectTriggerClasses))
+const trigger = useRootAttrs(() =>
+  cn(tInputVariants({ size: props.size }), tSelectTriggerClasses),
+)
 const triggerRef = useTemplateRef<HTMLButtonElement>('triggerRef')
 const treeId = `${useId()}-tree`
 
-const toArray = (value: string | string[] | undefined) => (value === undefined ? [] : Array.isArray(value) ? value : [value])
+const toArray = (value: string | string[] | undefined) =>
+  value === undefined ? [] : Array.isArray(value) ? value : [value]
 
 const index = computed(() => indexTree(props.options))
 // Without a bound v-model, the selection lives here.
 const local = ref(toArray(props.defaultValue))
-const value = computed(() => (model.value === undefined ? local.value : toArray(model.value)))
+const value = computed(() =>
+  model.value === undefined ? local.value : toArray(model.value),
+)
 const selected = computed(() => toLeaves(index.value, value.value))
 // The value as displayed and submitted: in multiple mode, rewritten for the value mode.
 const shown = computed(() =>
-  props.multiple ? toValue(props.options, index.value, selected.value, props.valueMode) : value.value.slice(0, 1),
+  props.multiple
+    ? toValue(props.options, index.value, selected.value, props.valueMode)
+    : value.value.slice(0, 1),
 )
-const labels = computed(() => shown.value.flatMap((v) => index.value.get(v)?.node.label ?? []))
+const labels = computed(() =>
+  shown.value.flatMap((v) => index.value.get(v)?.node.label ?? []),
+)
 // What Reka marks aria-selected: a leaf, or in multiple mode any node whose whole subtree is selected.
 const treeModel = computed(() =>
   props.multiple
-    ? [...index.value.values()].filter((entry) => nodeState(entry, selected.value) === 'checked').map((e) => e.node)
+    ? [...index.value.values()]
+        .filter((entry) => nodeState(entry, selected.value) === 'checked')
+        .map((e) => e.node)
     : index.value.get(shown.value[0] ?? '')?.node,
 )
 
@@ -86,8 +103,10 @@ const open = ref(false)
 const expanded = ref<string[]>([])
 
 const getKey = (node: TTreeNode) => node.value
-const getChildren = (node: TTreeNode) => (isTreeParent(node) ? node.children : undefined)
-const stateOf = (nodeValue: string) => nodeState(index.value.get(nodeValue)!, selected.value)
+const getChildren = (node: TTreeNode) =>
+  isTreeParent(node) ? node.children : undefined
+const stateOf = (nodeValue: string) =>
+  nodeState(index.value.get(nodeValue)!, selected.value)
 
 const contentStyle = {
   '--t-select-trigger-width': 'var(--reka-popover-trigger-width)',
@@ -96,7 +115,10 @@ const contentStyle = {
 
 // Opening also expands the parents of the selection, so it is visible.
 function setOpen(next: boolean) {
-  if (next) expanded.value = [...new Set([...expanded.value, ...ancestorsOf(index.value, shown.value)])]
+  if (next)
+    expanded.value = [
+      ...new Set([...expanded.value, ...ancestorsOf(index.value, shown.value)]),
+    ]
   open.value = next
 }
 
@@ -107,7 +129,12 @@ function toggleExpanded(nodeValue: string) {
 }
 
 function commit(leaves: ReadonlySet<string>) {
-  const next = toValue(props.options, index.value, leaves, props.multiple ? props.valueMode : 'leaves')
+  const next = toValue(
+    props.options,
+    index.value,
+    leaves,
+    props.multiple ? props.valueMode : 'leaves',
+  )
   local.value = next
   model.value = props.multiple ? next : next[0]
 }
@@ -129,7 +156,8 @@ function onSelect(event: TreeItemSelectEvent<TTreeNode>, node: TTreeNode) {
 
 // In multiple mode a click on a parent row selects its subtree; only its chevron expands it.
 function onToggle(event: TreeItemToggleEvent<TTreeNode>) {
-  if (props.multiple && event.detail.originalEvent.type === 'click') event.preventDefault()
+  if (props.multiple && event.detail.originalEvent.type === 'click')
+    event.preventDefault()
 }
 
 // Opening focuses the first selected row, or the first enabled one.
@@ -138,7 +166,9 @@ async function onOpenAutoFocus(event: Event) {
   await nextTick()
   const tree = document.getElementById(treeId)
   const row =
-    tree?.querySelector<HTMLElement>('[role=treeitem][aria-selected=true]:not([data-disabled])') ??
+    tree?.querySelector<HTMLElement>(
+      '[role=treeitem][aria-selected=true]:not([data-disabled])',
+    ) ??
     tree?.querySelector<HTMLElement>('[role=treeitem]:not([data-disabled])')
   row?.focus({ preventScroll: true })
 }
@@ -168,7 +198,9 @@ function onTriggerKeyDown(event: KeyboardEvent) {
         :disabled="disabled"
         @keydown="onTriggerKeyDown"
       >
-        <span :class="tSelectValueClasses">{{ labels.length ? labels.join(', ') : placeholder }}</span>
+        <span :class="tSelectValueClasses">{{
+          labels.length ? labels.join(', ') : placeholder
+        }}</span>
         <TIcon :icon="ChevronDown" :class="tSelectChevronClasses" />
       </button>
     </PopoverTrigger>
@@ -213,23 +245,55 @@ function onTriggerKeyDown(event: KeyboardEvent) {
               v-if="item.hasChildren"
               :icon="ChevronRight"
               :class="tTreeChevronClasses"
-              @click.stop="!index.get(item._id)!.disabled && toggleExpanded(item._id)"
+              @click.stop="
+                !index.get(item._id)!.disabled && toggleExpanded(item._id)
+              "
             />
-            <span v-else aria-hidden="true" :class="tTreeChevronSpacerClasses" />
-            <span v-if="multiple" aria-hidden="true" :class="cn(tCheckboxVariants({ size: 'sm' }), tSelectIndicatorClasses)">
-              <span v-if="stateOf(item._id) !== 'unchecked'" :data-state="stateOf(item._id)" :class="tCheckboxIndicatorClasses">
+            <span
+              v-else
+              aria-hidden="true"
+              :class="tTreeChevronSpacerClasses"
+            />
+            <span
+              v-if="multiple"
+              aria-hidden="true"
+              :class="
+                cn(tCheckboxVariants({ size: 'sm' }), tSelectIndicatorClasses)
+              "
+            >
+              <span
+                v-if="stateOf(item._id) !== 'unchecked'"
+                :data-state="stateOf(item._id)"
+                :class="tCheckboxIndicatorClasses"
+              >
                 <TIcon :icon="Check" :class="tCheckboxIconClasses" />
-                <TIcon :icon="Minus" :class="tCheckboxIndeterminateIconClasses" />
+                <TIcon
+                  :icon="Minus"
+                  :class="tCheckboxIndeterminateIconClasses"
+                />
               </span>
             </span>
             <span
               v-else-if="!item.hasChildren"
               aria-hidden="true"
-              :class="cn(tRadioVariants({ size: 'sm' }), tSelectIndicatorClasses)"
+              :class="
+                cn(tRadioVariants({ size: 'sm' }), tSelectIndicatorClasses)
+              "
             >
-              <span v-if="stateOf(item._id) === 'checked'" :class="tRadioIndicatorClasses" />
+              <span
+                v-if="stateOf(item._id) === 'checked'"
+                :class="tRadioIndicatorClasses"
+              />
             </span>
-            <span :class="cn(tTreeLabelClasses, !multiple && item.hasChildren && tTreeParentLabelClasses)">{{ item.value.label }}</span>
+            <span
+              :class="
+                cn(
+                  tTreeLabelClasses,
+                  !multiple && item.hasChildren && tTreeParentLabelClasses,
+                )
+              "
+              >{{ item.value.label }}</span
+            >
           </TreeItem>
         </TreeRoot>
       </PopoverContent>
@@ -249,7 +313,12 @@ function onTriggerKeyDown(event: KeyboardEvent) {
     @focus="triggerRef?.focus()"
   >
     <option v-if="!multiple" value="" :selected="!shown.length" />
-    <option v-for="[nodeValue, entry] in index" :key="nodeValue" :value="nodeValue" :selected="shown.includes(nodeValue)">
+    <option
+      v-for="[nodeValue, entry] in index"
+      :key="nodeValue"
+      :value="nodeValue"
+      :selected="shown.includes(nodeValue)"
+    >
       {{ entry.node.label }}
     </option>
   </select>

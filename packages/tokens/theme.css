@@ -69,7 +69,8 @@
   --animate-expand: expand 200ms var(--t-ease-out);
   --animate-collapse: collapse 200ms var(--t-ease-out);
   /* An unknown amount of work: a third-width bar sliding across its track. */
-  --animate-progress-indeterminate: progress-indeterminate 1.4s ease-in-out infinite;
+  --animate-progress-indeterminate: progress-indeterminate 1.4s ease-in-out
+    infinite;
 
   @keyframes expand {
     from {

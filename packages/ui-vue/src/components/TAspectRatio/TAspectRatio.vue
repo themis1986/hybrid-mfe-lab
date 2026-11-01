@@ -6,7 +6,15 @@ import type { TAspectRatioProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TAspectRatioProps>(), { as: 'div' })
-const root = useRootAttrs(() => tAspectRatioVariants({ ratio: typeof props.ratio === 'number' ? null : props.ratio }), () => ({ aspectRatio: typeof props.ratio === 'number' ? props.ratio : undefined }))
+const root = useRootAttrs(
+  () =>
+    tAspectRatioVariants({
+      ratio: typeof props.ratio === 'number' ? null : props.ratio,
+    }),
+  () => ({
+    aspectRatio: typeof props.ratio === 'number' ? props.ratio : undefined,
+  }),
+)
 </script>
 
 <template>

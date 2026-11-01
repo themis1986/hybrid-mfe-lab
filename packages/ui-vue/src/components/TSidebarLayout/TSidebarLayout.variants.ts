@@ -12,7 +12,9 @@ export const tSidebarLayoutVariants = cva('box-border flex flex-wrap', {
       start: '[&>[data-slot=sidebar-layout-sidebar]]:order-first',
       end: '[&>[data-slot=sidebar-layout-sidebar]]:order-last',
     },
-    collapsed: { true: '[&>[data-slot=sidebar-layout-sidebar]]:basis-(--t-layout-sidebar-collapsed-width)' },
+    collapsed: {
+      true: '[&>[data-slot=sidebar-layout-sidebar]]:basis-(--t-layout-sidebar-collapsed-width)',
+    },
     gap: gapVariants,
   },
   defaultVariants: { side: 'start', gap: 3 },
@@ -20,4 +22,5 @@ export const tSidebarLayoutVariants = cva('box-border flex flex-wrap', {
 
 export const tSidebarLayoutSidebarClasses =
   'box-border min-w-0 grow basis-[var(--t-sidebar-width,var(--t-layout-sidebar-width))]'
-export const tSidebarLayoutContentClasses = 'box-border min-w-[50%] grow-[999] basis-0'
+export const tSidebarLayoutContentClasses =
+  'box-border min-w-[50%] grow-[999] basis-0'

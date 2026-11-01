@@ -21,7 +21,8 @@ import { Search } from '@repo/ui-vue/icons'
 // Each Vue app on a shared page sets its own id prefix (field ids use useId()).
 app.config.idPrefix = 'my-app'`
 
-const entriesOf = (group: string) => DOC_ENTRIES.filter((entry) => entry.group === group)
+const entriesOf = (group: string) =>
+  DOC_ENTRIES.filter((entry) => entry.group === group)
 </script>
 
 <template>
@@ -35,13 +36,17 @@ const entriesOf = (group: string) => DOC_ENTRIES.filter((entry) => entry.group =
       <TPanel tone="accent" title="Getting started">
         <TStack :gap="2" class="text-sm">
           <span>
-            Import the stylesheet once in the app's entry, then the components from the package. They are native Vue
-            components on Reka UI, with the same design tokens and the same look as the React library.
+            Import the stylesheet once in the app's entry, then the components
+            from the package. They are native Vue components on Reka UI, with
+            the same design tokens and the same look as the React library.
           </span>
           <CodeBlock :code="setup" label="Setup" />
           <TCluster :gap="4" class="text-fg-muted">
             <span>Content goes in slots; inputs support v-model.</span>
-            <span>Spacing props take steps 0–8: 0, 4, 8, 12, 16, 24, 32, 48, 64px.</span>
+            <span
+              >Spacing props take steps 0–8: 0, 4, 8, 12, 16, 24, 32, 48,
+              64px.</span
+            >
             <span>A class you pass wins over the component's own classes.</span>
           </TCluster>
         </TStack>
@@ -55,7 +60,11 @@ const entriesOf = (group: string) => DOC_ENTRIES.filter((entry) => entry.group =
         >
           <TStack :gap="4">
             <TStack v-for="group in DOC_GROUPS" :key="group.id" :gap="1">
-              <p class="m-0 text-xs font-semibold tracking-wider text-fg-muted uppercase">{{ group.label }}</p>
+              <p
+                class="m-0 text-xs font-semibold tracking-wider text-fg-muted uppercase"
+              >
+                {{ group.label }}
+              </p>
               <ul class="m-0 flex list-none flex-col gap-0.5 p-0">
                 <li v-for="entry in entriesOf(group.id)" :key="entry.id">
                   <a
@@ -79,7 +88,11 @@ const entriesOf = (group: string) => DOC_ENTRIES.filter((entry) => entry.group =
               :description="group.description"
               :gap="5"
             >
-              <DocEntry v-for="entry in entriesOf(group.id)" :key="entry.id" :entry="entry" />
+              <DocEntry
+                v-for="entry in entriesOf(group.id)"
+                :key="entry.id"
+                :entry="entry"
+              />
             </TSection>
           </TStack>
         </TSidebarLayoutContent>

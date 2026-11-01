@@ -4,7 +4,10 @@ import type { CSSProperties } from 'react'
 import { cn } from '../../lib/cn'
 import { TIcon } from '../TIcon'
 import { tInputVariants } from '../TInput/TInput.variants'
-import { tRadioIndicatorClasses, tRadioVariants } from '../TRadioGroup/TRadioGroup.variants'
+import {
+  tRadioIndicatorClasses,
+  tRadioVariants,
+} from '../TRadioGroup/TRadioGroup.variants'
 import { TSelectMultiple } from './TSelectMultiple'
 import {
   tSelectChevronClasses,
@@ -22,7 +25,11 @@ import type { TSelectProps, TSelectSingleProps } from './types'
 // design system's radio (single) or checkbox (multiple) as a decorative indicator. Name it with
 // `aria-label` or a <label htmlFor> pointing at `id`.
 export function TSelect(props: TSelectProps) {
-  return props.multiple ? <TSelectMultiple {...props} /> : <TSelectSingle {...props} />
+  return props.multiple ? (
+    <TSelectMultiple {...props} />
+  ) : (
+    <TSelectSingle {...props} />
+  )
 }
 
 const contentStyle = {
@@ -52,9 +59,16 @@ function TSelectSingle({
         aria-labelledby={ariaLabelledby}
         aria-describedby={ariaDescribedby}
         aria-invalid={invalid || undefined}
-        className={cn(tInputVariants({ size }), tSelectTriggerClasses, className)}
+        className={cn(
+          tInputVariants({ size }),
+          tSelectTriggerClasses,
+          className,
+        )}
       >
-        <Select.Value placeholder={placeholder} className={tSelectValueClasses} />
+        <Select.Value
+          placeholder={placeholder}
+          className={tSelectValueClasses}
+        />
         <TIcon icon={ChevronDown} className={tSelectChevronClasses} />
       </Select.Trigger>
       <Select.Portal>
@@ -76,7 +90,13 @@ function TSelectSingle({
                 disabled={option.disabled}
                 className={tSelectItemClasses}
               >
-                <span aria-hidden className={cn(tRadioVariants({ size: 'sm' }), tSelectIndicatorClasses)}>
+                <span
+                  aria-hidden
+                  className={cn(
+                    tRadioVariants({ size: 'sm' }),
+                    tSelectIndicatorClasses,
+                  )}
+                >
                   <Select.ItemIndicator className={tRadioIndicatorClasses} />
                 </span>
                 <Select.ItemText>{option.label}</Select.ItemText>

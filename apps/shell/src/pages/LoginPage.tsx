@@ -1,4 +1,11 @@
-import { TButton, TCard, TCardBody, TCardHeader, TField, TStack } from '@repo/ui'
+import {
+  TButton,
+  TCard,
+  TCardBody,
+  TCardHeader,
+  TField,
+  TStack,
+} from '@repo/ui'
 import { type FormEvent, useState } from 'react'
 import { type Location, Navigate, useLocation } from 'react-router'
 import { Logo } from '../components/Logo'
@@ -15,7 +22,10 @@ export function LoginPage() {
 
   if (user) {
     const from = (location.state as { from?: Location } | null)?.from
-    const back = from && canOpenPath(user, from.pathname) ? `${from.pathname}${from.search}${from.hash}` : '/'
+    const back =
+      from && canOpenPath(user, from.pathname)
+        ? `${from.pathname}${from.search}${from.hash}`
+        : '/'
     return <Navigate to={back} replace />
   }
 
@@ -42,7 +52,12 @@ export function LoginPage() {
           <form onSubmit={handleSubmit}>
             <TStack gap={4}>
               <h1 className="m-0 text-lg font-semibold">Sign in</h1>
-              <TField label="Username" name="username" autoComplete="username" required />
+              <TField
+                label="Username"
+                name="username"
+                autoComplete="username"
+                required
+              />
               <TField
                 label="Password"
                 name="password"

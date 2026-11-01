@@ -18,7 +18,10 @@ import { pickerContentStyle, usePickerOpen } from '../TDatePicker/usePickerOpen'
 import { useRangeDraft } from '../TDateRangeField/useRangeDraft'
 import { TIcon } from '../TIcon'
 import { RangePresets } from '../TRangeCalendar/RangePresets'
-import { rangeCellClassName, rangeTriggerClassName } from '../TRangeCalendar/TRangeCalendar'
+import {
+  rangeCellClassName,
+  rangeTriggerClassName,
+} from '../TRangeCalendar/TRangeCalendar'
 import { useRangeSelection } from '../TRangeCalendar/useRangeSelection'
 import type { TRangeDatePickerProps } from './types'
 
@@ -56,7 +59,13 @@ export function TRangeDatePicker({
   const value = valueProp !== undefined ? valueProp : uncontrolledValue
   const [isOpen, setOpen] = usePickerOpen({ open, defaultOpen, onOpenChange })
   const [fallback] = useState(todayDate)
-  const rules = dayRules({ min, max, disabled: field.disabled, isDateDisabled, isDateUnavailable })
+  const rules = dayRules({
+    min,
+    max,
+    disabled: field.disabled,
+    isDateDisabled,
+    isDateUnavailable,
+  })
 
   function commit(next: TDateRange | undefined) {
     if (valueProp === undefined) setUncontrolledValue(next)
@@ -69,14 +78,25 @@ export function TRangeDatePicker({
     if (next && closeOnSelect) setOpen(false)
   }
 
-  const draft = useRangeDraft(value, commit, dayRules({ min, max, isDateUnavailable }).isBlocked)
-  const selection = useRangeSelection({ value, onCommit: pick, isBlocked: rules.isBlocked, isDisabled: rules.isDisabled })
+  const draft = useRangeDraft(
+    value,
+    commit,
+    dayRules({ min, max, isDateUnavailable }).isBlocked,
+  )
+  const selection = useRangeSelection({
+    value,
+    onCommit: pick,
+    isBlocked: rules.isBlocked,
+    isDisabled: rules.isDisabled,
+  })
 
   const segments = (which: 'start' | 'end') => (
     <DateSegments
       kind="date"
       value={draft[which]}
-      onValueChange={(date) => draft.update(which, date as CalendarDate | undefined)}
+      onValueChange={(date) =>
+        draft.update(which, date as CalendarDate | undefined)
+      }
       fallback={fallback}
       locale={locale}
       disabled={field.disabled}
@@ -87,7 +107,10 @@ export function TRangeDatePicker({
   )
 
   return (
-    <Popover.Root open={isOpen} onOpenChange={(next) => setOpen(next && !field.disabled)}>
+    <Popover.Root
+      open={isOpen}
+      onOpenChange={(next) => setOpen(next && !field.disabled)}
+    >
       <Popover.Anchor asChild>
         <FieldRoot
           slot="date-picker-field"
@@ -95,7 +118,10 @@ export function TRangeDatePicker({
           outOfRange={draft.out}
           submitValue={rangeSubmitValue(draft.complete)}
         >
-          <div data-slot="date-field-segments" className={tDateFieldSegmentsClasses}>
+          <div
+            data-slot="date-field-segments"
+            className={tDateFieldSegmentsClasses}
+          >
             {segments('start')}
             <span aria-hidden className={tDateFieldSeparatorClasses}>
               –

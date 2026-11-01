@@ -3,7 +3,10 @@ import type { TMediaRadius, TMediaRatio } from '../../lib/media'
 
 // `className` and `style` go on the root; every other prop (name, allowFullScreen, onLoad…), `ref`
 // included, goes on the <iframe>.
-export interface TFrameProps extends Omit<ComponentProps<'iframe'>, 'children' | 'title' | 'sandbox' | 'allow' | 'height'> {
+export interface TFrameProps extends Omit<
+  ComponentProps<'iframe'>,
+  'children' | 'title' | 'sandbox' | 'allow' | 'height'
+> {
   /** The page to embed. */
   src?: string
   /** Inline HTML to embed instead of `src`. */

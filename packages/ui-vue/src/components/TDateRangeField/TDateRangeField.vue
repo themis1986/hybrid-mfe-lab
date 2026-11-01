@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import { type DateRange, DateRangeFieldInput, DateRangeFieldRoot } from 'reka-ui'
+import {
+  type DateRange,
+  DateRangeFieldInput,
+  DateRangeFieldRoot,
+} from 'reka-ui'
 import { computed } from 'vue'
 import { useRootAttrs } from '../../lib/attrs'
-import { parseIsoDate, rangeSubmitValue, type TDateRange, toMatcher } from '../../lib/date'
+import {
+  parseIsoDate,
+  rangeSubmitValue,
+  type TDateRange,
+  toMatcher,
+} from '../../lib/date'
 import { rangeToIso, rangeToReka, useDateModel } from '../../lib/dateModel'
 import FormValue from '../TDateField/FormValue.vue'
 import {
@@ -18,9 +27,16 @@ import type { TDateRangeFieldProps } from './types'
 // both dates are complete. The form value is an ISO interval ('2026-11-01/2026-11-07'). The caller's
 // attributes go on the field (role group).
 defineOptions({ inheritAttrs: false })
-const props = withDefaults(defineProps<TDateRangeFieldProps>(), { locale: 'en-US' })
+const props = withDefaults(defineProps<TDateRangeFieldProps>(), {
+  locale: 'en-US',
+})
 const model = defineModel<TDateRange | undefined>({ default: undefined })
-const { draft, update } = useDateModel(model, props.defaultValue, rangeToReka, rangeToIso)
+const { draft, update } = useDateModel(
+  model,
+  props.defaultValue,
+  rangeToReka,
+  rangeToIso,
+)
 
 const root = useRootAttrs(() => tDateFieldVariants({ size: props.size }))
 const min = computed(() => parseIsoDate(props.min))
@@ -67,6 +83,12 @@ const submitted = computed(() => {
         {{ item.value }}
       </DateRangeFieldInput>
     </div>
-    <FormValue v-if="name !== undefined" :name="name" :value="submitted" :required="required" :disabled="disabled" />
+    <FormValue
+      v-if="name !== undefined"
+      :name="name"
+      :value="submitted"
+      :required="required"
+      :disabled="disabled"
+    />
   </DateRangeFieldRoot>
 </template>

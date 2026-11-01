@@ -40,7 +40,10 @@ export function TAudio({
   const audioRef = useComposedRef(own, ref)
   // New sources re-create the <audio> (changing its <source> children doesn't reload it) and start over.
   const key = sourcesKey(src, sources)
-  const [status, setStatus] = useState({ key, value: 'loading' as TMediaStatus })
+  const [status, setStatus] = useState({
+    key,
+    value: 'loading' as TMediaStatus,
+  })
   if (status.key !== key) setStatus({ key, value: 'loading' })
   const [reducedMotion] = useState(prefersReducedMotion)
 
@@ -53,7 +56,12 @@ export function TAudio({
   const Root = caption != null ? 'figure' : 'div'
 
   return (
-    <Root data-slot="audio" data-state={status.value} className={cn(mediaRootClasses, className)} style={style}>
+    <Root
+      data-slot="audio"
+      data-state={status.value}
+      className={cn(mediaRootClasses, className)}
+      style={style}
+    >
       <audio
         {...props}
         key={key}
@@ -97,7 +105,9 @@ export function TAudio({
           )}
         </div>
       )}
-      {caption != null && <figcaption className={mediaCaptionClasses}>{caption}</figcaption>}
+      {caption != null && (
+        <figcaption className={mediaCaptionClasses}>{caption}</figcaption>
+      )}
     </Root>
   )
 }

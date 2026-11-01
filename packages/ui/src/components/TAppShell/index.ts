@@ -1,4 +1,10 @@
-export { TAppShell, TAppShellFooter, TAppShellHeader, TAppShellMain, TAppShellSidebar } from './TAppShell'
+export {
+  TAppShell,
+  TAppShellFooter,
+  TAppShellHeader,
+  TAppShellMain,
+  TAppShellSidebar,
+} from './TAppShell'
 export type {
   TAppShellFooterProps,
   TAppShellHeaderProps,

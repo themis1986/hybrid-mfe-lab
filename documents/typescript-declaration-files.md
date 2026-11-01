@@ -3,6 +3,7 @@
 What `.d.ts` files are, why this repo needs them, and which ones are hand-written versus generated. It assumes no prior knowledge of declaration files.
 
 **Contents**
+
 1. [What a `.d.ts` file is](#1-what-a-dts-file-is)
 2. [The `.d.ts` files in this repo at a glance](#2-the-dts-files-in-this-repo-at-a-glance)
 3. [`remotes.d.ts`: types for code that arrives at runtime](#3-remotesdts-types-for-code-that-arrives-at-runtime)
@@ -31,7 +32,9 @@ A **declaration file** (`.d.ts`) is that description:
 
 ```ts
 // the real code, in a .js or .ts file somewhere:
-export function add(a, b) { return a + b }
+export function add(a, b) {
+  return a + b
+}
 
 // its declaration, in a .d.ts file:
 export function add(a: number, b: number): number
@@ -39,11 +42,11 @@ export function add(a: number, b: number): number
 
 ## 2. The `.d.ts` files in this repo at a glance
 
-| File | Written by | Describes | Why it is needed |
-|---|---|---|---|
-| `apps/shell/src/remotes/remotes.d.ts` | Hand | The federated module the shell loads at runtime | The module does not exist on disk, so the compiler cannot find it. |
-| `apps/shell/src/env.d.ts`, `apps/todo-mfe/src/env.d.ts` and `packages/ui/src/env.d.ts` | Hand | Vite's browser-side types | `types` is empty in the base config, so Vite's types must be pulled in explicitly. |
-| `packages/ui/dist/*.d.ts` | `tsc` (generated) | The built `@repo/ui` package | The apps import the built JavaScript, which carries no types. |
+| File                                                                                   | Written by        | Describes                                       | Why it is needed                                                                   |
+| -------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `apps/shell/src/remotes/remotes.d.ts`                                                  | Hand              | The federated module the shell loads at runtime | The module does not exist on disk, so the compiler cannot find it.                 |
+| `apps/shell/src/env.d.ts`, `apps/todo-mfe/src/env.d.ts` and `packages/ui/src/env.d.ts` | Hand              | Vite's browser-side types                       | `types` is empty in the base config, so Vite's types must be pulled in explicitly. |
+| `packages/ui/dist/*.d.ts`                                                              | `tsc` (generated) | The built `@repo/ui` package                    | The apps import the built JavaScript, which carries no types.                      |
 
 The first two kinds you maintain. The third is rebuilt automatically.
 
@@ -59,7 +62,10 @@ The shell contains `import('todo/mount')`. There is no `todo/mount` in the shell
 
 ```ts
 declare module 'todo/mount' {
-  export function mount(el: HTMLElement, props: { /* the contract's props */ }): () => void
+  export function mount(
+    el: HTMLElement,
+    props: {/* the contract's props */},
+  ): () => void
 }
 ```
 
@@ -118,10 +124,10 @@ In `packages/ui/package.json`, the build script runs two tools in sequence:
 "build": "vite build && tsc -p tsconfig.build.json"
 ```
 
-| Step | Tool | Output |
-|---|---|---|
-| 1 | `vite build` | `dist/*.js`, the JavaScript |
-| 2 | `tsc -p tsconfig.build.json` | `dist/*.d.ts`, the declarations only |
+| Step | Tool                         | Output                               |
+| ---- | ---------------------------- | ------------------------------------ |
+| 1    | `vite build`                 | `dist/*.js`, the JavaScript          |
+| 2    | `tsc -p tsconfig.build.json` | `dist/*.d.ts`, the declarations only |
 
 `tsconfig.build.json` extends the normal config and sets `declaration: true` and `emitDeclarationOnly: true`, so `tsc` writes types and no JavaScript. Vite's `emptyOutDir: false` keeps the watcher in `pnpm dev` from deleting those `.d.ts` files when it rewrites the JavaScript.
 
@@ -148,6 +154,7 @@ The package's `exports` map points each entry at both files:
 ### The leftover stylesheet import
 
 `dist/index.d.ts` starts with `import './styles/index.css';`. TypeScript keeps side-effect imports in declaration files, and `src/index.ts` has this import so that Vite emits `dist/styles.css`. The path doesn't exist inside `dist/`, but that is harmless:
+
 - the apps compile with `skipLibCheck: true`, so declaration files in dependencies aren't checked;
 - `vite/client` declares `*.css` imports anyway.
 
@@ -169,27 +176,27 @@ After changing `packages/ui/src`, the apps only see the new types once ui has be
 
 **Vite does not check types.** `vite dev` and `vite build` strip the types and ignore any errors in them. A wrong or missing `.d.ts` never breaks the build or the running app. It only shows up in your editor and in `pnpm typecheck`. The commands are:
 
-| Package | Typecheck command |
-|---|---|
-| shell, ui | `tsc` |
-| todo-mfe | `vue-tsc` (it also checks `.vue` files) |
+| Package   | Typecheck command                       |
+| --------- | --------------------------------------- |
+| shell, ui | `tsc`                                   |
+| todo-mfe  | `vue-tsc` (it also checks `.vue` files) |
 
 Each package runs a second pass over `vite.config.ts` through its `tsconfig.node.json`.
 
-**`skipLibCheck` is on.** `base.json` sets `skipLibCheck: true`, which makes the compiler skip checking the **inside** of every `.d.ts` file, including the ones you write. A typo in a type name inside `remotes.d.ts` may therefore go unreported. The compiler still *uses* the declarations when checking other code; it just does not validate the declaration files themselves.
+**`skipLibCheck` is on.** `base.json` sets `skipLibCheck: true`, which makes the compiler skip checking the **inside** of every `.d.ts` file, including the ones you write. A typo in a type name inside `remotes.d.ts` may therefore go unreported. The compiler still _uses_ the declarations when checking other code; it just does not validate the declaration files themselves.
 
 **Declarations describe, they do not enforce.** Writing `mount` as returning `() => void` in `remotes.d.ts` does not make the remote return one. It only makes the compiler assume it does.
 
 ## 8. Troubleshooting
 
-| Symptom | Likely cause |
-|---|---|
-| "Cannot find module 'todo/mount'" | `remotes.d.ts` is missing, is outside the tsconfig `include`, or the module name in `declare module` does not match the import specifier exactly. |
-| That same error appears after you edited `remotes.d.ts` | You added a top-level `import` or `export`, turning the file into a module (see [section 3](#why-the-file-must-stay-global)). |
-| "Cannot find module '@repo/ui'" or missing types from it | `packages/ui/dist` has not been built. Run `pnpm build`, or `pnpm typecheck`, which builds ui first. |
-| `pnpm typecheck` passes, but the app fails at runtime on a call to the remote | `remotes.d.ts` has drifted from `mount.ts`. |
-| `import.meta.env` is flagged as unknown | `env.d.ts` is missing or is outside `include`. |
-| A type changed in `packages/ui/src`, but the apps still show the old one | The ui build has not run since. Rebuild it, or start `pnpm dev`. |
+| Symptom                                                                       | Likely cause                                                                                                                                      |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Cannot find module 'todo/mount'"                                             | `remotes.d.ts` is missing, is outside the tsconfig `include`, or the module name in `declare module` does not match the import specifier exactly. |
+| That same error appears after you edited `remotes.d.ts`                       | You added a top-level `import` or `export`, turning the file into a module (see [section 3](#why-the-file-must-stay-global)).                     |
+| "Cannot find module '@repo/ui'" or missing types from it                      | `packages/ui/dist` has not been built. Run `pnpm build`, or `pnpm typecheck`, which builds ui first.                                              |
+| `pnpm typecheck` passes, but the app fails at runtime on a call to the remote | `remotes.d.ts` has drifted from `mount.ts`.                                                                                                       |
+| `import.meta.env` is flagged as unknown                                       | `env.d.ts` is missing or is outside `include`.                                                                                                    |
+| A type changed in `packages/ui/src`, but the apps still show the old one      | The ui build has not run since. Rebuild it, or start `pnpm dev`.                                                                                  |
 
 ## 9. Checklists
 

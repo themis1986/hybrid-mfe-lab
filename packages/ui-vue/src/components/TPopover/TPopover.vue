@@ -7,12 +7,20 @@ import type { TPopoverProps } from './types'
 // own overlays (a TSelect's list): those count as inside, so they don't close it.
 // The explicit undefined defaults keep "not set" apart from "off", so Reka's own defaults apply and the
 // popover is only controlled when v-model:open is bound.
-withDefaults(defineProps<TPopoverProps>(), { defaultOpen: undefined, modal: undefined })
+withDefaults(defineProps<TPopoverProps>(), {
+  defaultOpen: undefined,
+  modal: undefined,
+})
 const open = defineModel<boolean | undefined>('open', { default: undefined })
 </script>
 
 <template>
-  <PopoverRoot v-slot="slotProps" v-model:open="open" :default-open="defaultOpen" :modal="modal">
+  <PopoverRoot
+    v-slot="slotProps"
+    v-model:open="open"
+    :default-open="defaultOpen"
+    :modal="modal"
+  >
     <slot v-bind="slotProps" />
   </PopoverRoot>
 </template>

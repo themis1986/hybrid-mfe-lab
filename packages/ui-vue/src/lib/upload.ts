@@ -13,7 +13,8 @@ export interface TUploadFileState {
 }
 
 /** Why a file wasn't added. */
-export type TUploadRejectReason = 'type' | 'too-large' | 'too-small' | 'too-many' | 'duplicate' | 'invalid'
+export type TUploadRejectReason =
+  'type' | 'too-large' | 'too-small' | 'too-many' | 'duplicate' | 'invalid'
 
 export interface TUploadRejection {
   file: File
@@ -30,7 +31,10 @@ export interface TUploadContext {
 }
 
 /** Sends one file. Resolve when done; reject (with an Error) to mark it failed. */
-export type TUploadFn = (file: File, context: TUploadContext) => Promise<unknown>
+export type TUploadFn = (
+  file: File,
+  context: TUploadContext,
+) => Promise<unknown>
 
 export interface TUploadRules {
   /** Accepted types: MIME types ('image/png'), wildcards ('image/*') or extensions ('.pdf'). */
@@ -57,7 +61,10 @@ function acceptList(accept: string | string[] | undefined) {
 }
 
 /** Whether a file matches the accept list. The dialog filters too, but dropped files skip it. */
-export function matchesAccept(file: File, accept: string | string[] | undefined) {
+export function matchesAccept(
+  file: File,
+  accept: string | string[] | undefined,
+) {
   const list = acceptList(accept)
   if (list.length === 0) return true
   const name = file.name.toLowerCase()
@@ -71,7 +78,9 @@ export function matchesAccept(file: File, accept: string | string[] | undefined)
 
 /** The same file selected twice (name, size and modification time). */
 export function sameFile(a: File, b: File) {
-  return a.name === b.name && a.size === b.size && a.lastModified === b.lastModified
+  return (
+    a.name === b.name && a.size === b.size && a.lastModified === b.lastModified
+  )
 }
 
 /** A key for a listed file: duplicates are rejected, so it is unique in the list. */
@@ -83,18 +92,26 @@ export function fileKey(file: File) {
  * Splits newly picked files into accepted and rejected, given the files already in the list. In single
  * mode the first acceptable file replaces the list; in multiple mode accepted files are appended.
  */
-export function selectFiles(incoming: File[], current: File[], rules: TUploadRules) {
+export function selectFiles(
+  incoming: File[],
+  current: File[],
+  rules: TUploadRules,
+) {
   const accepted: File[] = []
   const rejected: TUploadRejection[] = []
   const kept = rules.multiple ? current : []
   const limit = rules.multiple ? (rules.maxFiles ?? Infinity) : 1
 
   for (const file of incoming) {
-    const reject = (reason: TUploadRejectReason, message?: string) => rejected.push({ file, reason, message })
+    const reject = (reason: TUploadRejectReason, message?: string) =>
+      rejected.push({ file, reason, message })
     if (!matchesAccept(file, rules.accept)) reject('type')
-    else if (rules.maxSize !== undefined && file.size > rules.maxSize) reject('too-large')
-    else if (rules.minSize !== undefined && file.size < rules.minSize) reject('too-small')
-    else if ([...kept, ...accepted].some((other) => sameFile(other, file))) reject('duplicate')
+    else if (rules.maxSize !== undefined && file.size > rules.maxSize)
+      reject('too-large')
+    else if (rules.minSize !== undefined && file.size < rules.minSize)
+      reject('too-small')
+    else if ([...kept, ...accepted].some((other) => sameFile(other, file)))
+      reject('duplicate')
     else if (kept.length + accepted.length >= limit) reject('too-many')
     else {
       const message = rules.validate?.(file)
@@ -103,7 +120,11 @@ export function selectFiles(incoming: File[], current: File[], rules: TUploadRul
     }
   }
 
-  return { files: accepted.length > 0 ? [...kept, ...accepted] : current, accepted, rejected }
+  return {
+    files: accepted.length > 0 ? [...kept, ...accepted] : current,
+    accepted,
+    rejected,
+  }
 }
 
 /** A file size for people: 1.2 MB (decimal units, in the page's locale). */
@@ -124,7 +145,10 @@ export function formatBytes(bytes: number, locale?: string) {
 }
 
 /** The default text for a rejection (English); the components take a `formatRejection` to replace it. */
-export function describeRejection(rejection: TUploadRejection, rules: TUploadRules) {
+export function describeRejection(
+  rejection: TUploadRejection,
+  rules: TUploadRules,
+) {
   const name = rejection.file.name
   switch (rejection.reason) {
     case 'type':
@@ -134,7 +158,9 @@ export function describeRejection(rejection: TUploadRejection, rules: TUploadRul
     case 'too-small':
       return `${name} is smaller than ${formatBytes(rules.minSize ?? 0)}.`
     case 'too-many':
-      return rules.multiple ? `${name} wasn't added: ${rules.maxFiles} files at most.` : `${name} wasn't added: one file only.`
+      return rules.multiple
+        ? `${name} wasn't added: ${rules.maxFiles} files at most.`
+        : `${name} wasn't added: one file only.`
     case 'duplicate':
       return `${name} is already in the list.`
     case 'invalid':
@@ -168,7 +194,8 @@ export function createPreviewCache() {
 
   return {
     get(file: File) {
-      if (!isImage(file) || typeof URL.createObjectURL !== 'function') return undefined
+      if (!isImage(file) || typeof URL.createObjectURL !== 'function')
+        return undefined
       let url = urls.get(file)
       if (!url) {
         url = URL.createObjectURL(file)
@@ -223,7 +250,11 @@ export function createUploadQueue(onChange: () => void) {
     set(file, { status: 'uploading' })
 
     const onProgress = (percent: number) => {
-      if (!controller.signal.aborted) set(file, { status: 'uploading', progress: Math.min(100, Math.max(0, percent)) })
+      if (!controller.signal.aborted)
+        set(file, {
+          status: 'uploading',
+          progress: Math.min(100, Math.max(0, percent)),
+        })
     }
     upload(file, { signal: controller.signal, onProgress })
       .then(
@@ -234,7 +265,10 @@ export function createUploadQueue(onChange: () => void) {
         },
         (error: unknown) => {
           if (controller.signal.aborted) return
-          set(file, { status: 'error', error: error instanceof Error ? error.message : String(error) })
+          set(file, {
+            status: 'error',
+            error: error instanceof Error ? error.message : String(error),
+          })
           options.onError?.(file, error)
         },
       )
@@ -245,7 +279,8 @@ export function createUploadQueue(onChange: () => void) {
   }
 
   function pump() {
-    while (running.size < (options.maxConcurrent ?? 3) && waiting.length > 0) start(waiting.shift()!)
+    while (running.size < (options.maxConcurrent ?? 3) && waiting.length > 0)
+      start(waiting.shift()!)
   }
 
   function cancel(file: File) {

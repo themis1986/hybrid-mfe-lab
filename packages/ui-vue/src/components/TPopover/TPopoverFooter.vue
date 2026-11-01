@@ -10,7 +10,12 @@ const root = useRootAttrs(() => tPopoverFooterClasses)
 </script>
 
 <template>
-  <Primitive data-slot="popover-footer" v-bind="root()" :as="as" :as-child="asChild">
+  <Primitive
+    data-slot="popover-footer"
+    v-bind="root()"
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </Primitive>
 </template>

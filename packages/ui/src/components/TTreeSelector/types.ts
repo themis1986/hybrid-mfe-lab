@@ -43,4 +43,5 @@ export interface TTreeSelectorMultipleProps extends TTreeSelectorBaseProps {
   onValueChange?: (value: string[]) => void
 }
 
-export type TTreeSelectorProps = TTreeSelectorSingleProps | TTreeSelectorMultipleProps
+export type TTreeSelectorProps =
+  TTreeSelectorSingleProps | TTreeSelectorMultipleProps

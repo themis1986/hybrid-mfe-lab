@@ -1,7 +1,10 @@
 import type * as Tooltip from '@radix-ui/react-tooltip'
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 
-export interface TTooltipProps extends Omit<ComponentProps<typeof Tooltip.Content>, 'content' | 'children'> {
+export interface TTooltipProps extends Omit<
+  ComponentProps<typeof Tooltip.Content>,
+  'content' | 'children'
+> {
   /** The tooltip's content. */
   content: ReactNode
   /** The trigger: one focusable element that accepts a ref (a native element, or a component that spreads its props). */

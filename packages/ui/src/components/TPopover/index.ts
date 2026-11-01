@@ -1,4 +1,10 @@
-export { TPopover, TPopoverClose, TPopoverContent, TPopoverFooter, TPopoverTrigger } from './TPopover'
+export {
+  TPopover,
+  TPopoverClose,
+  TPopoverContent,
+  TPopoverFooter,
+  TPopoverTrigger,
+} from './TPopover'
 export type {
   TPopoverCloseProps,
   TPopoverContentProps,

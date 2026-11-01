@@ -1,4 +1,10 @@
-import { TAppShell, TAppShellHeader, TAppShellMain, TAppShellSidebar, TSpacer } from '@repo/ui'
+import {
+  TAppShell,
+  TAppShellHeader,
+  TAppShellMain,
+  TAppShellSidebar,
+  TSpacer,
+} from '@repo/ui'
 import { Outlet } from 'react-router'
 import { GithubLink } from './GithubLink'
 import { Logo } from './Logo'
@@ -13,7 +19,9 @@ export function AppFrame() {
       <TAppShellHeader>
         <Logo />
         <TSpacer />
-        <span className="text-sm text-fg-muted max-sm:hidden">Microfrontends playground</span>
+        <span className="text-sm text-fg-muted max-sm:hidden">
+          Microfrontends playground
+        </span>
         <ThemeSwitch />
         <GithubLink />
         <UserMenu />

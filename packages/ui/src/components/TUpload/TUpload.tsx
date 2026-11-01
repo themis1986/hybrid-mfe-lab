@@ -1,5 +1,18 @@
-import { CircleCheck, File as FileIcon, RotateCw, Upload, X } from 'lucide-react'
-import { type DragEvent, useEffect, useId, useReducer, useRef, useState } from 'react'
+import {
+  CircleCheck,
+  File as FileIcon,
+  RotateCw,
+  Upload,
+  X,
+} from 'lucide-react'
+import {
+  type DragEvent,
+  useEffect,
+  useId,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 import { cn } from '../../lib/cn'
 import { useComposedRef } from '../../lib/refs'
 import {
@@ -16,7 +29,10 @@ import {
 } from '../../lib/upload'
 import { TButton } from '../TButton'
 import { tButtonVariants } from '../TButton/TButton.variants'
-import { tFieldHintVariants, tFieldLabelClasses } from '../TField/TField.variants'
+import {
+  tFieldHintVariants,
+  tFieldLabelClasses,
+} from '../TField/TField.variants'
 import { TIcon } from '../TIcon'
 import { TProgress } from '../TProgress'
 import {
@@ -85,7 +101,9 @@ export function TUpload({
 
   const own = useRef<HTMLInputElement>(null)
   const inputRef = useComposedRef(own, ref)
-  const [uncontrolledValue, setUncontrolledValue] = useState(() => defaultValue ?? [])
+  const [uncontrolledValue, setUncontrolledValue] = useState(
+    () => defaultValue ?? [],
+  )
   const files = valueProp ?? uncontrolledValue
   const [rejections, setRejections] = useState<TUploadRejection[]>([])
   const [dragging, setDragging] = useState(false)
@@ -95,7 +113,12 @@ export function TUpload({
   const [previewCache] = useState(createPreviewCache)
 
   useEffect(() => {
-    queue.configure({ upload, maxConcurrent, onComplete: onUploadComplete, onError: onUploadError })
+    queue.configure({
+      upload,
+      maxConcurrent,
+      onComplete: onUploadComplete,
+      onError: onUploadError,
+    })
   })
   // The list is the source of truth: removed files are forgotten (uploads aborted, thumbnails revoked), and
   // the native input is kept in step.
@@ -164,12 +187,24 @@ export function TUpload({
   }
 
   const hint = error ?? description
-  const messages = rejections.map((rejection) => formatRejection?.(rejection) ?? describeRejection(rejection, rules))
-  const describedBy = [hint && hintId, messages.length > 0 && rejectionsId].filter(Boolean).join(' ') || undefined
-  const pending = files.filter((file) => ['idle', 'error'].includes(queue.get(file).status))
+  const messages = rejections.map(
+    (rejection) =>
+      formatRejection?.(rejection) ?? describeRejection(rejection, rules),
+  )
+  const describedBy =
+    [hint && hintId, messages.length > 0 && rejectionsId]
+      .filter(Boolean)
+      .join(' ') || undefined
+  const pending = files.filter((file) =>
+    ['idle', 'error'].includes(queue.get(file).status),
+  )
 
   return (
-    <div data-slot="upload" className={cn(tUploadRootClasses, className)} style={style}>
+    <div
+      data-slot="upload"
+      className={cn(tUploadRootClasses, className)}
+      style={style}
+    >
       {label && (
         <span id={labelId} className={tFieldLabelClasses}>
           {label}
@@ -204,16 +239,34 @@ export function TUpload({
         onDrop={onDrop}
       >
         <TIcon icon={Upload} size={variant === 'compact' ? 'sm' : 'lg'} />
-        <span>{dropLabel ?? (multiple ? 'Drag and drop files here, or' : 'Drag and drop a file here, or')}</span>
-        <span className={tButtonVariants({ variant: 'soft', size: 'sm' })}>{browseLabel}</span>
+        <span>
+          {dropLabel ??
+            (multiple
+              ? 'Drag and drop files here, or'
+              : 'Drag and drop a file here, or')}
+        </span>
+        <span className={tButtonVariants({ variant: 'soft', size: 'sm' })}>
+          {browseLabel}
+        </span>
       </label>
       {hint && (
-        <p id={hintId} role={error ? 'alert' : undefined} className={tFieldHintVariants({ tone: error ? 'error' : 'description' })}>
+        <p
+          id={hintId}
+          role={error ? 'alert' : undefined}
+          className={tFieldHintVariants({
+            tone: error ? 'error' : 'description',
+          })}
+        >
           {hint}
         </p>
       )}
       {messages.length > 0 && (
-        <div id={rejectionsId} role="alert" data-slot="upload-rejections" className={tUploadRejectionsClasses}>
+        <div
+          id={rejectionsId}
+          role="alert"
+          data-slot="upload-rejections"
+          className={tUploadRejectionsClasses}
+        >
           {messages.map((message, index) => (
             <p key={index} className={tFieldHintVariants({ tone: 'error' })}>
               {message}
@@ -222,16 +275,36 @@ export function TUpload({
         </div>
       )}
       {showList && files.length > 0 && (
-        <ul data-slot="upload-list" aria-label={label} className={tUploadListClasses}>
+        <ul
+          data-slot="upload-list"
+          aria-label={label}
+          className={tUploadListClasses}
+        >
           {files.map((file) => {
             const state = queue.get(file)
             const preview = previews ? previewCache.get(file) : undefined
-            const percent = state.status === 'uploading' && state.progress !== undefined ? ` · ${Math.round(state.progress)}%` : ''
+            const percent =
+              state.status === 'uploading' && state.progress !== undefined
+                ? ` · ${Math.round(state.progress)}%`
+                : ''
 
             return (
-              <li key={fileKey(file)} data-slot="upload-item" data-status={state.status} className={tUploadItemVariants({ status: state.status })}>
+              <li
+                key={fileKey(file)}
+                data-slot="upload-item"
+                data-status={state.status}
+                className={tUploadItemVariants({ status: state.status })}
+              >
                 <span className={tUploadPreviewClasses}>
-                  {preview ? <img src={preview} alt="" className={tUploadPreviewImageClasses} /> : <TIcon icon={FileIcon} />}
+                  {preview ? (
+                    <img
+                      src={preview}
+                      alt=""
+                      className={tUploadPreviewImageClasses}
+                    />
+                  ) : (
+                    <TIcon icon={FileIcon} />
+                  )}
                 </span>
                 <div className={tUploadItemBodyClasses}>
                   <span title={file.name} className={tUploadItemNameClasses}>
@@ -241,12 +314,31 @@ export function TUpload({
                     {formatBytes(file.size)}
                     {percent}
                   </span>
-                  {(state.status === 'queued' || state.status === 'uploading') && (
-                    <TProgress value={state.status === 'uploading' ? state.progress : undefined} size="sm" aria-label={file.name} />
+                  {(state.status === 'queued' ||
+                    state.status === 'uploading') && (
+                    <TProgress
+                      value={
+                        state.status === 'uploading'
+                          ? state.progress
+                          : undefined
+                      }
+                      size="sm"
+                      aria-label={file.name}
+                    />
                   )}
-                  {state.status === 'error' && <span className={tUploadItemErrorClasses}>{state.error}</span>}
+                  {state.status === 'error' && (
+                    <span className={tUploadItemErrorClasses}>
+                      {state.error}
+                    </span>
+                  )}
                 </div>
-                {state.status === 'done' && <TIcon icon={CircleCheck} label={uploadedLabel} className={tUploadDoneClasses} />}
+                {state.status === 'done' && (
+                  <TIcon
+                    icon={CircleCheck}
+                    label={uploadedLabel}
+                    className={tUploadDoneClasses}
+                  />
+                )}
                 {state.status === 'error' && upload && (
                   <TButton
                     variant="ghost"
@@ -275,7 +367,12 @@ export function TUpload({
         </ul>
       )}
       {upload && !autoUpload && pending.length > 0 && (
-        <TButton size="sm" disabled={disabled} className={tUploadSubmitClasses} onClick={() => queue.enqueue(pending)}>
+        <TButton
+          size="sm"
+          disabled={disabled}
+          className={tUploadSubmitClasses}
+          onClick={() => queue.enqueue(pending)}
+        >
           {uploadLabel}
         </TButton>
       )}

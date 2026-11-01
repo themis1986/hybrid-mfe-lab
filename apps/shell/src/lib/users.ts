@@ -26,7 +26,10 @@ function getAccounts(): Account[] {
 }
 
 function parseAccounts(json: string | undefined): Account[] {
-  if (!json) throw new Error('No accounts: set VITE_MOCK_ACCOUNTS in apps/shell/.env.local (see .env.example).')
+  if (!json)
+    throw new Error(
+      'No accounts: set VITE_MOCK_ACCOUNTS in apps/shell/.env.local (see .env.example).',
+    )
 
   let value: unknown
   try {
@@ -34,10 +37,14 @@ function parseAccounts(json: string | undefined): Account[] {
   } catch {
     throw new Error('VITE_MOCK_ACCOUNTS is not valid JSON.')
   }
-  if (!Array.isArray(value)) throw new Error('VITE_MOCK_ACCOUNTS must be a JSON array of accounts.')
+  if (!Array.isArray(value))
+    throw new Error('VITE_MOCK_ACCOUNTS must be a JSON array of accounts.')
 
   const invalid = value.findIndex((account) => !isAccount(account))
-  if (invalid !== -1) throw new Error(`VITE_MOCK_ACCOUNTS: account ${invalid} is invalid (see .env.example).`)
+  if (invalid !== -1)
+    throw new Error(
+      `VITE_MOCK_ACCOUNTS: account ${invalid} is invalid (see .env.example).`,
+    )
   return value
 }
 
@@ -45,7 +52,9 @@ function isAccount(value: unknown): value is Account {
   if (typeof value !== 'object' || value === null) return false
   const account = value as Record<string, unknown>
   return (
-    ['id', 'username', 'password', 'name'].every((key) => typeof account[key] === 'string') &&
+    ['id', 'username', 'password', 'name'].every(
+      (key) => typeof account[key] === 'string',
+    ) &&
     Array.isArray(account.grants) &&
     account.grants.every(isGrant)
   )
@@ -61,7 +70,10 @@ function isGrant(value: unknown): value is AccessGrant {
     case 'tech':
       return TECHS.some((tech) => tech === grant.tech)
     case 'apps':
-      return Array.isArray(grant.apps) && grant.apps.every((id) => NAV_ITEMS.some((item) => item.id === id))
+      return (
+        Array.isArray(grant.apps) &&
+        grant.apps.every((id) => NAV_ITEMS.some((item) => item.id === id))
+      )
     default:
       return false
   }
@@ -71,8 +83,13 @@ function toUser({ id, name, grants }: Account): User {
   return { id, name, grants }
 }
 
-export function findUserByCredentials(username: string, password: string): User | null {
-  const account = getAccounts().find((a) => a.username === username.trim() && a.password === password)
+export function findUserByCredentials(
+  username: string,
+  password: string,
+): User | null {
+  const account = getAccounts().find(
+    (a) => a.username === username.trim() && a.password === password,
+  )
   return account ? toUser(account) : null
 }
 

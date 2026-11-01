@@ -6,7 +6,10 @@ import type { TScrollAreaProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TScrollAreaProps>(), { as: 'div' })
-const root = useRootAttrs(() => tScrollAreaVariants({ orientation: props.orientation }), () => ({ maxHeight: props.maxHeight }))
+const root = useRootAttrs(
+  () => tScrollAreaVariants({ orientation: props.orientation }),
+  () => ({ maxHeight: props.maxHeight }),
+)
 </script>
 
 <!--

@@ -6,7 +6,9 @@ import type { TButtonProps } from './types'
 
 defineOptions({ inheritAttrs: false })
 const props = withDefaults(defineProps<TButtonProps>(), { as: 'button' })
-const root = useRootAttrs(() => tButtonVariants({ variant: props.variant, size: props.size }))
+const root = useRootAttrs(() =>
+  tButtonVariants({ variant: props.variant, size: props.size }),
+)
 </script>
 
 <template>
