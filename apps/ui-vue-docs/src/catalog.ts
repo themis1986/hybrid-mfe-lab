@@ -18,6 +18,7 @@ import InlineDemo from './demos/InlineDemo.vue'
 import InputDemo from './demos/InputDemo.vue'
 import PageHeaderDemo from './demos/PageHeaderDemo.vue'
 import PanelDemo from './demos/PanelDemo.vue'
+import PopoverDemo from './demos/PopoverDemo.vue'
 import ProgressDemo from './demos/ProgressDemo.vue'
 import RadioGroupDemo from './demos/RadioGroupDemo.vue'
 import ScrollAreaDemo from './demos/ScrollAreaDemo.vue'
@@ -838,6 +839,38 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
 </TDialog>`,
   },
 
+  {
+    id: 'popover',
+    name: 'TPopover',
+    parts: ['TPopoverTrigger', 'TPopoverContent', 'TPopoverFooter', 'TPopoverClose'],
+    group: 'overlays',
+    summary:
+      'A panel that opens from a trigger and holds any components, such as related filters or a short form (Reka Popover). The example adds a notification rule for a backend service; the fields’ own lists open inside it without closing it.',
+    props: [
+      { name: 'v-model:open', type: 'boolean', description: 'Open or closed; defaultOpen when uncontrolled.' },
+      { name: 'modal', type: 'boolean', default: 'false', description: 'Traps focus and blocks the page behind it.' },
+      { name: 'TPopoverTrigger', type: 'as-child', description: 'Wrap the button that opens it.' },
+      { name: 'TPopoverContent title / description', type: 'string', description: 'A heading and a muted line; they name and describe the popover.' },
+      { name: 'TPopoverContent side / align / sideOffset', type: "'bottom' / 'start' / 8", description: 'Placement next to the trigger; it flips when there is no room.' },
+      { name: 'TPopoverContent size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Width: 16, 20 or 26rem.' },
+      { name: 'TPopoverContent hideClose / closeLabel', type: "boolean / 'Close'", description: 'The close button in the top end corner.' },
+      { name: 'TPopoverContent', type: 'slot', description: 'Any content: fields, filters, a short form. Without a title, pass aria-label.' },
+      { name: 'TPopoverFooter', type: 'slot', description: 'Right-aligned actions.' },
+      { name: 'TPopoverClose', type: 'as-child', description: 'Wrap a button that closes it, e.g. Cancel.' },
+    ],
+    events: [{ name: 'update:open', payload: 'boolean', description: 'When it opens or closes (v-model:open).' }],
+    demo: PopoverDemo,
+    code: `<TPopover v-model:open="open">
+  <TPopoverTrigger as-child><TButton label="New notification rule" /></TPopoverTrigger>
+  <TPopoverContent size="lg" title="New notification rule" description="…">
+    <!-- TSelect, TRadioGroup, TSlider, TCheckbox, TSwitch, … -->
+    <TPopoverFooter>
+      <TPopoverClose as-child><TButton variant="ghost" label="Cancel" /></TPopoverClose>
+      <TButton label="Save rule" @click="save" />
+    </TPopoverFooter>
+  </TPopoverContent>
+</TPopover>`,
+  },
   {
     id: 'tooltip',
     name: 'TTooltip',

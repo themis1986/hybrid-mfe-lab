@@ -41,6 +41,11 @@ import {
   toast,
   TPageHeader,
   TPanel,
+  TPopover,
+  TPopoverClose,
+  TPopoverContent,
+  TPopoverFooter,
+  TPopoverTrigger,
   TProgress,
   TRadioGroup,
   TRadioGroupItem,
@@ -67,8 +72,8 @@ import {
   TTreeSelector,
   TWidget,
 } from '@repo/ui'
-import { Bell, Check, Heart, Info, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
-import { type ReactNode, useState } from 'react'
+import { Bell, Check, Heart, Info, Plus, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
+import { type FormEvent, type ReactNode, useState } from 'react'
 
 export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'disclosure' | 'overlays' | 'app'
 
@@ -593,6 +598,162 @@ function CollapsibleDemo() {
         </div>
       </TCollapsibleContent>
     </TCollapsible>
+  )
+}
+
+const ruleServices = ['api-gateway', 'auth', 'billing', 'search'].map((s) => ({ value: s, label: s }))
+const ruleEvents = [
+  { value: 'deploy-failed', label: 'Deployment failed' },
+  { value: 'error-rate', label: 'Error rate above threshold' },
+  { value: 'latency', label: 'Latency above threshold' },
+  { value: 'restarted', label: 'Service restarted' },
+]
+const ruleChannels = [
+  { value: 'email', label: 'Email' },
+  { value: 'slack', label: 'Slack' },
+  { value: 'pagerduty', label: 'PagerDuty' },
+]
+const blankRule = () => ({
+  service: 'api-gateway',
+  events: ['deploy-failed'],
+  severity: 'critical',
+  threshold: [5],
+  channels: [] as string[],
+  quietHours: false,
+  note: '',
+})
+
+function PopoverDemo() {
+  const [open, setOpen] = useState(false)
+  const [rule, setRule] = useState(blankRule)
+  // Errors show once the user has tried to save.
+  const [submitted, setSubmitted] = useState(false)
+  const [lastSaved, setLastSaved] = useState<string>()
+  const errors = {
+    events: rule.events.length ? undefined : 'Pick at least one event.',
+    channels: rule.channels.length ? undefined : 'Pick at least one channel.',
+  }
+  const update = (patch: Partial<ReturnType<typeof blankRule>>) => setRule((current) => ({ ...current, ...patch }))
+
+  function save(event: FormEvent) {
+    event.preventDefault()
+    setSubmitted(true)
+    if (errors.events || errors.channels) return
+    const names = ruleChannels.filter((c) => rule.channels.includes(c.value)).map((c) => c.label)
+    const summary = `${rule.service} · ${rule.events.length} event${rule.events.length > 1 ? 's' : ''} → ${names.join(', ')}`
+    setLastSaved(summary)
+    alarm.success('Rule saved', { description: summary })
+    setOpen(false)
+    setRule(blankRule())
+    setSubmitted(false)
+  }
+
+  return (
+    <TCluster gap={6} align="start">
+      <TStack gap={2}>
+        <TPopover open={open} onOpenChange={setOpen}>
+          <TPopoverTrigger asChild>
+            <TButton>
+              <TIcon icon={Plus} size="sm" />
+              New notification rule
+            </TButton>
+          </TPopoverTrigger>
+          <TPopoverContent size="lg" title="New notification rule" description="Get notified when a backend service needs attention.">
+            <form className="flex flex-col gap-4" noValidate onSubmit={save}>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="rule-service" className="text-sm font-medium">
+                  Service
+                </label>
+                <TSelect id="rule-service" value={rule.service} onValueChange={(service) => update({ service })} options={ruleServices} size="sm" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="rule-events" className="text-sm font-medium">
+                  Events
+                </label>
+                <TSelect
+                  id="rule-events"
+                  multiple
+                  value={rule.events}
+                  onValueChange={(events) => update({ events })}
+                  options={ruleEvents}
+                  size="sm"
+                  placeholder="Pick events"
+                  invalid={submitted && !!errors.events}
+                />
+                {submitted && errors.events && (
+                  <p role="alert" className="m-0 text-sm text-danger">
+                    {errors.events}
+                  </p>
+                )}
+              </div>
+              <fieldset className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
+                <legend className="mb-2 p-0 text-sm font-medium">Severity</legend>
+                <TRadioGroup value={rule.severity} onValueChange={(severity) => update({ severity })} orientation="horizontal" aria-label="Severity">
+                  {['Critical', 'Warning', 'Any'].map((label) => (
+                    <label key={label} className="inline-flex items-center gap-2 text-sm">
+                      <TRadioGroupItem value={label.toLowerCase()} size="sm" /> {label}
+                    </label>
+                  ))}
+                </TRadioGroup>
+              </fieldset>
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium">Errors per minute: {rule.threshold[0]}</span>
+                <TSlider value={rule.threshold} onValueChange={(threshold) => update({ threshold })} min={1} max={50} size="sm" thumbLabel="Errors per minute" />
+              </div>
+              <fieldset className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
+                <legend className="mb-2 p-0 text-sm font-medium">Channels</legend>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {ruleChannels.map((channel) => (
+                    <label key={channel.value} className="inline-flex items-center gap-2 text-sm">
+                      <TCheckbox
+                        size="sm"
+                        checked={rule.channels.includes(channel.value)}
+                        onCheckedChange={(on) =>
+                          update({
+                            channels: on === true ? [...rule.channels, channel.value] : rule.channels.filter((c) => c !== channel.value),
+                          })
+                        }
+                      />
+                      {channel.label}
+                    </label>
+                  ))}
+                </div>
+                {submitted && errors.channels && (
+                  <p role="alert" className="m-0 text-sm text-danger">
+                    {errors.channels}
+                  </p>
+                )}
+              </fieldset>
+              <label className="inline-flex items-center justify-between gap-3 text-sm">
+                Mute from 22:00 to 07:00
+                <TSwitch size="sm" checked={rule.quietHours} onCheckedChange={(quietHours) => update({ quietHours })} />
+              </label>
+              <TText label="Note (optional)" rows={2} size="sm" value={rule.note} onChange={(e) => update({ note: e.target.value })} />
+              <TPopoverFooter>
+                <TPopoverClose asChild>
+                  <TButton type="button" variant="ghost" label="Cancel" />
+                </TPopoverClose>
+                <TButton type="submit" label="Save rule" />
+              </TPopoverFooter>
+            </form>
+          </TPopoverContent>
+        </TPopover>
+        <p className="m-0 text-sm text-fg-muted">Last saved: {lastSaved ?? 'none yet'}</p>
+      </TStack>
+
+      <TPopover>
+        <TPopoverTrigger asChild>
+          <TButton variant="ghost" aria-label="About this service">
+            <TIcon icon={Info} size="sm" />
+          </TButton>
+        </TPopoverTrigger>
+        <TPopoverContent side="right" size="sm" aria-label="About api-gateway">
+          <p className="m-0 pe-8 text-sm">
+            <strong>api-gateway</strong> routes every public request to the backend services. Rules on it see all traffic.
+          </p>
+        </TPopoverContent>
+      </TPopover>
+    </TCluster>
   )
 }
 
@@ -1520,6 +1681,37 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
 </TDialog>`,
   },
 
+  {
+    id: 'popover',
+    name: 'TPopover',
+    parts: ['TPopoverTrigger', 'TPopoverContent', 'TPopoverFooter', 'TPopoverClose'],
+    group: 'overlays',
+    summary:
+      'A panel that opens from a trigger and holds any components, such as related filters or a short form (Radix Popover). The example adds a notification rule for a backend service; the fields’ own lists open inside it without closing it.',
+    props: [
+      { name: 'open / defaultOpen / onOpenChange', type: 'boolean / boolean / (open) => void', description: 'Open or closed, controlled or uncontrolled.' },
+      { name: 'modal', type: 'boolean', default: 'false', description: 'Traps focus and blocks the page behind it.' },
+      { name: 'TPopoverTrigger', type: 'asChild', description: 'Wrap the button that opens it.' },
+      { name: 'TPopoverContent title / description', type: 'ReactNode', description: 'A heading and a muted line; they name and describe the popover.' },
+      { name: 'TPopoverContent side / align / sideOffset', type: "'bottom' / 'start' / 8", description: 'Placement next to the trigger; it flips when there is no room.' },
+      { name: 'TPopoverContent size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Width: 16, 20 or 26rem.' },
+      { name: 'TPopoverContent hideClose / closeLabel', type: "boolean / 'Close'", description: 'The close button in the top end corner.' },
+      { name: 'TPopoverContent', type: 'children', description: 'Any content: fields, filters, a short form. Without a title, pass aria-label.' },
+      { name: 'TPopoverFooter', type: 'children', description: 'Right-aligned actions.' },
+      { name: 'TPopoverClose', type: 'asChild', description: 'Wrap a button that closes it, e.g. Cancel.' },
+    ],
+    demo: <PopoverDemo />,
+    code: `<TPopover open={open} onOpenChange={setOpen}>
+  <TPopoverTrigger asChild><TButton label="New notification rule" /></TPopoverTrigger>
+  <TPopoverContent size="lg" title="New notification rule" description="…">
+    {/* TSelect, TRadioGroup, TSlider, TCheckbox, TSwitch, … */}
+    <TPopoverFooter>
+      <TPopoverClose asChild><TButton variant="ghost" label="Cancel" /></TPopoverClose>
+      <TButton label="Save rule" onClick={save} />
+    </TPopoverFooter>
+  </TPopoverContent>
+</TPopover>`,
+  },
   {
     id: 'tooltip',
     name: 'TTooltip',
