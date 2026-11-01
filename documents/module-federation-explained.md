@@ -167,11 +167,11 @@ Browser on :5173 (shell)                          Server on :5174 (todo MFE)
 2. It looks up `"./mount"` in the table and calls the function.
 3. The function runs `import("./assets/mount-<hash>.js")`, so the browser downloads that chunk. The path is relative to where `remoteEntry.js` came from, so it resolves to the remote's server, not the host's.
 
-The chunk contains `mount.ts` plus everything it imports: Vue, Vue Router, the MFE's own code, and `@repo/ui/register` with the React it needs. This is why the remote is heavy, and it is the duplication that `shared: {}` leaves in place (see [section 6](#6-the-other-options)).
+The chunk contains `mount.ts` plus everything it imports: Vue, Vue Router, Pinia, `@repo/ui-vue`, the MFE's own code, and its stylesheet as a string. This is why the remote is heavy, and it is the duplication that `shared: {}` leaves in place (see [section 6](#6-the-other-options)).
 
 **Step 5: the host receives `{ mount }`.**
 
-1. The browser **executes** the chunk. Any top-level code runs at this moment. One example is `@repo/ui/register`, which injects the design system's stylesheet and defines the `t-*` custom elements. The stylesheet travels inside this JavaScript chunk, so the host doesn't have to load any CSS file for the remote.
+1. The browser **executes** the chunk. Any top-level code runs at this moment, which is why the MFE keeps none with lasting effects: its stylesheet and its state are created inside `mount` and removed by the function `mount` returns. The stylesheet travels inside this JavaScript chunk, so the host doesn't have to load any CSS file for the remote.
 2. The catalog function returns the chunk's exports as a plain object.
 3. That object is what `await import('todo/mount')` produces in the host, so `const { mount } = …` works like any other import.
 
@@ -212,7 +212,7 @@ The shell is also told about its remotes at startup: the plugin injects a small 
 
 Every app uses an empty object, so **nothing is shared**:
 
-- **Cost:** each remote's chunk carries its own framework (Vue, React, or both for the todo MFE's bridge), and the shell carries its own React. There is duplicate code in the browser.
+- **Cost:** each remote's chunk carries its own framework (Vue or React), and the shell carries its own React. There is duplicate code in the browser.
 - **Benefit:** no version conflicts and no coordination between teams. Each app is fully self-contained.
 
 Sharing React is a planned optimization with a known catch, described in [how-it-works.md section 6](how-it-works.md#6-two-copies-of-react-on-one-page).

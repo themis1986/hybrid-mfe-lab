@@ -1,6 +1,6 @@
 # The design system: tokens, Tailwind and `T` components
 
-How the shared design tokens (`@repo/tokens`) become styled components in two native libraries, `@repo/ui` (React, Radix) and `@repo/ui-vue` (Vue, Reka UI), and how those components and their styles reach the apps. For the custom-element bridge the todo MFE still uses, see [react-components-in-vue.md](react-components-in-vue.md).
+How the shared design tokens (`@repo/tokens`) become styled components in two native libraries, `@repo/ui` (React, Radix) and `@repo/ui-vue` (Vue, Reka UI), and how those components and their styles reach the apps. For the custom-element bridge, which `@repo/ui` still builds but no app uses now, see [react-components-in-vue.md](react-components-in-vue.md).
 
 **Contents**
 1. [Where it lives](#1-where-it-lives)
@@ -268,7 +268,7 @@ Both libraries use [Lucide](https://lucide.dev) (ISC): `lucide-react` and `@luci
 | Design tokens | `--t-*` | primitives `--t-<hue>-<step>`, semantics `--t-color-<role>` and so on |
 | Injected stylesheet | `<style id="t-ui-styles">` | one per page (see [react-components-in-vue.md](react-components-in-vue.md#5-styles-across-the-boundary)) |
 
-The Vue compiler treats every `t-*` tag as a custom element (`isCustomElement` in `apps/todo-mfe/vite.config.ts`), so the `t-` prefix is reserved for design-system elements in Vue templates.
+A Vue host of the bridge makes its compiler treat every `t-*` tag as a custom element (`isCustomElement` in its `vite.config.ts`), so the `t-` prefix is reserved for design-system elements in Vue templates.
 
 ## 7. One stylesheet, two deliveries
 
@@ -277,9 +277,9 @@ The Vue compiler treats every `t-*` tag as a custom element (`isCustomElement` i
 | React host (the shell) | `import '@repo/ui/styles.css'` once, in its entry | `index.ts` imports `styles/index.css`; Vite library mode extracts it to `dist/styles.css` (`build.lib.cssFileName: 'styles'`) and removes the import from the JavaScript. |
 | Vue remote on `@repo/ui-vue` | its own `src/styles.css` imports `@repo/ui-vue/styles.css`; `mount.ts` imports that file with `?inline` and injects it as a `<style>` while mounted | ui-vue's `dist/styles.css`, built like ui's. Inlined because a federated remote can't count on its host or on federation to load a CSS file. |
 | React remote on `@repo/ui` | the same: its own `src/styles.css` imports `@repo/ui/styles.css`, injected inline by its mount module | ui's `dist/styles.css`. Inside the shell, these rules duplicate the shell's copy; with the same ui version they are identical. |
-| Custom-element host (the todo MFE) | nothing to do: `import '@repo/ui/register'` brings it | `register.ts` imports `styles/index.css?inline`, a string compiled by the same Tailwind plugin, and writes it into one `<style>` before defining any element. |
+| Custom-element host (none now) | nothing to do: `import '@repo/ui/register'` brings it | `register.ts` imports `styles/index.css?inline`, a string compiled by the same Tailwind plugin, and writes it into one `<style>` before defining any element. |
 
-An app that runs **its own Tailwind** (the shell, the docs remotes) imports `@repo/tokens/theme.css` into its Tailwind stylesheet:
+An app that runs **its own Tailwind** (the shell, every remote) imports `@repo/tokens/theme.css` into its Tailwind stylesheet:
 - its own utilities (`bg-surface`, `text-fg-muted`, …) then resolve to the same tokens, and off-system colours don't exist there either;
 - it skips Preflight for the same reason the libraries do: microfrontends render inside the shell's page;
 - it loads after the library stylesheet. Utilities that both builds generate are identical, so the duplicates are harmless.
@@ -309,9 +309,9 @@ Build details:
 
 ## 9. Things worth knowing
 
-- **Never override a shorthand with a longhand in one class string.** `p-3 pe-10` works inside the library's stylesheet, but an app that runs Tailwind (the shell, the docs remotes) loads its own stylesheet after the library's. If the app's markup also uses `p-3`, its `.p-3` comes later and wins over the library's `.pe-10`. Write longhands only (`py-3 ps-3 pe-10`, `my-0 ms-auto`). An override behind a variant (`data-*:`, `empty:`, `*:`) is safe, since it is more specific.
+- **Never override a shorthand with a longhand in one class string.** `p-3 pe-10` works inside the library's stylesheet, but an app that runs Tailwind (the shell, every remote) loads its own stylesheet after the library's. If the app's markup also uses `p-3`, its `.p-3` comes later and wins over the library's `.pe-10`. Write longhands only (`py-3 ps-3 pe-10`, `my-0 ms-auto`). An override behind a variant (`data-*:`, `empty:`, `*:`) is safe, since it is more specific.
 - **Shared animations live in `@repo/tokens/theme.css`.** Keyframes and their `--animate-*` names sit in the `@theme` block next to the colours, so both libraries and every Tailwind app share them, and a keyframes block is emitted only where its `animate-*` utility is used. Content that opens and closes animates its height between 0 and `--t-collapsible-height`; each component maps its primitive's measured height (`--radix-…-content-height`, `--reka-…-content-height`) onto that variable. The primitives wait for `animationend` before unmounting, so closing animates too.
-- **Which classes exist depends on the host.** In an app that runs Tailwind with `@repo/tokens/theme.css` (the shell, the docs remotes), any utility works, in its own markup and in a class passed to a component. In an app that doesn't (the todo MFE), only classes used in the library's `src` exist, so a class in its own markup does nothing unless the library happens to use it.
+- **Which classes exist depends on the host.** In an app that runs Tailwind with `@repo/tokens/theme.css` (the shell, every remote), any utility works, in its own markup and in a class passed to a component. In an app that doesn't (a custom-element host), only classes used in the library's `src` exist, so a class in its own markup does nothing unless the library happens to use it.
 - **The scanner reads words, not code.** Any word in `src` that happens to be a utility name produces that utility, for example a variant key that is also a utility name. This is harmless (a few unused rules) but explains surprises in `dist/styles.css`.
 - **`transition-colors` includes `outline-color`.** A focus ring therefore fades in over the transition duration rather than appearing instantly.
 - **Overlays portal out of the app.** Radix and Reka render overlay content (the backdrop and the panel) at the end of `document.body`, outside the element a microfrontend is mounted in.

@@ -22,11 +22,11 @@ For setup and commands, see the [README](../README.md).
 | Package | Role | Tech |
 |---|---|---|
 | `apps/shell` (`@repo/shell`) | Host app: owns the URL, the layout and the navigation. | React 19, React Router 8 |
-| `apps/todo-mfe` (`@repo/todo-mfe`) | Remote app: built and served on its own, loaded by the shell at runtime. Uses `@repo/ui` as `t-*` custom elements, until it moves to `@repo/ui-vue`. | Vue 3, Vue Router 5 |
+| `apps/todo-mfe` (`@repo/todo-mfe`) | Remote app: built and served on its own, loaded by the shell at runtime. Built on `@repo/ui-vue`, with its state in Pinia. | Vue 3, Vue Router 5, Pinia |
 | `apps/ui-vue-docs` (`@repo/ui-vue-docs`) | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`. | Vue 3, Vue Router 5 |
 | `apps/ui-react-docs` (`@repo/ui-react-docs`) | Remote app written in React: the React library's documentation, built on `@repo/ui`. | React 19 |
 | `packages/tokens` (`@repo/tokens`) | Design tokens and the token → Tailwind theme. CSS only, no build. | CSS, Tailwind v4 |
-| `packages/ui` (`@repo/ui`) | `T`-prefixed React components, usable from React directly and from any framework as `t-*` custom elements. | React, Radix, Tailwind v4 |
+| `packages/ui` (`@repo/ui`) | `T`-prefixed React components, usable from React directly, and from any framework as `t-*` custom elements (an entry no app uses now). | React, Radix, Tailwind v4 |
 | `packages/ui-vue` (`@repo/ui-vue`) | The same components natively in Vue, with the same look. | Vue, Reka UI, Tailwind v4 |
 | `packages/config` (`@repo/config`) | Shared tsconfig presets. | TypeScript 6 |
 
@@ -36,8 +36,8 @@ There are two kinds of dependency, and keeping them apart is the key to the arch
 graph LR
   subgraph "Build time (pnpm workspace links)"
     shell["@repo/shell"] -- "workspace:*" --> ui["@repo/ui"]
-    mfe["@repo/todo-mfe"] -- "workspace:*" --> ui
-    docs["@repo/ui-vue-docs"] -- "workspace:*" --> uivue["@repo/ui-vue"]
+    mfe["@repo/todo-mfe"] -- "workspace:*" --> uivue["@repo/ui-vue"]
+    docs["@repo/ui-vue-docs"] -- "workspace:*" --> uivue
     rdocs["@repo/ui-react-docs"] -- "workspace:*" --> ui
     ui -- "CSS at build time" --> tokens["@repo/tokens"]
     uivue -- "CSS at build time" --> tokens
@@ -121,17 +121,17 @@ React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `
 | shell (React) | `import { … } from '@repo/ui'` | The plain React components, rendered by the shell's own React. |
 | shell (React) | `import '@repo/ui/styles.css'` (once, in `main.tsx`) | The stylesheet, bundled into the shell's CSS. |
 | shell (React) | `@import '@repo/tokens/theme.css'` (in its own `src/index.css`) | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens. |
-| ui-vue-docs (Vue) | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted. |
+| todo-mfe, ui-vue-docs (Vue) | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted. |
 | ui-react-docs (React) | `import { … } from '@repo/ui'`, and `@repo/ui/styles.css` inside its own `src/styles.css` | The React components, rendered by the remote's own React; the stylesheet is injected inline by `mount.tsx` while the app is mounted. |
-| todo-mfe (Vue) | `import '@repo/ui/register'` | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
+| a Vue host of the bridge (none now) | `import '@repo/ui/register'` | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
 
 `"sideEffects": ["./dist/register.js", "./dist/styles.css"]` tells bundlers that these bare imports must not be tree-shaken away, even though they export nothing.
 
-**How the `t-*` custom elements work.**
+**How the `t-*` custom elements work** (no app uses them now; this is how the entry behaves).
 - `r2wc(bridge(Component), { props })` returns a custom element class, which `register.ts` defines under a `t-*` tag (`T<Name>` → `<t-<name>>`). `bridge()` strips the `container` prop r2wc adds.
 - When the browser inserts such an element into the page, the class creates a React root *inside that element* and renders the component into it, passing the element's props.
 - Each declared prop is observed both as an attribute (`prop="…"`) and as a DOM property (`el.prop = …`). A change re-renders the React tree. Undeclared props never reach the component.
-- Vue's compiler is told to leave `t-*` tags alone (`isCustomElement` in `apps/todo-mfe/vite.config.ts`). Otherwise it would try to resolve them as Vue components.
+- A Vue host tells its compiler to leave `t-*` tags alone (`isCustomElement` in its `vite.config.ts`). Otherwise it would try to resolve them as Vue components.
 - The rules for props, booleans, events and content, and why the stylesheet is inlined, are in [react-components-in-vue.md](react-components-in-vue.md).
 
 ## 4. Runtime walkthrough: from `/` to the Vue app and back
@@ -154,7 +154,6 @@ sequenceDiagram
   participant MF as Federation runtime
   participant R as todo-mfe server :5174
   participant V as Vue app (MFE)
-  participant CE as t-* elements
 
   U->>RR: click a link to /todo-app
   RR->>RR: history.pushState('/todo-app')
@@ -163,24 +162,25 @@ sequenceDiagram
   H->>MF: import('todo/mount')
   MF->>R: GET /remoteEntry.js
   MF->>R: GET the exposed module chunk(s)
-  Note over MF,R: chunk contains Vue, Vue Router, React (MFE copy), r2wc, @repo/ui/register
+  Note over MF,R: chunk contains Vue, Vue Router, Pinia, @repo/ui-vue, the stylesheet as a string
   MF-->>H: module { mount }
-  Note over CE: evaluating the module ran register.js → <style id="t-ui-styles"> injected, then customElements.define('t-…') for each component
   H->>H: render an empty container <div ref>, then useEffect runs
   H->>V: mount(div, { basePath: '/todo-app' })
-  V->>V: createWebHistory('/todo-app'), createRouter, createApp(App).use(router).mount(div)
+  V->>V: inject <style id="todo-mfe-styles"> into <head>
+  V->>V: createWebHistory('/todo-app'), createRouter, createPinia, createApp(App).use(pinia).use(router).mount(div)
   V->>V: router reads URL /todo-app, strips base → "/" → the MFE's root route
-  V->>CE: render templates containing t-* tags
-  CE->>CE: r2wc creates a React root inside each element and renders the component
   H-->>U: page shows the MFE's UI
 ```
 
 Details worth knowing:
 - **Lazy loading:** `React.lazy` caches the module promise, so the remote is downloaded only once per page load. Later visits to `/todo-app` reuse it and only call `mount` again.
-- **Ownership:** `TodoMfeHost` (built with `createRemoteHost`, like every remote's host) renders an empty container `<div>`, and React never renders children into it. Everything inside belongs to Vue, and everything inside each `t-*` element belongs to the MFE's React.
+- **Ownership:** `TodoMfeHost` (built with `createRemoteHost`, like every remote's host) renders an empty container `<div>`, and React never renders children into it. Everything inside belongs to Vue.
 - **Styles:** the remote's stylesheet arrives inside the JavaScript chunk, not as a CSS file, so nothing depends on the federation runtime loading CSS.
+- **State:** `mount` creates a new Pinia instance each time, so every visit starts from fresh state. A Pinia created at module scope would survive, because the module itself stays cached (see below).
 
-### 4.3 Events from a custom element inside the MFE
+### 4.3 Events from a custom element (bridge only)
+
+No app renders `t-*` elements now. For a Vue host of the bridge, a click travels like this:
 
 ```
 <t-…>         ← Vue's @click listener is attached here
@@ -195,15 +195,16 @@ Details worth knowing:
 
 1. React Router calls `pushState` with a shell route and renders it instead of `TodoMfeHost`.
 2. React runs the effect cleanup, which is the function `mount` returned:
-   - `app.unmount()`: Vue removes its DOM. Removing each `t-*` element triggers its `disconnectedCallback`, which unmounts the React root inside it.
+   - `app.unmount()`: Vue removes its DOM. The app's Pinia instance goes with it.
    - `history.destroy()`: removes Vue Router's `popstate` listener from `window`. `app.unmount()` alone does not.
-3. Nothing from the MFE is left in the page body or on `window`. The one trace is the injected `<style id="t-ui-styles">` in `<head>`: it matches the shell's own stylesheet and is reused on the next visit. The downloaded module stays cached too.
+   - the injected `<style id="todo-mfe-styles">` is removed from `<head>`.
+3. Nothing from the MFE is left in the page or on `window`. Only the downloaded module stays cached, for the next visit.
 
 This was verified by counting `popstate` listeners on `window`: 1 on a shell route (React Router), 2 while the MFE is mounted, back to 1 after leaving, over repeated round trips.
 
 ### 4.5 StrictMode, refreshes, back/forward
 
-- **StrictMode (dev only):** React mounts, unmounts and re-mounts every effect once, so `mount` → unmount → `mount` happens immediately. The cleanup is complete, so exactly one Vue app remains.
+- **StrictMode (dev only):** React mounts, unmounts and re-mounts every effect once, so `mount` → unmount → `mount` happens immediately. The cleanup is complete, so exactly one Vue app (with one Pinia and one stylesheet) remains.
 - **Hard refresh on `/todo-app`:** the Vite dev server and `vite preview` both serve `index.html` for unknown paths (SPA fallback). The shell boots directly on `/todo-app` and goes straight into step 4.2.
 - **Back/forward:** the browser fires `popstate`. React Router re-renders the matching route, so the MFE is mounted or unmounted exactly as with link clicks.
 
@@ -227,7 +228,7 @@ The page has a single `window.history`, used by two routers:
 Whenever a remote that uses React is mounted, two independent copies of React are loaded:
 
 1. **The shell's React** renders the layout, the nav and the remote's host component.
-2. **The remote's React**, bundled into its chunk, renders only inside the remote: into its own root (a React remote), or inside the `t-*` custom elements (the todo MFE).
+2. **The remote's React**, bundled into its chunk, renders only inside the remote: into its own root (a React remote), or inside the `t-*` custom elements (a host of the bridge, none now).
 
 This works because each copy manages its own roots and never touches the other's DOM. The cost is download size: each such remote carries a full extra copy of React and react-dom.
 
@@ -262,5 +263,5 @@ Changing where the remote lives in production means rebuilding the shell with `V
 | Port 5173 or 5174 is already in use | The dev or preview server exits (`strictPort`) instead of silently moving to another port, which would break the hard-coded remote URL. |
 | `@repo/ui` isn't built | The apps can't resolve `@repo/ui` (its `exports` point into `dist/`). Running through `pnpm dev`, `build` or `typecheck` avoids this because Turbo builds ui first. |
 | A running dev server reports that a `@repo/ui` subpath "is not exported" | ui's `package.json` `exports` changed after the server started, and Vite still uses the old copy it read. Restart `pnpm dev`. The ui watcher doesn't reload its own `vite.config.ts` either. |
-| The MFE's components render unstyled | `@repo/ui/register` wasn't imported. It is what injects the stylesheet, so a `t-*` element defined some other way has no styles. |
+| A remote's components render unstyled | Its `mount.ts` didn't inject its `src/styles.css` (imported with `?inline`). Nothing else loads a remote's CSS. |
 | A dependency was published less than 24 h ago | pnpm refuses it (`minimumReleaseAge`) and picks an older version within the range, or fails if none fits. |
