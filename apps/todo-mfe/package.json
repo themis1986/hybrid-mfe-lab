@@ -10,9 +10,8 @@
     "typecheck": "vue-tsc -p tsconfig.json && tsc -p tsconfig.node.json"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
-    "react": "catalog:",
-    "react-dom": "catalog:",
+    "@repo/ui-vue": "workspace:*",
+    "pinia": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
@@ -20,8 +19,11 @@
     "@module-federation/vite": "catalog:",
     "@vitejs/devtools": "catalog:",
     "@repo/config": "workspace:*",
+    "@repo/tokens": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
+    "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-vue-devtools": "catalog:",
