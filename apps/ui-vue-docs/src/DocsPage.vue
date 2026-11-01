@@ -48,10 +48,10 @@ const entriesOf = (group: string) => DOC_ENTRIES.filter((entry) => entry.group =
       </TPanel>
 
       <TSidebarLayout sidebar-width="13rem" :gap="6">
-        <!-- Sticky only where the table of contents sits beside the content. -->
+        <!-- Sticky and self-scrolling only where the table of contents sits beside the content. -->
         <TSidebarLayoutSidebar
           aria-label="Components"
-          class="self-start lg:sticky lg:top-[calc(var(--t-layout-header-height)+1.5rem)]"
+          class="self-start lg:sticky lg:top-[calc(var(--t-layout-header-height)+1.5rem)] lg:max-h-[calc(100dvh-var(--t-layout-header-height)-3rem)] lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-width:thin]"
         >
           <TStack :gap="4">
             <TStack v-for="group in DOC_GROUPS" :key="group.id" :gap="1">

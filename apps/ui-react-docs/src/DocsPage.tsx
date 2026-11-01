@@ -103,10 +103,10 @@ import { Search } from '@repo/ui/icons'`}</Code>
         </TPanel>
 
         <TSidebarLayout sidebarWidth="13rem" gap={6}>
-          {/* Sticky only where the table of contents sits beside the content. */}
+          {/* Sticky and self-scrolling only where the table of contents sits beside the content. */}
           <TSidebarLayoutSidebar
             aria-label="Components"
-            className="self-start lg:sticky lg:top-[calc(var(--t-layout-header-height)+1.5rem)]"
+            className="self-start lg:sticky lg:top-[calc(var(--t-layout-header-height)+1.5rem)] lg:max-h-[calc(100dvh-var(--t-layout-header-height)-3rem)] lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-width:thin]"
           >
             <TStack gap={4}>
               {DOC_GROUPS.map((group) => (
