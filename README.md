@@ -261,7 +261,7 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 | @radix-ui/react-switch | 1.4.1 | | reka-ui | 2.11.0 |
 | clsx | 2.1.1 | | tailwind-merge | 3.7.0 |
 | lucide-react | 1.65.0 | | @lucide/vue | 1.65.0 |
-| | | | pinia | 4.1.0 |
+| @internationalized/date | 3.12.4 | | pinia | 4.1.0 |
 
 ### Deviations from the original brief, and why
 

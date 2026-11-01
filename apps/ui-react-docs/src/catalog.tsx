@@ -1,5 +1,6 @@
 import {
   alarm,
+  defaultRangePresets,
   TAccordion,
   TAccordionContent,
   TAccordionItem,
@@ -13,6 +14,7 @@ import {
   TAppShellSidebar,
   TAspectRatio,
   TButton,
+  TCalendar,
   TCard,
   TCardBody,
   TCardFooter,
@@ -24,6 +26,10 @@ import {
   TCollapsibleContent,
   TCollapsibleTrigger,
   TContainer,
+  TDateField,
+  TDatePicker,
+  type TDateRange,
+  TDateRangeField,
   TDialog,
   TDialogBody,
   TDialogClose,
@@ -50,6 +56,8 @@ import {
   TProgress,
   TRadioGroup,
   TRadioGroupItem,
+  TRangeCalendar,
+  TRangeDatePicker,
   TScrollArea,
   TSection,
   TSelect,
@@ -67,6 +75,7 @@ import {
   TTabsList,
   TTabsTrigger,
   TText,
+  TTimeField,
   TToast,
   TTooltip,
   type TTreeNode,
@@ -76,7 +85,16 @@ import {
 import { Bell, Check, Heart, Info, Plus, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
 import { type FormEvent, type ReactNode, useState } from 'react'
 
-export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'disclosure' | 'overlays' | 'app'
+export type DocGroupId =
+  | 'actions'
+  | 'dates'
+  | 'feedback'
+  | 'icons'
+  | 'primitives'
+  | 'surfaces'
+  | 'disclosure'
+  | 'overlays'
+  | 'app'
 
 export interface DocProp {
   name: string
@@ -102,6 +120,11 @@ export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[
     id: 'actions',
     label: 'Actions & inputs',
     description: 'Buttons and form controls.',
+  },
+  {
+    id: 'dates',
+    label: 'Dates & time',
+    description: "Calendars, date and time fields, and date pickers. Values are ISO strings ('2026-11-01', '14:30').",
   },
   { id: 'feedback', label: 'Feedback', description: 'Loading and status indicators.' },
   {
@@ -949,6 +972,221 @@ function WidgetDemo() {
   )
 }
 
+// Today as an ISO date, in the viewer's time zone.
+const now = new Date()
+const todayIso = [now.getFullYear(), now.getMonth() + 1, now.getDate()].map((n) => String(n).padStart(2, '0')).join('-')
+const isWeekend = (iso: string) => [0, 6].includes(new Date(`${iso}T00:00`).getDay())
+const showRange = (range?: TDateRange) => (range ? `${range.start} → ${range.end}` : '—')
+
+// Shows a form's submitted values.
+function useSubmitted() {
+  const [submitted, setSubmitted] = useState('')
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setSubmitted(JSON.stringify(Object.fromEntries(new FormData(event.currentTarget))))
+  }
+  return [submitted, onSubmit] as const
+}
+
+function CalendarDemo() {
+  const [date, setDate] = useState<string>()
+  const [booking, setBooking] = useState<string>()
+
+  return (
+    <TGrid minChildWidth="18rem" gap={6}>
+      <div className="flex flex-col gap-2 text-sm">
+        <TCalendar value={date} onValueChange={setDate} label="Date" />
+        <span className="text-fg-muted">Selected: {date ?? '—'}</span>
+      </div>
+      <div className="flex flex-col gap-2 text-sm">
+        <TCalendar
+          value={booking}
+          onValueChange={setBooking}
+          min={todayIso}
+          isDateUnavailable={isWeekend}
+          weekStartsOn={1}
+          locale="en-GB"
+          label="Delivery day"
+        />
+        <span className="text-fg-muted">From today, weekdays only (en-GB, Monday first): {booking ?? '—'}</span>
+      </div>
+    </TGrid>
+  )
+}
+
+function RangeCalendarDemo() {
+  const [presets] = useState(defaultRangePresets)
+  const [range, setRange] = useState<TDateRange | undefined>(presets[1].value)
+
+  return (
+    <TStack gap={2} className="text-sm">
+      <TRangeCalendar value={range} onValueChange={setRange} presets={presets} numberOfMonths={2} label="Report period" />
+      <span className="text-fg-muted">Range: {showRange(range)}</span>
+    </TStack>
+  )
+}
+
+function DateFieldDemo() {
+  const [birthday, setBirthday] = useState<string>()
+
+  return (
+    <TGrid minChildWidth="14rem" gap={4}>
+      <div className="flex flex-col gap-1.5 text-sm">
+        <span id="date-field-demo-birthday" className="font-medium">
+          Date of birth
+        </span>
+        <TDateField value={birthday} onValueChange={setBirthday} max="2026-12-31" aria-labelledby="date-field-demo-birthday" />
+        <span className="text-fg-muted">Value: {birthday ?? '—'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5 text-sm">
+        <span id="date-field-demo-gb" className="font-medium">
+          en-GB order
+        </span>
+        <TDateField locale="en-GB" defaultValue="2026-11-01" aria-labelledby="date-field-demo-gb" />
+      </div>
+      <TDateField size="sm" invalid aria-label="Invalid, small" />
+      <TDateField disabled defaultValue="2026-11-01" aria-label="Disabled" />
+    </TGrid>
+  )
+}
+
+function DateRangeFieldDemo() {
+  const [stay, setStay] = useState<TDateRange>()
+
+  return (
+    <TGrid minChildWidth="18rem" gap={4}>
+      <div className="flex flex-col gap-1.5 text-sm">
+        <span id="date-range-field-demo" className="font-medium">
+          Stay
+        </span>
+        <TDateRangeField value={stay} onValueChange={setStay} aria-labelledby="date-range-field-demo" />
+        <span className="text-fg-muted">Value: {showRange(stay)}</span>
+      </div>
+      <TDateRangeField size="lg" defaultValue={{ start: '2026-11-01', end: '2026-11-07' }} aria-label="Large" />
+    </TGrid>
+  )
+}
+
+function TimeFieldDemo() {
+  const [opens, setOpens] = useState<string | undefined>('09:00')
+  const [alarmTime, setAlarmTime] = useState<string>()
+
+  return (
+    <TGrid minChildWidth="12rem" gap={4}>
+      <div className="flex flex-col gap-1.5 text-sm">
+        <span id="time-field-demo-opens" className="font-medium">
+          Opens at (24h)
+        </span>
+        <TTimeField value={opens} onValueChange={setOpens} hourCycle={24} aria-labelledby="time-field-demo-opens" />
+        <span className="text-fg-muted">Value: {opens ?? '—'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5 text-sm">
+        <span id="time-field-demo-alarm" className="font-medium">
+          Alarm (12h, seconds)
+        </span>
+        <TTimeField
+          value={alarmTime}
+          onValueChange={setAlarmTime}
+          hourCycle={12}
+          granularity="second"
+          aria-labelledby="time-field-demo-alarm"
+        />
+        <span className="text-fg-muted">Value: {alarmTime ?? '—'}</span>
+      </div>
+      <TTimeField min="08:00" max="18:00" defaultValue="19:30" aria-label="Out of range" />
+      <TTimeField disabled defaultValue="12:00" aria-label="Disabled" />
+    </TGrid>
+  )
+}
+
+function DatePickerDemo() {
+  const [due, setDue] = useState<string>()
+  const [submitted, onSubmit] = useSubmitted()
+
+  return (
+    <TGrid minChildWidth="16rem" gap={4}>
+      <form className="flex flex-col gap-1.5 text-sm" onSubmit={onSubmit}>
+        <span id="date-picker-demo-due" className="font-medium">
+          Due date (required)
+        </span>
+        <TDatePicker value={due} onValueChange={setDue} name="due" required aria-labelledby="date-picker-demo-due" />
+        <span className="text-fg-muted">Value: {due ?? '—'}</span>
+        <TButton type="submit" variant="outline" size="sm" className="self-start">
+          Submit
+        </TButton>
+        {submitted && <span className="text-fg-muted">Submitted: {submitted}</span>}
+      </form>
+      <TDatePicker numberOfMonths={2} size="sm" aria-label="Two months, small" />
+      <TDatePicker invalid aria-label="Invalid" />
+      <TDatePicker disabled defaultValue="2026-11-01" aria-label="Disabled" />
+    </TGrid>
+  )
+}
+
+function RangeDatePickerDemo() {
+  const [presets] = useState(defaultRangePresets)
+  const [period, setPeriod] = useState<TDateRange>()
+  const [submitted, onSubmit] = useSubmitted()
+
+  return (
+    <TGrid minChildWidth="20rem" gap={4}>
+      <form className="flex flex-col gap-1.5 text-sm" onSubmit={onSubmit}>
+        <span id="range-picker-demo" className="font-medium">
+          Report period (required)
+        </span>
+        <TRangeDatePicker
+          value={period}
+          onValueChange={setPeriod}
+          name="period"
+          required
+          presets={presets}
+          numberOfMonths={2}
+          aria-labelledby="range-picker-demo"
+        />
+        <span className="text-fg-muted">Value: {showRange(period)}</span>
+        <TButton type="submit" variant="outline" size="sm" className="self-start">
+          Submit
+        </TButton>
+        {submitted && <span className="text-fg-muted">Submitted: {submitted}</span>}
+      </form>
+      <TRangeDatePicker size="sm" defaultValue={{ start: '2026-11-01', end: '2026-11-07' }} aria-label="Small" />
+    </TGrid>
+  )
+}
+
+// The date and time components' shared props. Dates are ISO strings ('2026-11-01').
+const dateLimitProps: DocProp[] = [
+  { name: 'min / max', type: 'string', description: 'The first and last date allowed.' },
+  { name: 'isDateUnavailable', type: '(date: string) => boolean', description: 'Dates that can’t be picked (struck through in a calendar, invalid in a field).' },
+]
+const calendarProps: DocProp[] = [
+  ...dateLimitProps,
+  { name: 'isDateDisabled', type: '(date: string) => boolean', description: 'Dates that can’t be picked or focused (faded).' },
+  { name: 'locale', type: 'string', default: "'en-US'", description: 'Formats the heading, weekdays and each day’s accessible name.' },
+  { name: 'weekStartsOn', type: '0 – 6', description: 'First day of the week, 0 = Sunday; the locale’s by default.' },
+  { name: 'numberOfMonths', type: 'number', default: '1', description: 'Months side by side; they wrap when narrow.' },
+  { name: 'pagedNavigation', type: 'boolean', default: 'false', description: 'Previous/next move by all the months shown.' },
+  { name: 'fixedWeeks', type: 'boolean', default: 'false', description: 'Always six weeks, so the height never changes.' },
+  { name: 'label', type: 'string', description: 'Accessible name of the calendar; the visible month is added to it.' },
+  { name: 'prevLabel / nextLabel', type: 'string', default: "'Previous month' / 'Next month'", description: 'Accessible names of the navigation buttons.' },
+  { name: 'disabled / readonly', type: 'boolean', description: 'Prevents interaction / shows the value without changing it.' },
+]
+const fieldProps: DocProp[] = [
+  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Field height and text size, as TInput's." },
+  { name: 'invalid', type: 'boolean', default: 'false', description: 'aria-invalid and the error border. An out-of-range value is marked anyway.' },
+  { name: 'locale', type: 'string', default: "'en-US'", description: 'The order of the segments and their separators.' },
+  { name: 'disabled / readonly', type: 'boolean', description: 'Prevents interaction / shows the value without changing it.' },
+  { name: 'name / required', type: 'string / boolean', description: 'Form submission; required blocks it until the value is complete.' },
+  { name: 'id / aria-label / className', type: 'string', description: 'aria-* and className go on the field (role group); id on its hidden input, for a <label htmlFor>.' },
+]
+// A picker takes the calendar's props and the field's; these are the field's that the calendar's don't repeat.
+const pickerFieldProps = fieldProps.filter((prop) => !['locale', 'disabled / readonly'].includes(prop.name))
+const pickerProps: DocProp[] = [
+  { name: 'open / defaultOpen / onOpenChange', type: 'boolean / (open) => void', description: 'Whether the calendar is open, controlled or not.' },
+  { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close the calendar once a date (a range’s end) is picked.' },
+  { name: 'triggerLabel', type: 'string', default: "'Open calendar'", description: 'Accessible name of the calendar button.' },
+]
+
 export const DOC_ENTRIES: DocEntry[] = [
   // Actions & inputs
   {
@@ -1215,6 +1453,118 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: <SliderDemo />,
     code: `<TSlider value={volume} onValueChange={setVolume} thumbLabel="Volume" />
 <TSlider defaultValue={[20, 80]} step={5} thumbLabel={['Minimum', 'Maximum']} />`,
+  },
+
+  // Dates & time
+  {
+    id: 'calendar',
+    name: 'TCalendar',
+    group: 'dates',
+    summary:
+      'A month grid that picks one date. Radix has no calendar, so it is written to behave like Reka’s: arrow keys move by day and week, Page Up/Down by month (with Shift, by year), Home/End to the week’s ends.',
+    props: [
+      { name: 'value / defaultValue', type: 'string', description: "The picked date, an ISO date ('2026-11-01'), controlled or not." },
+      { name: 'onValueChange', type: '(value: string | undefined) => void', description: 'Called when a date is picked, or cleared by picking it again.' },
+      ...calendarProps,
+    ],
+    demo: <CalendarDemo />,
+    code: `<TCalendar value={date} onValueChange={setDate} label="Date" />
+<TCalendar min={today} isDateUnavailable={isWeekend} weekStartsOn={1} />`,
+  },
+  {
+    id: 'range-calendar',
+    name: 'TRangeCalendar',
+    group: 'dates',
+    summary:
+      'A month grid that picks a range, as Reka’s RangeCalendar: the first pick sets the start, the days up to the pointer are previewed, the second sets the end. The value changes only once both ends are picked; Escape while picking returns to the last range.',
+    props: [
+      { name: 'value / defaultValue', type: '{ start: string; end: string }', description: 'The range, in ISO dates, controlled or not.' },
+      { name: 'onValueChange', type: '(value) => void', description: 'Called when both ends are picked.' },
+      { name: 'presets', type: '{ label: string; value: { start; end } }[]', description: 'Ranges listed beside the grid. defaultRangePresets() gives Today, Last 7 days, Last 30 days, This month and Last month.' },
+      { name: 'presetsLabel', type: 'string', default: "'Presets'", description: 'Accessible name of the presets list.' },
+      ...calendarProps,
+    ],
+    demo: <RangeCalendarDemo />,
+    code: `<TRangeCalendar value={range} onValueChange={setRange} presets={defaultRangePresets()} numberOfMonths={2} />`,
+  },
+  {
+    id: 'date-field',
+    name: 'TDateField',
+    group: 'dates',
+    summary:
+      'A date typed into segments in the locale’s order, as Reka’s DateField. Digits move on by themselves; Arrow Up/Down step a segment, Arrow Left/Right move between them, Backspace clears one.',
+    props: [
+      { name: 'value / defaultValue', type: 'string', description: 'An ISO date; undefined until every segment is filled.' },
+      { name: 'onValueChange', type: '(value: string | undefined) => void', description: 'Called when the date is complete or cleared.' },
+      ...dateLimitProps,
+      ...fieldProps,
+    ],
+    demo: <DateFieldDemo />,
+    code: `<TDateField value={birthday} onValueChange={setBirthday} aria-labelledby="birthday-label" />`,
+  },
+  {
+    id: 'date-range-field',
+    name: 'TDateRangeField',
+    group: 'dates',
+    summary:
+      'A range typed as two dates in one field, as Reka’s DateRangeField, with TDateField’s keys. It submits an ISO interval (2026-11-01/2026-11-07), empty while incomplete.',
+    props: [
+      { name: 'value / defaultValue', type: '{ start: string; end: string }', description: 'The range; it changes once both dates are complete.' },
+      { name: 'onValueChange', type: '(value) => void', description: 'Called when both dates are complete, or both cleared.' },
+      ...dateLimitProps,
+      ...fieldProps,
+    ],
+    demo: <DateRangeFieldDemo />,
+    code: `<TDateRangeField value={stay} onValueChange={setStay} aria-label="Stay" />`,
+  },
+  {
+    id: 'time-field',
+    name: 'TTimeField',
+    group: 'dates',
+    summary: 'A time of day typed into segments, as Reka’s TimeField, with TDateField’s keys; A or P sets the AM/PM segment.',
+    props: [
+      { name: 'value / defaultValue', type: 'string', description: "An ISO time: '14:30', or '14:30:15' with seconds." },
+      { name: 'onValueChange', type: '(value: string | undefined) => void', description: 'Called when the time is complete or cleared.' },
+      { name: 'granularity', type: "'hour' | 'minute' | 'second'", default: "'minute'", description: 'The smallest segment shown.' },
+      { name: 'hourCycle', type: '12 | 24', description: '12 adds an AM/PM segment; the locale’s by default.' },
+      { name: 'min / max', type: 'string', description: 'The allowed times; outside them the field is marked invalid.' },
+      ...fieldProps,
+    ],
+    demo: <TimeFieldDemo />,
+    code: `<TTimeField value={opens} onValueChange={setOpens} hourCycle={24} aria-label="Opens at" />`,
+  },
+  {
+    id: 'date-picker',
+    name: 'TDatePicker',
+    group: 'dates',
+    summary:
+      'A date field with a calendar button, as Reka’s DatePicker: type the date, or open the calendar (a Radix Popover) and pick it there. The calendar closes once a date is picked.',
+    props: [
+      { name: 'value / defaultValue', type: 'string', description: 'An ISO date, controlled or not.' },
+      { name: 'onValueChange', type: '(value: string | undefined) => void', description: 'Called when the date changes.' },
+      ...pickerProps,
+      ...calendarProps,
+      ...pickerFieldProps,
+    ],
+    demo: <DatePickerDemo />,
+    code: `<TDatePicker value={due} onValueChange={setDue} name="due" required aria-label="Due date" />`,
+  },
+  {
+    id: 'range-date-picker',
+    name: 'TRangeDatePicker',
+    group: 'dates',
+    summary:
+      'A range field with a calendar button, as Reka’s DateRangePicker: type both dates, pick the start and end in the calendar, or pick a preset. It submits an ISO interval.',
+    props: [
+      { name: 'value / defaultValue', type: '{ start: string; end: string }', description: 'The range; it changes once both ends are set.' },
+      { name: 'onValueChange', type: '(value) => void', description: 'Called when both ends are set.' },
+      { name: 'presets / presetsLabel', type: 'TDatePreset[] / string', description: 'Ranges listed beside the calendar, as TRangeCalendar’s.' },
+      ...pickerProps,
+      ...calendarProps,
+      ...pickerFieldProps,
+    ],
+    demo: <RangeDatePickerDemo />,
+    code: `<TRangeDatePicker value={period} onValueChange={setPeriod} presets={defaultRangePresets()} numberOfMonths={2} aria-label="Period" />`,
   },
 
   // Feedback

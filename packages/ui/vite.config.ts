@@ -21,6 +21,7 @@ export default defineConfig({
       external: [
         /^react($|\/)/,
         /^react-dom($|\/)/,
+        /^@internationalized\/date$/,
         /^@r2wc\//,
         /^@radix-ui\//,
         /^class-variance-authority$/,

@@ -26,6 +26,7 @@
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json"
   },
   "dependencies": {
+    "@internationalized/date": "catalog:",
     "@r2wc/react-to-web-component": "catalog:",
     "@radix-ui/react-accordion": "catalog:",
     "@radix-ui/react-checkbox": "catalog:",

@@ -183,6 +183,8 @@ For components with real behaviour (dialogs, selects, tabs), the recipe wraps th
 
 **Composite components** are built from the library's own components, imported relatively, not from copies of their classes. Their parts keep their own look and behaviour, and the composite's variants file holds only the classes it adds. The caller's class and attributes go on the part that renders the outer element. In Vue, when the composite's own root renders no element (a behaviour root such as a dialog's), that takes `inheritAttrs: false` plus `v-bind="$attrs"` on that part.
 
+**Dates and times are ISO strings.** Components take and emit `'2026-11-01'`, `'14:30'` or `{ start, end }`, never a date object. `@internationalized/date`, the date type Reka works with, stays inside the libraries: `lib/date.ts`, identical in both, converts at their edges. Radix has no date primitives, so the React side reproduces the DOM, `data-*` attributes and keys of Reka's date parts, and the shared class strings style both.
+
 **Decorative indicators.** A form control can't sit inside another interactive role (an option, for example), so a composite that needs a control's look there renders an `aria-hidden` span with the control's variants, imported from its variants file. This works without state classes because each such control is split in two:
 - the root draws the unchecked look;
 - an indicator that the primitive mounts only while checked covers it with the checked look.
