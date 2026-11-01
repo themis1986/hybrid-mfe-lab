@@ -78,3 +78,5 @@ export type {
   TDialogTitleProps,
   TDialogTriggerProps,
 } from './components/TDialog'
+export { TWidget } from './components/TWidget'
+export type { TWidgetProps } from './components/TWidget'

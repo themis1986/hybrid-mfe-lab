@@ -179,6 +179,8 @@ const Comp = asChild ? Slot : 'button'
 
 For components with real behaviour (dialogs, selects, tabs), the recipe wraps the matching Radix primitive package instead.
 
+**Composite components** are built from the library's own components, imported relatively, not from copies of their classes. Their parts keep their own look and behaviour, and the composite's variants file holds only the classes it adds. The caller's class and attributes go on the part that renders the outer element. In Vue, when the composite's own root renders no element (a behaviour root such as a dialog's), that takes `inheritAttrs: false` plus `v-bind="$attrs"` on that part.
+
 **Styles come from `cva`.**
 
 ```tsx
@@ -226,7 +228,8 @@ Layout components hold children, so they are never registered as custom elements
 | Inline lengths | merged into `style` (`withStyle`) | bound as `[vars, $attrs.style]` |
 | Prop types | `VariantProps<typeof tNameVariants>` | written out in `types.ts`: `defineProps` can't derive runtime props from a computed type |
 | Inputs | controlled `value` + `onChange` | `defineModel()`, so `v-model` works |
-| Open state | `open` + `onOpenChange`, or `defaultOpen` | `v-model:open` (`defineModel('open')`), or `defaultOpen` |
+| Open / expanded state | `<state>` + `on<State>Change`, or `default<State>` | `v-model:<state>` (`defineModel('<state>')`), or `default<State>` |
+| Fallback content | `a ?? b` between node props | nested `<slot>`s: `<slot name="a"><slot name="b" /></slot>` |
 | Generated ids | — (one React root per app) | `useId()`, unique per app: each Vue app on the page sets its own `app.config.idPrefix` |
 | Structure around content | `Slottable` keeps `asChild` working | `as` only: the root changes, the inner structure stays |
 

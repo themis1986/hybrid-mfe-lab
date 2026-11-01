@@ -38,6 +38,7 @@ import {
   TSplit,
   TStack,
   TSwitch,
+  TWidget,
 } from '@repo/ui'
 import { Bell, Check, Heart, Info, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
 import { type ReactNode, useState } from 'react'
@@ -226,6 +227,43 @@ function DialogDemo() {
         </TDialogContent>
       </TDialog>
     </TCluster>
+  )
+}
+
+function WidgetDemo() {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <TGrid minChildWidth="16rem" gap={3}>
+      <TWidget title="Visitors">
+        <span className="text-sm text-fg-muted">Expanded, the same content renders again in the dialog.</span>
+      </TWidget>
+      <TWidget
+        title="Sales"
+        variant="elevated"
+        expanded={expanded}
+        onExpandedChange={setExpanded}
+        header={
+          <>
+            <h3>Sales</h3>
+            <Tag>+12%</Tag>
+          </>
+        }
+        expandedContent={
+          <TStack gap={2}>
+            {Array.from({ length: 30 }, (_, i) => (
+              <Block key={i}>Order {i + 1}</Block>
+            ))}
+          </TStack>
+        }
+      >
+        <TStack gap={2}>
+          <Block>Order 1</Block>
+          <Block>Order 2</Block>
+          <span className="text-sm text-fg-muted">Controlled: {expanded ? 'expanded' : 'collapsed'}</span>
+        </TStack>
+      </TWidget>
+    </TGrid>
   )
 }
 
@@ -546,6 +584,34 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
     <TButton size="sm" label="Open" />
   </TCardFooter>
 </TCard>`,
+  },
+  {
+    id: 'widget',
+    name: 'TWidget',
+    group: 'surfaces',
+    summary:
+      'A card with a header, content and an expand button that opens an expanded view in a TDialog (full screen by default). The expanded header and content fall back to the normal ones; a fallback renders the content a second time, as a separate instance.',
+    props: [
+      { name: 'title', type: 'string', description: 'Required. Shown in the header by default; names the expand button and the dialog.' },
+      { name: 'header', type: 'ReactNode', description: 'Header content instead of the title; the expand button stays at the end.' },
+      { name: 'children', type: 'ReactNode', description: 'The content.' },
+      { name: 'expandedHeader', type: 'ReactNode', description: 'Header of the expanded view. Defaults to header, then the title.' },
+      { name: 'expandedContent', type: 'ReactNode', description: 'Content of the expanded view. Defaults to children.' },
+      { name: 'expanded', type: 'boolean', description: 'Controlled state; pair it with onExpandedChange.' },
+      { name: 'defaultExpanded', type: 'boolean', default: 'false', description: 'Initial state when uncontrolled.' },
+      { name: 'onExpandedChange', type: '(expanded: boolean) => void', description: 'Called when the expanded view opens or closes.' },
+      { name: 'expandedSize', type: "'sm' | 'md' | 'lg' | 'full'", default: "'full'", description: 'Size of the expanded view.' },
+      { name: 'expandLabel', type: 'string', default: "'Expand'", description: "Start of the expand button's name, followed by the title." },
+      { name: 'headingLevel', type: '2 – 6', default: '3', description: "The default title's element; it doesn't change the size." },
+      { name: 'variant / padding', type: 'TCard props', default: "'outline' / 4", description: 'The card look.' },
+    ],
+    demo: <WidgetDemo />,
+    code: `<TWidget title="Sales" header={<><h3>Sales</h3><Tag>+12%</Tag></>} expandedContent={<OrderTable />}>
+  <OrderSummary />
+</TWidget>
+<TWidget title="Visitors" expanded={expanded} onExpandedChange={setExpanded}>
+  <VisitorsChart />
+</TWidget>`,
   },
   {
     id: 'section',

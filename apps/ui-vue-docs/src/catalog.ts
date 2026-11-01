@@ -21,6 +21,7 @@ import SpacerDemo from './demos/SpacerDemo.vue'
 import SplitDemo from './demos/SplitDemo.vue'
 import StackDemo from './demos/StackDemo.vue'
 import SwitchDemo from './demos/SwitchDemo.vue'
+import WidgetDemo from './demos/WidgetDemo.vue'
 
 export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
 
@@ -334,6 +335,41 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
     <TButton size="sm" label="Open" />
   </TCardFooter>
 </TCard>`,
+  },
+  {
+    id: 'widget',
+    name: 'TWidget',
+    group: 'surfaces',
+    summary:
+      'A card with a header, content and an expand button that opens an expanded view in a TDialog (full screen by default). The expanded slots fall back to the normal ones; a fallback renders the content a second time, as a separate instance.',
+    props: [
+      { name: 'title', type: 'string', description: 'Required. Shown in the header by default; names the expand button and the dialog.' },
+      { name: 'v-model:expanded', type: 'boolean', description: 'The expanded state (expanded / update:expanded).' },
+      { name: 'defaultExpanded', type: 'boolean', default: 'false', description: 'Initial state when no v-model:expanded is bound.' },
+      { name: 'expandedSize', type: "'sm' | 'md' | 'lg' | 'full'", default: "'full'", description: 'Size of the expanded view.' },
+      { name: 'expandLabel', type: 'string', default: "'Expand'", description: "Start of the expand button's name, followed by the title." },
+      { name: 'headingLevel', type: '2 – 6', default: '3', description: "The default title's element; it doesn't change the size." },
+      { name: 'variant / padding', type: 'TCard props', default: "'outline' / 4", description: 'The card look.' },
+      asOnly('div', "The card's root element; the header and body render inside it."),
+    ],
+    slots: [
+      { name: 'header', description: 'Header content instead of the title; the expand button stays at the end.' },
+      defaultSlot('The content.'),
+      { name: 'expanded-header', description: 'Header of the expanded view. Defaults to the header slot, then the title.' },
+      { name: 'expanded-content', description: 'Content of the expanded view. Defaults to the default slot.' },
+    ],
+    events: [{ name: 'update:expanded', payload: 'boolean', description: 'When the expanded view opens or closes (v-model:expanded).' }],
+    demo: WidgetDemo,
+    code: `<TWidget v-model:expanded="expanded" title="Sales">
+  <template #header>
+    <h3>Sales</h3>
+    <Tag>+12%</Tag>
+  </template>
+  <OrderSummary />
+  <template #expanded-content>
+    <OrderTable />
+  </template>
+</TWidget>`,
   },
   {
     id: 'section',
