@@ -21,7 +21,7 @@ For setup and commands, see the [README](../README.md).
 
 | Package | Role | Tech |
 |---|---|---|
-| `apps/shell` (`@repo/shell`) | Host app: owns the URL, the layout and the navigation. | React 19, React Router 8 |
+| `apps/shell` (`@repo/shell`) | Host app: owns the URL, the layout, the navigation, sign-in and which remotes each user may open. | React 19, React Router 8 |
 | `apps/todo-mfe` (`@repo/todo-mfe`) | Remote app: built and served on its own, loaded by the shell at runtime. Built on `@repo/ui-vue`, with its state in Pinia. | Vue 3, Vue Router 5, Pinia |
 | `apps/ui-vue-docs` (`@repo/ui-vue-docs`) | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`. | Vue 3, Vue Router 5 |
 | `apps/ui-react-docs` (`@repo/ui-react-docs`) | Remote app written in React: the React library's documentation, built on `@repo/ui`. | React 19 |
@@ -49,7 +49,7 @@ graph LR
 ```
 
 - **Build-time dependencies** are declared in `package.json`. pnpm links them through `node_modules`, and the bundler compiles them into the consumer's bundle. The apps depend on a component library this way, and the libraries (and the apps running Tailwind) on `@repo/tokens`. Every package also extends a `@repo/config` preset.
-- **The runtime dependencies** (shell → each remote) are not in any `package.json`. The shell knows only a URL and a function signature per remote. Each remote is a separate deployable that the browser downloads when the user navigates to it. That's why the shell can be built, typechecked and deployed without the remotes existing, and the other way round.
+- **The runtime dependencies** (shell → each remote) are not in any `package.json`. The shell knows only a URL and a function signature per remote. Each remote is a separate deployable: the browser fetches its `remoteEntry.js` when the shell starts, and its app code the first time the user navigates to it. That's why the shell can be built, typechecked and deployed without the remotes existing, and the other way round.
 
 ## 2. Workspace and tooling layer
 
@@ -140,9 +140,9 @@ React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `
 
 1. The browser loads `http://localhost:5173/`. The shell's `index.html` contains the federation **host init** script, which the plugin injected at build or serve time.
    - It starts the Module Federation runtime and registers one remote: `todo` → `VITE_TODO_REMOTE_URL` (default `http://localhost:5174/remoteEntry.js`).
-   - Nothing is downloaded from the remote yet.
+   - The runtime fetches each remote's `remoteEntry.js` (a small bootstrap). The remote's `mount` module and app code are not downloaded yet.
 2. `main.tsx` renders `<StrictMode><BrowserRouter><App/></BrowserRouter></StrictMode>`.
-3. React Router matches the URL and renders the shell's own route. Components the shell imports from `@repo/ui` render as ordinary React components, with ordinary React props and event handlers. They are styled by `@repo/ui/styles.css`, which `main.tsx` imports, so the shell's build puts it in a `<link>`ed CSS file.
+3. React Router matches the URL and renders the shell's own route. A signed-out visitor is redirected to `/login` first (4.5). Components the shell imports from `@repo/ui` render as ordinary React components, with ordinary React props and event handlers. They are styled by `@repo/ui/styles.css`, which `main.tsx` imports, so the shell's build puts it in a `<link>`ed CSS file.
 
 ### 4.2 Navigating to `/todo-app`
 
@@ -157,10 +157,11 @@ sequenceDiagram
 
   U->>RR: click a link to /todo-app
   RR->>RR: history.pushState('/todo-app')
+  RR->>RR: RequireAuth and RequireApp pass (4.5)
   RR->>H: render route /todo-app/*
   H->>H: React.lazy → Suspense shows its loading fallback
   H->>MF: import('todo/mount')
-  MF->>R: GET /remoteEntry.js
+  Note over MF,R: remoteEntry.js was already fetched at startup (4.1)
   MF->>R: GET the exposed module chunk(s)
   Note over MF,R: chunk contains Vue, Vue Router, Pinia, @repo/ui-vue, the stylesheet as a string
   MF-->>H: module { mount }
@@ -202,7 +203,19 @@ No app renders `t-*` elements now. For a Vue host of the bridge, a click travels
 
 This was verified by counting `popstate` listeners on `window`: 1 on a shell route (React Router), 2 while the MFE is mounted, back to 1 after leaving, over repeated round trips.
 
-### 4.5 StrictMode, refreshes, back/forward
+### 4.5 Login and app access
+
+The shell gates every route; the remotes are unaware of it.
+
+1. A signed-out visit to any route except `/login` hits `RequireAuth`, which redirects to `/login` and remembers the requested page in the navigation state.
+2. The login page calls `signIn` (`src/lib/auth.ts`). On success the session store notifies its subscribers, the login page re-renders and redirects back to the remembered page if the new user may open it, otherwise to `/`. Only the user id is kept, in `sessionStorage`: a reload keeps the session, closing the tab ends it.
+3. Inside the frame, the menu and the home page list only the apps the user's grants allow (`canAccess` in `src/lib/access.ts`).
+4. A remote's route is wrapped in `RequireApp`. With access, the host renders and step 4.2 follows. Without it, a "no access" page renders instead, so the remote's `mount` is never called and its app code never downloaded.
+5. Signing out clears the session. `RequireAuth` redirects to `/login`, which unmounts the frame and any mounted remote through the usual effect cleanup (4.4).
+
+This is client-side gating: anyone can still fetch a remote's files from its server. Real enforcement belongs on the server.
+
+### 4.6 StrictMode, refreshes, back/forward
 
 - **StrictMode (dev only):** React mounts, unmounts and re-mounts every effect once, so `mount` → unmount → `mount` happens immediately. The cleanup is complete, so exactly one Vue app (with one Pinia and one stylesheet) remains.
 - **Hard refresh on `/todo-app`:** the Vite dev server and `vite preview` both serve `index.html` for unknown paths (SPA fallback). The shell boots directly on `/todo-app` and goes straight into step 4.2.
@@ -260,6 +273,8 @@ Changing where the remote lives in production means rebuilding the shell with `V
 | Situation | Result |
 |---|---|
 | The todo-mfe server is down or the URL is wrong | `import('todo/mount')` rejects (federation error `RUNTIME-008`). The error boundary shows its fallback, and the rest of the shell keeps working. Because `React.lazy` caches the failure, a reload is needed after the remote comes back. |
+| A signed-in user opens the URL of a remote they have no grant for | `RequireApp` renders the "no access" page; the remote's host never renders, so `mount` is neither downloaded nor called. |
+| A new remote is missing from everyone's menu | Its `navigation.ts` entry is there, but no account has a grant that covers it (`all`, its tech, or its id). |
 | Port 5173 or 5174 is already in use | The dev or preview server exits (`strictPort`) instead of silently moving to another port, which would break the hard-coded remote URL. |
 | `@repo/ui` isn't built | The apps can't resolve `@repo/ui` (its `exports` point into `dist/`). Running through `pnpm dev`, `build` or `typecheck` avoids this because Turbo builds ui first. |
 | A running dev server reports that a `@repo/ui` subpath "is not exported" | ui's `package.json` `exports` changed after the server started, and Vite still uses the old copy it read. Restart `pnpm dev`. The ui watcher doesn't reload its own `vite.config.ts` either. |

@@ -9,7 +9,7 @@ A pnpm + Turborepo microfrontends skeleton:
   - **`apps/todo-mfe`** (`@repo/todo-mfe`, Vue 3 + Vue Router 5);
   - **`apps/ui-vue-docs`** (`@repo/ui-vue-docs`, Vue 3 + Vue Router 5), the Vue library's documentation;
   - **`apps/ui-react-docs`** (`@repo/ui-react-docs`, React 19), the React library's documentation.
-  The shell itself renders only the frame (header, menu, theme choice) and the home page.
+  The shell itself renders only the frame (header, menu, theme choice, user menu), the login page and the home page. It owns sign-in and decides which remotes each user may open.
 - Two component libraries with the same `T`-prefixed components and the same look ("Option B": two native libraries sharing the tokens):
   - **`packages/ui`** (`@repo/ui`): React + Radix + Tailwind v4;
   - **`packages/ui-vue`** (`@repo/ui-vue`): Vue 3 + Reka UI + Tailwind v4.
@@ -29,7 +29,7 @@ The content is placeholder, apart from the todo MFE, a small working app that ke
 Current scope limits:
 - a minimal design system (tokens, Tailwind styles, placeholder components) only: no Storybook, icon set or web fonts;
 - no persistence or backend: app state lives in memory;
-- no state management beyond Pinia in a Vue remote; no auth, testing framework, linting, CI or Docker.
+- no state management beyond Pinia in a Vue remote; no real identity provider (the shell's login uses mock accounts), testing framework, linting, CI or Docker.
 
 Don't add these unless asked.
 
@@ -72,6 +72,16 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Each Vue remote sets its own `app.config.idPrefix`: `useId()` is unique only within one app, and several Vue apps share the page.
 - A React remote creates its own root, `createRoot(el, { identifierPrefix: '<app>-' })` (React's counterpart of `idPrefix`), and its unmount calls `root.unmount()`. That synchronous unmount from the shell's effect cleanup is safe only because the remote bundles its own React (see `shared` below).
 - **Dev mode, React remote:** inside the shell, its component modules pass `@vitejs/plugin-react`'s preamble check thanks to the shell's own preamble. Editing one of its files while it's hosted reloads the page instead of hot-updating; standalone, Fast Refresh works normally. Don't add `reactRefreshHost` unless hosted HMR becomes necessary: it makes the remote's standalone dev server depend on the shell's.
+
+**Auth and app access (shell only).**
+- Remotes know nothing about auth; the `mount` contract carries no user. The shell decides which remotes may mount.
+- `src/lib/users.ts` is a stand-in identity provider: mock accounts in the bundle, plain-text passwords, dev only. Only `src/lib/auth.ts` calls it, so a real backend or IdP replaces it there.
+- `src/lib/auth.ts` is the session store, built like `theme.ts` (module state + `useSyncExternalStore`). It keeps only the user id in `sessionStorage` and looks the user up again on load, so grants are never stale. `signIn` is async on purpose.
+- Each user holds a list of grants (`src/lib/access.ts`): all apps, every app of one tech, or named apps. Grants combine. `canAccess` is the one rule; the menu, the home page and the guards all go through it. Never test grants anywhere else.
+- `navigation.ts`'s `NAV_ITEMS` is the app registry: each entry has an `id` (`AppId`) and a `tech`. `getAccessibleItems` filters it for the menu and home page.
+- Routing: `/login` sits outside the frame; every other route is inside `<RequireAuth>` (redirects to `/login`, remembering the page), and each remote's route is wrapped in `<RequireApp id>`, which renders a "no access" page instead of the host. So a forbidden remote's `mount` module is never fetched. The federation runtime still fetches every `remoteEntry.js` at page start.
+- After sign-in, the login page returns to the remembered page only if the new user may open it (`canOpenPath`), since it may be the previous user's page.
+- This is client-side gating, not security: remote files stay publicly reachable. Real enforcement needs the server (remote assets behind auth, or a per-user remote manifest).
 
 **Styles of a federated remote.**
 - A remote can't rely on its host, or on federation (`bundleAllCSS` is off), to load a CSS file. Its CSS travels inside its JavaScript.
@@ -170,5 +180,5 @@ Follow the steps in README.md ("Adding another microfrontend"):
 2. In the shell:
    - a `remotes` entry with its own `VITE_*_REMOTE_URL` variable (also added to the root `turbo.json` `build.env`);
    - a declaration in `remotes.d.ts`;
-   - a host file built with `createRemoteHost`, and its splat route;
-   - an entry in the sidebar menu config (`apps/shell/src/lib/navigation.ts`).
+   - a host file built with `createRemoteHost`, and its splat route wrapped in `<RequireApp id>`;
+   - an entry in the sidebar menu config (`apps/shell/src/lib/navigation.ts`) with a new `AppId`, and grants for the accounts that should see it.

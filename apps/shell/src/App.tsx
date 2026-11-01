@@ -1,10 +1,10 @@
-import { TAlarmHost, TAppShell, TAppShellHeader, TAppShellMain, TAppShellSidebar, TContainer, TSpacer } from '@repo/ui'
+import { TAlarmHost, TContainer } from '@repo/ui'
 import { Route, Routes } from 'react-router'
-import { GithubLink } from './components/GithubLink'
-import { Logo } from './components/Logo'
-import { Sidebar } from './components/Sidebar'
-import { ThemeSwitch } from './components/ThemeSwitch'
+import { AppFrame } from './components/AppFrame'
+import { RequireApp } from './components/RequireApp'
+import { RequireAuth } from './components/RequireAuth'
 import { HomePage } from './pages/HomePage'
+import { LoginPage } from './pages/LoginPage'
 import { TODO_BASE_PATH, TodoMfeHost } from './remotes/TodoMfeHost'
 import { UI_REACT_DOCS_BASE_PATH, UiReactDocsHost } from './remotes/UiReactDocsHost'
 import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './remotes/UiVueDocsHost'
@@ -12,34 +12,46 @@ import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './remotes/UiVueDocsHost'
 export function App() {
   return (
     <>
-      <TAppShell viewport>
-        <TAppShellHeader>
-          <Logo />
-          <TSpacer />
-          <span className="text-sm text-fg-muted max-sm:hidden">Microfrontends playground</span>
-          <ThemeSwitch />
-          <GithubLink />
-        </TAppShellHeader>
-        <TAppShellSidebar>
-          <Sidebar />
-        </TAppShellSidebar>
-        <TAppShellMain>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route
-              path={`${TODO_BASE_PATH}/*`}
-              element={
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        {/* Everything else needs a signed-in user; each remote also needs the user's access to it. */}
+        <Route
+          element={
+            <RequireAuth>
+              <AppFrame />
+            </RequireAuth>
+          }
+        >
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path={`${TODO_BASE_PATH}/*`}
+            element={
+              <RequireApp id="todo">
                 <TContainer className="py-6">
                   <TodoMfeHost />
                 </TContainer>
-              }
-            />
-            {/* The docs microfrontends lay out their own pages. */}
-            <Route path={`${UI_REACT_DOCS_BASE_PATH}/*`} element={<UiReactDocsHost />} />
-            <Route path={`${UI_VUE_DOCS_BASE_PATH}/*`} element={<UiVueDocsHost />} />
-          </Routes>
-        </TAppShellMain>
-      </TAppShell>
+              </RequireApp>
+            }
+          />
+          {/* The docs microfrontends lay out their own pages. */}
+          <Route
+            path={`${UI_REACT_DOCS_BASE_PATH}/*`}
+            element={
+              <RequireApp id="ui-react-docs">
+                <UiReactDocsHost />
+              </RequireApp>
+            }
+          />
+          <Route
+            path={`${UI_VUE_DOCS_BASE_PATH}/*`}
+            element={
+              <RequireApp id="ui-vue-docs">
+                <UiVueDocsHost />
+              </RequireApp>
+            }
+          />
+        </Route>
+      </Routes>
       {/* The page's alarm host: mounted first, it also shows the alarms the microfrontends raise. */}
       <TAlarmHost />
     </>
