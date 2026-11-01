@@ -3,7 +3,7 @@ import { TButton, TField, TIcon } from "@repo/ui-vue";
 import { Plus } from "@repo/ui-vue/icons";
 import { ref, useId } from "vue";
 import { useTodos } from "../hooks/useTodos";
-import { validateTitle } from "../hooks/validateTitle";
+import { validateTitle } from "../helpers/validation.helpers";
 
 const { add } = useTodos();
 

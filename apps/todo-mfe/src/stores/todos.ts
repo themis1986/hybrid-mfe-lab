@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, nextTick, ref } from 'vue'
-import { validateTitle } from '../hooks/validateTitle'
+import { validateTitle } from '../helpers/validation.helpers'
 import type { Todo } from '../types'
 
 // Pinia needs every state ref returned as is (not readonly) for its devtools and plugins. Components
