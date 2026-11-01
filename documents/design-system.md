@@ -72,10 +72,11 @@ graph LR
 | 1. Primitive | `--t-<hue>-<step>` | `--t-iris-9` | Only tier 2. Components never reference a primitive. |
 | 2. Semantic | `--t-color-<role>`, `--t-radius-*`, `--t-font-*`, `--t-shadow-*`, `--t-ease-*` | `--t-color-accent` | The Tailwind bridge, and therefore every component. |
 
-The semantic roles fall into five groups:
+The semantic roles fall into six groups:
 - **surfaces and text**: the page canvas, raised surfaces, foreground, muted foreground, lines;
 - **accent**: solid fill and its hover, the text colour on top of it, subtle fills, the accent line and accent text;
-- **danger**: the same solid trio, in red;
+- **danger**: the same solid trio, in red, plus a subtle fill, a line and text;
+- **status**: success, info and warning, each a solid, a subtle fill, a line and text (danger doubles as the error status);
 - **focus**: the focus-ring colour;
 - **overlay**: the translucent backdrop behind modal content (a black-alpha step, the same in both schemes).
 
@@ -92,6 +93,7 @@ The colour scales are [Radix Colors](https://www.radix-ui.com/colors) (MIT), ven
 | Iris | accent | A calm blue-violet that reads well both as a solid fill and as text. |
 | Slate | neutrals | Radix's natural pairing for Iris: a cool grey with a hint of the same hue. |
 | Red | danger | Built on the same 12-step model, so its steps line up with the other two. |
+| Green, Blue, Amber | success, info, warning | The conventional status hues, on the same model. Amber's solid (step 9) is a light yellow, so warning text and icons use step 11. |
 
 What makes the system work is that **every step has a fixed job**, the same in every scale and in both themes ([Radix: understanding the scale](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale)):
 
@@ -241,6 +243,7 @@ Layout components hold children, so they are never registered as custom elements
 
 **The class strings are the contract.** Every `*.variants.ts`, and the maps in `lib/layout.ts`, are identical in both libraries; their built stylesheets contain the same utilities. Change a variant in both libraries, or they stop looking the same.
 
+- **Page-wide services.** Something only one app on the page should render (a notification stack, for example) is a small store in `lib/`, identical in both libraries, kept on `globalThis` under a versioned key. Every app's copy of either library then reads and writes the same store. The items are plain data, so a host of either framework can render any of them. Each app mounts a host, and only the first one mounted renders: in the shell, the shell's host shows what the microfrontends raise; standalone, a microfrontend's own host does.
 - **Shared logic.** Pure, framework-free logic in `lib/` (selection rules, for example) is identical in both libraries as well, so the two behave the same and not only look the same. When a Reka feature's semantics don't fit (it changes disabled items, or offers fewer value formats), the Vue component keeps Reka for structure, focus and expansion, calls `preventDefault()` on its selection event and applies the shared logic. The React component calls the same functions.
 - **Primitive variables.** Radix and Reka name their CSS variables differently (`--radix-…-trigger-width`, `--reka-…-trigger-width`). A component maps its primitive's variable onto a `--t-<name>-…` variable in an inline style, and the shared class strings use only the `--t-` one.
 - **Behaviour Radix lacks.** When Reka has a mode that Radix doesn't, `@repo/ui` builds it on a lower-level Radix primitive (a popover, for example). It then reproduces Reka's keyboard behaviour, ARIA roles and data attributes (`data-state`, `data-highlighted`, `data-disabled`), so the shared class strings style it unchanged.

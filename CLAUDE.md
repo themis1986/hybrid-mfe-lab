@@ -95,7 +95,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 
 **Tokens (`packages/tokens`).**
 - CSS only, no build step: `tokens.css` and `theme.css`, exported as `@repo/tokens/tokens.css` and `@repo/tokens/theme.css`.
-- `tokens.css`: primitives `--t-<hue>-<step>` (Radix Colors scales, each a `light-dark(<light>, <dark>)` pair) and semantic `--t-color-<role>` etc. Components use semantic tokens only, via Tailwind utilities, and never `dark:` classes.
+- `tokens.css`: primitives `--t-<hue>-<step>` (Radix Colors scales, each a `light-dark(<light>, <dark>)` pair) and semantic `--t-color-<role>` etc. Status roles (`success`, `info`, `warning`, and `danger` as error) each have a solid, `-subtle`, `-line` and `-fg`. Components use semantic tokens only, via Tailwind utilities, and never `dark:` classes.
 - **Light/dark:** `:root { color-scheme: light dark }` follows the OS; `data-theme="light|dark"` on `<html>` forces a scheme for the whole page, remotes included.
   - Lightning CSS compiles `light-dark()` into variables set on `:root`, so the scheme is page-level only: an inner element's `color-scheme` doesn't re-theme its subtree.
   - The host owns the choice. The shell (`src/theme.ts`) stores it in `localStorage`, and an inline script in `index.html` applies it before the first paint; keep their storage keys in sync. Remotes have no theme code.
@@ -108,6 +108,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Each library's `src/styles/index.css` imports Tailwind's `theme.css` and `utilities.css` **without Preflight** (a library must not reset its host page), `@repo/tokens/tokens.css` into `layer(base)`, and `@repo/tokens/theme.css`. Only classes used inside that library's `src` exist in its stylesheet.
 - Variants use `cva`; classes are merged with `cn` (`src/lib/cn.ts`). Without Preflight, base classes must reset UA defaults themselves.
 - **The class strings in each `*.variants.ts`, and `src/lib/layout.ts`'s maps, are identical in both libraries.** Change them in both, or the libraries stop looking the same.
+- Page-wide services (`src/lib/alarm.ts`) are a store on `globalThis` under a versioned key, identical in both libraries, holding plain data only. Every app mounts its host; only the first mounted renders, so the shell's host (mounted in `App.tsx`) shows the remotes' items too. Change the store's shape only with a new key.
 - Shared pure logic in `src/lib/` (e.g. `tree.ts`, the tree selection rules) is identical in both libraries too. When a Reka feature's semantics don't fit, keep Reka for structure, focus and expansion, `preventDefault()` its selection event and apply the shared logic; the React side calls the same functions.
 - React (`@repo/ui`): a native element plus Radix `Slot` (`asChild`), or a Radix primitive for real behaviour.
 - **Icons:** Lucide, the same release in both (`lucide-react` / `@lucide/vue`; keep their catalog ranges equal).
