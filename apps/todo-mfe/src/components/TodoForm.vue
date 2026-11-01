@@ -2,12 +2,10 @@
 import { TButton, TField, TIcon } from "@repo/ui-vue";
 import { Plus } from "@repo/ui-vue/icons";
 import { ref, useId } from "vue";
-import { useAnnouncer } from "../hooks/useAnnouncer";
 import { useTodos } from "../hooks/useTodos";
 import { validateTitle } from "../hooks/validateTitle";
 
 const { add } = useTodos();
-const announce = useAnnouncer();
 
 const title = ref("");
 const error = ref<string>();
@@ -22,7 +20,6 @@ function submit() {
   error.value = validateTitle(title.value);
   const todo = error.value ? undefined : add(title.value);
   if (todo) {
-    announce(`Added “${todo.title}”.`);
     title.value = "";
   }
   focus();

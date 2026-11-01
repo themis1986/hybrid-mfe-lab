@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { validateTitle } from '../hooks/validateTitle'
 import type { Todo } from '../types'
 
@@ -7,9 +7,19 @@ import type { Todo } from '../types'
 // don't use this store directly: they go through useTodos(), which hands them a readonly view.
 export const useTodoStore = defineStore('todos', () => {
   const todos = ref<Todo[]>([])
+  // What the page's one live region says; every action that changes a todo sets it.
+  const announcement = ref('')
 
   const openCount = computed(() => todos.value.filter((todo) => !todo.done).length)
   const doneCount = computed(() => todos.value.length - openCount.value)
+
+  function announce(text: string) {
+    // Emptied first, so a repeated message is a change and gets read again.
+    announcement.value = ''
+    void nextTick(() => {
+      announcement.value = text
+    })
+  }
 
   function find(id: string) {
     return todos.value.find((todo) => todo.id === id)
@@ -20,6 +30,7 @@ export const useTodoStore = defineStore('todos', () => {
     if (validateTitle(title)) return undefined
     const todo: Todo = { id: crypto.randomUUID(), title: title.trim(), done: false, createdAt: Date.now() }
     todos.value.unshift(todo)
+    announce(`Added “${todo.title}”.`)
     return todo
   }
 
@@ -28,21 +39,29 @@ export const useTodoStore = defineStore('todos', () => {
     const todo = find(id)
     if (!todo || validateTitle(title)) return false
     todo.title = title.trim()
+    announce(`Renamed to “${todo.title}”.`)
     return true
   }
 
   function toggle(id: string) {
     const todo = find(id)
-    if (todo) todo.done = !todo.done
+    if (!todo) return
+    todo.done = !todo.done
+    announce(`“${todo.title}” marked as ${todo.done ? 'done' : 'open'}.`)
   }
 
   function remove(id: string) {
-    todos.value = todos.value.filter((todo) => todo.id !== id)
+    const todo = find(id)
+    if (!todo) return
+    todos.value = todos.value.filter((item) => item.id !== id)
+    announce(`Removed “${todo.title}”.`)
   }
 
   function clearCompleted() {
+    const count = doneCount.value
     todos.value = todos.value.filter((todo) => !todo.done)
+    announce(`Cleared ${count} done ${count === 1 ? 'todo' : 'todos'}.`)
   }
 
-  return { todos, openCount, doneCount, add, update, toggle, remove, clearCompleted }
+  return { todos, announcement, openCount, doneCount, add, update, toggle, remove, clearCompleted }
 })
