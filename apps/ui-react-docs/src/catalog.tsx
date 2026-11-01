@@ -44,6 +44,7 @@ import {
   TStack,
   TSwitch,
   type TTreeNode,
+  TTooltip,
   TTreeSelector,
   TWidget,
 } from '@repo/ui'
@@ -1089,6 +1090,69 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
     </TDialogFooter>
   </TDialogContent>
 </TDialog>`,
+  },
+
+  {
+    id: 'tooltip',
+    name: 'TTooltip',
+    group: 'overlays',
+    summary:
+      'A hint on hover (after a delay) and on keyboard focus (Radix Tooltip). The child is the trigger; side and align place it, and it flips when there is no room.',
+    props: [
+      { name: 'content', type: 'ReactNode', description: 'The tooltip content. Required.' },
+      { name: 'children', type: 'ReactElement', description: 'The trigger: one focusable element. Wrap a disabled button in a <span tabIndex={0}>.' },
+      { name: 'side', type: "'top' | 'right' | 'bottom' | 'left'", default: "'top'", description: 'Preferred side; flips when there is no room.' },
+      { name: 'align', type: "'start' | 'center' | 'end'", default: "'center'", description: 'Alignment along that side.' },
+      { name: 'sideOffset', type: 'number', default: '6', description: 'Gap to the trigger, in px.' },
+      { name: 'delayDuration', type: 'number', default: '300', description: 'Hover delay in ms; focus opens it at once.' },
+      { name: 'arrow', type: 'boolean', default: 'true', description: 'The pointer towards the trigger.' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'Renders only the trigger.' },
+      { name: 'open / defaultOpen / onOpenChange', type: 'boolean / boolean / (open) => void', description: 'Controlled or uncontrolled open state.' },
+      { name: '…content props', type: 'Tooltip.Content props', description: 'Go on the tooltip content (className, …).' },
+    ],
+    demo: (
+      <TStack gap={4}>
+        <TCluster gap={3}>
+          {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
+            <TTooltip key={side} content={`Shown on the ${side}`} side={side}>
+              <TButton variant="outline" label={side} />
+            </TTooltip>
+          ))}
+        </TCluster>
+        <TCluster gap={3}>
+          <TTooltip content="Aligned to the start" side="bottom" align="start">
+            <TButton variant="soft" label="Align start" />
+          </TTooltip>
+          <TTooltip content="Aligned to the end" side="bottom" align="end">
+            <TButton variant="soft" label="Align end" />
+          </TTooltip>
+          <TTooltip content="Settings">
+            <TButton variant="ghost" size="sm" aria-label="Settings">
+              <TIcon icon={Settings} size="sm" />
+            </TButton>
+          </TTooltip>
+          <TTooltip
+            side="right"
+            content={
+              <>
+                <strong>Save</strong> · ⌘S
+              </>
+            }
+          >
+            <TButton variant="outline" label="Rich content" />
+          </TTooltip>
+          {/* A disabled button fires no pointer events: a focusable wrapper is the trigger instead. */}
+          <TTooltip content="Saving is disabled while offline">
+            <span tabIndex={0} className="inline-flex rounded-md">
+              <TButton label="Save" disabled className="pointer-events-none" />
+            </span>
+          </TTooltip>
+        </TCluster>
+      </TStack>
+    ),
+    code: `<TTooltip content="Settings" side="right">
+  <TButton variant="ghost" aria-label="Settings"><TIcon icon={Settings} /></TButton>
+</TTooltip>`,
   },
 
   // App-level layout

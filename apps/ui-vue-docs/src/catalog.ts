@@ -25,6 +25,7 @@ import SpinnerDemo from './demos/SpinnerDemo.vue'
 import SplitDemo from './demos/SplitDemo.vue'
 import StackDemo from './demos/StackDemo.vue'
 import SwitchDemo from './demos/SwitchDemo.vue'
+import TooltipDemo from './demos/TooltipDemo.vue'
 import TreeSelectorDemo from './demos/TreeSelectorDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
 
@@ -634,6 +635,34 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
     </TDialogFooter>
   </TDialogContent>
 </TDialog>`,
+  },
+
+  {
+    id: 'tooltip',
+    name: 'TTooltip',
+    group: 'overlays',
+    summary:
+      'A hint on hover (after a delay) and on keyboard focus (Reka Tooltip). The default slot is the trigger; side and align place it, and it flips when there is no room.',
+    props: [
+      { name: 'content', type: 'string', description: 'The text. The content slot replaces it for rich content.' },
+      { name: 'side', type: "'top' | 'right' | 'bottom' | 'left'", default: "'top'", description: 'Preferred side; flips when there is no room.' },
+      { name: 'align', type: "'start' | 'center' | 'end'", default: "'center'", description: 'Alignment along that side.' },
+      { name: 'sideOffset', type: 'number', default: '6', description: 'Gap to the trigger, in px.' },
+      { name: 'delayDuration', type: 'number', default: '300', description: 'Hover delay in ms; focus opens it at once.' },
+      { name: 'arrow', type: 'boolean', default: 'true', description: 'The pointer towards the trigger.' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'Renders only the trigger.' },
+      { name: 'v-model:open', type: 'boolean', description: 'Controlled open state; defaultOpen when uncontrolled.' },
+      { name: '…attributes', type: 'div attributes', description: 'Go on the tooltip content (class, …).' },
+    ],
+    slots: [
+      { name: 'default', description: 'The trigger: one focusable element. Wrap a disabled button in a <span tabindex="0">.' },
+      { name: 'content', description: 'Rich content, instead of the content prop.' },
+    ],
+    events: [{ name: 'update:open', payload: 'boolean', description: 'When it opens or closes (v-model:open).' }],
+    demo: TooltipDemo,
+    code: `<TTooltip content="Settings" side="right">
+  <TButton variant="ghost" aria-label="Settings"><TIcon :icon="Settings" /></TButton>
+</TTooltip>`,
   },
 
   // App-level layout
