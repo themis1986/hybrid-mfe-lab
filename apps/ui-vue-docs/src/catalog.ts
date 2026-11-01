@@ -1,4 +1,5 @@
 import type { Component } from 'vue'
+import AccordionDemo from './demos/AccordionDemo.vue'
 import AlarmDemo from './demos/AlarmDemo.vue'
 import AppShellDemo from './demos/AppShellDemo.vue'
 import AspectRatioDemo from './demos/AspectRatioDemo.vue'
@@ -6,6 +7,7 @@ import ButtonDemo from './demos/ButtonDemo.vue'
 import CardDemo from './demos/CardDemo.vue'
 import CheckboxDemo from './demos/CheckboxDemo.vue'
 import ClusterDemo from './demos/ClusterDemo.vue'
+import CollapsibleDemo from './demos/CollapsibleDemo.vue'
 import ContainerDemo from './demos/ContainerDemo.vue'
 import DialogDemo from './demos/DialogDemo.vue'
 import DividerDemo from './demos/DividerDemo.vue'
@@ -16,21 +18,26 @@ import InlineDemo from './demos/InlineDemo.vue'
 import InputDemo from './demos/InputDemo.vue'
 import PageHeaderDemo from './demos/PageHeaderDemo.vue'
 import PanelDemo from './demos/PanelDemo.vue'
+import ProgressDemo from './demos/ProgressDemo.vue'
 import RadioGroupDemo from './demos/RadioGroupDemo.vue'
 import ScrollAreaDemo from './demos/ScrollAreaDemo.vue'
 import SectionDemo from './demos/SectionDemo.vue'
 import SelectDemo from './demos/SelectDemo.vue'
 import SidebarLayoutDemo from './demos/SidebarLayoutDemo.vue'
+import SliderDemo from './demos/SliderDemo.vue'
 import SpacerDemo from './demos/SpacerDemo.vue'
 import SpinnerDemo from './demos/SpinnerDemo.vue'
 import SplitDemo from './demos/SplitDemo.vue'
 import StackDemo from './demos/StackDemo.vue'
 import SwitchDemo from './demos/SwitchDemo.vue'
+import TabsDemo from './demos/TabsDemo.vue'
+import TextDemo from './demos/TextDemo.vue'
+import ToastDemo from './demos/ToastDemo.vue'
 import TooltipDemo from './demos/TooltipDemo.vue'
 import TreeSelectorDemo from './demos/TreeSelectorDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
 
-export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
+export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'disclosure' | 'overlays' | 'app'
 
 export interface DocProp {
   name: string
@@ -71,6 +78,7 @@ export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[
     label: 'Surfaces & structure',
     description: 'Group and title content: cards, sections, page headers and panels.',
   },
+  { id: 'disclosure', label: 'Disclosure', description: 'Content shown on demand: tabs, accordions and collapsibles.' },
   {
     id: 'overlays',
     label: 'Overlays',
@@ -300,6 +308,51 @@ export const DOC_ENTRIES: DocEntry[] = [
 <TTreeSelector v-model="picked" multiple value-mode="parents" :options="regions" aria-label="Regions" />`,
   },
 
+  {
+    id: 'text',
+    name: 'TText',
+    group: 'actions',
+    summary:
+      'A labelled multi-line text field: a textarea with the input look, a hint or error under it, and a character count with maxLength.',
+    props: [
+      { name: 'label', type: 'string', description: 'Visible label, linked to the textarea. Required.' },
+      { name: 'v-model', type: 'string', description: 'The text.' },
+      { name: 'description', type: 'string', description: 'Helper text under the textarea.' },
+      { name: 'error', type: 'string', description: 'Error text; replaces the description, marks it invalid and is announced.' },
+      { name: 'rows', type: 'number', default: '3', description: 'Visible lines (the minimum with autoResize).' },
+      { name: 'autoResize', type: 'boolean', default: 'false', description: 'Grows with its content; maxRows caps it.' },
+      { name: 'maxRows', type: 'number', description: 'With autoResize: the height it stops at, in rows.' },
+      { name: 'maxLength', type: 'number', description: 'Limits the length and shows a count under the textarea.' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Padding and type size, as TInput's." },
+      { name: '…attributes', type: 'textarea attributes', description: 'Go on the textarea; class and style go on the root.' },
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string', description: 'On every input (v-model).' }],
+    demo: TextDemo,
+    code: `<TText v-model="bio" label="Bio" :max-length="160" />
+<TText v-model="note" label="Notes" auto-resize :max-rows="8" />`,
+  },
+  {
+    id: 'slider',
+    name: 'TSlider',
+    group: 'actions',
+    summary:
+      'A slider (Reka Slider). The value is an array with one entry per thumb: [50] picks one value, [20, 80] a range.',
+    props: [
+      { name: 'v-model', type: 'number[]', description: 'One value per thumb.' },
+      { name: 'defaultValue', type: 'number[]', description: 'Initial values when no v-model is bound.' },
+      { name: 'min / max / step', type: 'number', default: '0 / 100 / 1', description: 'The range and its step.' },
+      { name: 'minStepsBetweenThumbs', type: 'number', default: '0', description: 'How many steps apart a range’s thumbs stay.' },
+      { name: 'thumbLabel', type: 'string | string[]', description: 'Names each thumb for assistive technology. Needed.' },
+      { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Vertical fills its container’s height.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Thumb and track size.' },
+      { name: 'disabled / name', type: 'boolean / string', description: 'Prevents interaction; form submission.' },
+    ],
+    events: [{ name: 'update:modelValue', payload: 'number[]', description: 'While dragging or on a key (v-model).' }],
+    demo: SliderDemo,
+    code: `<TSlider v-model="volume" thumb-label="Volume" />
+<TSlider v-model="price" :step="5" :thumb-label="['Minimum', 'Maximum']" />`,
+  },
+
   // Feedback
   {
     id: 'alarm',
@@ -318,6 +371,7 @@ export const DOC_ENTRIES: DocEntry[] = [
       },
       { name: 'options.duration', type: 'number', description: "ms before it closes; Infinity keeps it. The host's when omitted." },
       { name: 'options.onClose', type: '() => void', description: 'Called once it closes (timeout, dismiss, swipe).' },
+      { name: 'options.action', type: '{ label: string; onClick: () => void }', description: 'A button next to the message, e.g. Retry; clicking it runs onClick and closes the alarm.' },
       { name: 'TAlarmHost position', type: 'TAlarmPosition', default: "'bottom-right'", description: 'The default position.' },
       { name: 'TAlarmHost duration', type: 'number', default: '5000', description: 'The default duration.' },
       { name: 'TAlarmHost label', type: 'string', default: "'Notifications'", description: 'Names the region; F8 focuses it.' },
@@ -351,6 +405,45 @@ alarm.error('Upload failed', { description: 'The file is larger than 10 MB.', po
 <TButton disabled>
   <TSpinner size="sm" aria-hidden="true" class="text-current" /> Saving…
 </TButton>`,
+  },
+
+  {
+    id: 'progress',
+    name: 'TProgress',
+    group: 'feedback',
+    summary:
+      'A progress bar (Reka Progress), tinted by tone. Without a value it is indeterminate: a bar sliding across.',
+    props: [
+      { name: 'value', type: 'number | null', description: 'The amount done, out of max. null or omitted: indeterminate.' },
+      { name: 'max', type: 'number', default: '100', description: 'The total.' },
+      { name: 'tone', type: "'accent' | 'success' | 'info' | 'warning' | 'danger'", default: "'accent'", description: 'The bar colour.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: '4 or 8px high.' },
+      { name: 'getValueLabel', type: '(value, max) => string', description: 'The spoken value; the percentage by default.' },
+      { name: 'aria-label', type: 'string', description: 'Names the bar. Needed.' },
+    ],
+    demo: ProgressDemo,
+    code: `<TProgress :value="35" aria-label="Upload" />
+<TProgress aria-label="Loading" />`,
+  },
+  {
+    id: 'toast',
+    name: 'TToast',
+    parts: ['toast()'],
+    group: 'feedback',
+    summary:
+      'An untinted message, typically with an action (Deleted · Undo), shown by TAlarmHost in the same stack as the alarms: toast(title, options) or a declarative TToast.',
+    props: [
+      { name: 'toast(title, options?)', type: '(string, TAlarmOptions) => id', description: 'The options of alarm.*(): description, position, duration, onClose, action.' },
+      { name: 'options.action', type: '{ label: string; onClick: () => void }', description: 'A button next to the message; clicking it runs onClick and closes the toast.' },
+      { name: 'TToast v-model:open', type: 'boolean', description: 'Shown while true; false once it closes.' },
+      { name: 'TToast title / description / position / duration', type: '…', description: 'As toast() and its options.' },
+      { name: 'TToast actionLabel', type: 'string', description: 'Shows the action button; it emits action when clicked.' },
+    ],
+    events: [{ name: 'action', payload: '', description: 'The action button was clicked.' }, { name: 'update:open', payload: 'boolean', description: 'false once it closes.' }],
+    demo: ToastDemo,
+    code: `toast('Deleted “Welcome aboard”', { action: { label: 'Undo', onClick: restore } })
+
+<TToast v-model:open="reminder" title="Reminder set" action-label="Change" @action="edit" />`,
   },
 
   // Icons
@@ -600,6 +693,80 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
   <TInline wrap :gap="2">…</TInline>
 </TPanel>
 <TPanel tone="accent" :padding="3">…</TPanel>`,
+  },
+
+  // Disclosure
+  {
+    id: 'tabs',
+    name: 'TTabs',
+    parts: ['TTabsList', 'TTabsTrigger', 'TTabsContent'],
+    group: 'disclosure',
+    summary:
+      'Tabbed panels (Reka Tabs): each trigger and content pair shares a value. Arrow keys move between tabs. The list has a line or pills look.',
+    props: [
+      { name: 'v-model', type: 'string', description: 'The selected tab.' },
+      { name: 'defaultValue', type: 'string', description: 'The tab selected when no v-model is bound.' },
+      { name: 'activationMode', type: "'automatic' | 'manual'", default: "'automatic'", description: 'Manual: Enter or Space selects a focused tab.' },
+      { name: 'TTabsList variant', type: "'line' | 'pills'", default: "'line'", description: 'An underline, or raised chips on a track.' },
+      { name: 'TTabsTrigger value / disabled', type: 'string / boolean', description: 'Pairs it with the content of the same value.' },
+      { name: 'TTabsContent value', type: 'string', description: 'Shown while its tab is selected.' },
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string', description: 'When a tab is selected (v-model).' }],
+    demo: TabsDemo,
+    code: `<TTabs v-model="tab">
+  <TTabsList variant="pills">
+    <TTabsTrigger value="account">Account</TTabsTrigger>
+    <TTabsTrigger value="password">Password</TTabsTrigger>
+  </TTabsList>
+  <TTabsContent value="account">…</TTabsContent>
+  <TTabsContent value="password">…</TTabsContent>
+</TTabs>`,
+  },
+  {
+    id: 'accordion',
+    name: 'TAccordion',
+    parts: ['TAccordionItem', 'TAccordionTrigger', 'TAccordionContent'],
+    group: 'disclosure',
+    summary:
+      'Stacked sections that open one at a time or several at once (Reka Accordion). The content animates its height.',
+    props: [
+      { name: 'type', type: "'single' | 'multiple'", description: 'One section open at a time, or several. Required.' },
+      { name: 'collapsible', type: 'boolean', default: 'false', description: 'With single: clicking the open section closes it.' },
+      { name: 'v-model', type: 'string | string[]', description: 'The open section(s): a string for single, an array for multiple.' },
+      { name: 'defaultValue', type: 'string | string[]', description: 'Open when no v-model is bound.' },
+      { name: 'TAccordionItem value / disabled', type: 'string / boolean', description: 'Identifies the section.' },
+      { name: 'TAccordionTrigger', type: 'slot', description: 'The heading text; a chevron follows it.' },
+      { name: 'TAccordionContent', type: 'slot', description: 'The section body; class goes on its padded inner wrapper.' },
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string | string[]', description: 'When a section opens or closes (v-model).' }],
+    demo: AccordionDemo,
+    code: `<TAccordion type="single" collapsible>
+  <TAccordionItem value="shipping">
+    <TAccordionTrigger>How long does shipping take?</TAccordionTrigger>
+    <TAccordionContent>Orders ship within two working days.</TAccordionContent>
+  </TAccordionItem>
+</TAccordion>`,
+  },
+  {
+    id: 'collapsible',
+    name: 'TCollapsible',
+    parts: ['TCollapsibleTrigger', 'TCollapsibleContent'],
+    group: 'disclosure',
+    summary:
+      'One section that shows and hides its content (Reka Collapsible). The root and trigger carry no styles; the content animates its height.',
+    props: [
+      { name: 'v-model:open', type: 'boolean', description: 'Open or closed.' },
+      { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Open when first rendered, with no v-model:open.' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'Prevents toggling.' },
+      { name: 'TCollapsibleTrigger', type: 'as-child', description: 'Wrap a TButton (or any button) to toggle it.' },
+      { name: 'TCollapsibleContent', type: 'slot', description: 'Shown while open; put padding on an inner element.' },
+    ],
+    events: [{ name: 'update:open', payload: 'boolean', description: 'When it opens or closes (v-model:open).' }],
+    demo: CollapsibleDemo,
+    code: `<TCollapsible v-model:open="open">
+  <TCollapsibleTrigger as-child><TButton label="Show all" /></TCollapsibleTrigger>
+  <TCollapsibleContent>…</TCollapsibleContent>
+</TCollapsible>`,
   },
 
   // Overlays

@@ -1,5 +1,9 @@
 import {
   alarm,
+  TAccordion,
+  TAccordionContent,
+  TAccordionItem,
+  TAccordionTrigger,
   TAlarm,
   type TAlarmPosition,
   TAppShell,
@@ -15,6 +19,9 @@ import {
   TCardHeader,
   TCheckbox,
   TCluster,
+  TCollapsible,
+  TCollapsibleContent,
+  TCollapsibleTrigger,
   TContainer,
   TDialog,
   TDialogBody,
@@ -31,8 +38,10 @@ import {
   TIcon,
   TInline,
   TInput,
+  toast,
   TPageHeader,
   TPanel,
+  TProgress,
   TRadioGroup,
   TRadioGroupItem,
   TScrollArea,
@@ -41,20 +50,27 @@ import {
   TSidebarLayout,
   TSidebarLayoutContent,
   TSidebarLayoutSidebar,
+  TSlider,
   TSpacer,
   TSpinner,
   TSplit,
   TStack,
   TSwitch,
-  type TTreeNode,
+  TTabs,
+  TTabsContent,
+  TTabsList,
+  TTabsTrigger,
+  TText,
+  TToast,
   TTooltip,
+  type TTreeNode,
   TTreeSelector,
   TWidget,
 } from '@repo/ui'
 import { Bell, Check, Heart, Info, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
 import { type ReactNode, useState } from 'react'
 
-export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
+export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'disclosure' | 'overlays' | 'app'
 
 export interface DocProp {
   name: string
@@ -97,6 +113,7 @@ export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[
     label: 'Surfaces & structure',
     description: 'Group and title content: cards, sections, page headers and panels.',
   },
+  { id: 'disclosure', label: 'Disclosure', description: 'Content shown on demand: tabs, accordions and collapsibles.' },
   {
     id: 'overlays',
     label: 'Overlays',
@@ -394,6 +411,188 @@ function AlarmDemo() {
         position={position}
       />
     </TStack>
+  )
+}
+
+function TextDemo() {
+  const [bio, setBio] = useState('')
+  const [feedback, setFeedback] = useState('Too short')
+
+  return (
+    <TGrid minChildWidth="16rem" gap={4}>
+      <TText label="Bio" description="A few words about you." maxLength={160} value={bio} onChange={(e) => setBio(e.target.value)} />
+      <TText label="Auto-resizing" autoResize rows={2} maxRows={6} defaultValue={'Grows as you type.\nTry adding lines.'} />
+      <TText
+        label="Feedback"
+        value={feedback}
+        onChange={(e) => setFeedback(e.target.value)}
+        error={feedback.length < 20 ? 'Write at least 20 characters.' : undefined}
+      />
+      <TText label="Disabled" disabled defaultValue="Read-only text" />
+    </TGrid>
+  )
+}
+
+function SliderDemo() {
+  const [volume, setVolume] = useState([40])
+  const [price, setPrice] = useState([20, 80])
+
+  return (
+    <TStack gap={6} className="max-w-md">
+      <div className="flex flex-col gap-2 text-sm">
+        <span>Volume: {volume[0]}</span>
+        <TSlider value={volume} onValueChange={setVolume} thumbLabel="Volume" />
+      </div>
+      <div className="flex flex-col gap-2 text-sm">
+        <span>
+          Price range: {price[0]}–{price[1]} €
+        </span>
+        <TSlider value={price} onValueChange={setPrice} step={5} minStepsBetweenThumbs={2} thumbLabel={['Minimum price', 'Maximum price']} />
+      </div>
+      <TSlider defaultValue={[30]} size="sm" thumbLabel="Small" />
+      <TSlider defaultValue={[60]} disabled thumbLabel="Disabled" />
+    </TStack>
+  )
+}
+
+function ProgressDemo() {
+  const [upload, setUpload] = useState(35)
+
+  return (
+    <TStack gap={4} className="max-w-md">
+      <div className="flex items-center gap-3 text-sm">
+        <TProgress value={upload} aria-label="Upload" />
+        <span className="w-10 tabular-nums">{upload}%</span>
+        <TButton size="sm" variant="soft" label="+15" onClick={() => setUpload((u) => Math.min(100, u + 15))} />
+      </div>
+      <TProgress value={100} tone="success" aria-label="Complete" />
+      <TProgress value={70} tone="warning" size="sm" aria-label="Storage" />
+      <TProgress value={90} tone="danger" size="sm" aria-label="Quota" />
+      <TProgress aria-label="Loading" />
+    </TStack>
+  )
+}
+
+function ToastDemo() {
+  const [messages, setMessages] = useState(['Welcome aboard', 'Your invoice', 'Weekly digest'])
+  const [reminder, setReminder] = useState(false)
+
+  // Deletes the first message; the toast's Undo puts it back.
+  function remove() {
+    const [message, ...rest] = messages
+    if (!message) return
+    setMessages(rest)
+    toast(`Deleted “${message}”`, { action: { label: 'Undo', onClick: () => setMessages((current) => [message, ...current]) } })
+  }
+
+  return (
+    <TStack gap={4}>
+      <TCluster gap={3}>
+        <TButton variant="soft" label="Delete a message" disabled={!messages.length} onClick={remove} />
+        <TButton variant="soft" label="Plain toast" onClick={() => toast('Link copied')} />
+        <TButton variant="outline" label="Declarative toast" onClick={() => setReminder(true)} />
+      </TCluster>
+      <p className="m-0 text-sm text-fg-muted">Messages: {messages.join(', ') || 'none'}</p>
+      <TToast
+        open={reminder}
+        onOpenChange={setReminder}
+        title="Reminder set for 9:00"
+        description="We'll notify you tomorrow."
+        actionLabel="Change"
+        onAction={() => setReminder(false)}
+      />
+    </TStack>
+  )
+}
+
+function TabsDemo() {
+  const [tab, setTab] = useState('account')
+
+  return (
+    <TStack gap={8}>
+      <TTabs value={tab} onValueChange={setTab}>
+        <TTabsList>
+          <TTabsTrigger value="account">Account</TTabsTrigger>
+          <TTabsTrigger value="password">Password</TTabsTrigger>
+          <TTabsTrigger value="billing" disabled>
+            Billing
+          </TTabsTrigger>
+        </TTabsList>
+        <TTabsContent value="account" className="text-sm">
+          Make changes to your account here.
+        </TTabsContent>
+        <TTabsContent value="password" className="text-sm">
+          Change your password here.
+        </TTabsContent>
+        <TTabsContent value="billing" className="text-sm">
+          Billing is unavailable.
+        </TTabsContent>
+      </TTabs>
+      <TTabs defaultValue="week">
+        <TTabsList variant="pills">
+          <TTabsTrigger value="day">Day</TTabsTrigger>
+          <TTabsTrigger value="week">Week</TTabsTrigger>
+          <TTabsTrigger value="month">Month</TTabsTrigger>
+        </TTabsList>
+        <TTabsContent value="day" className="text-sm">
+          Today's schedule.
+        </TTabsContent>
+        <TTabsContent value="week" className="text-sm">
+          This week's schedule.
+        </TTabsContent>
+        <TTabsContent value="month" className="text-sm">
+          This month's schedule.
+        </TTabsContent>
+      </TTabs>
+    </TStack>
+  )
+}
+
+const faqs = [
+  { value: 'shipping', question: 'How long does shipping take?', answer: 'Orders ship within two working days.' },
+  { value: 'returns', question: 'Can I return an item?', answer: 'Yes, within 30 days, unused and in its box.' },
+  { value: 'support', question: 'How do I reach support?', answer: 'Write to us any time; we answer within a day.' },
+]
+
+function AccordionDemo() {
+  const items = faqs.map((faq) => (
+    <TAccordionItem key={faq.value} value={faq.value}>
+      <TAccordionTrigger>{faq.question}</TAccordionTrigger>
+      <TAccordionContent>{faq.answer}</TAccordionContent>
+    </TAccordionItem>
+  ))
+
+  return (
+    <TGrid minChildWidth="18rem" gap={8}>
+      <TAccordion type="single" collapsible defaultValue="shipping" aria-label="Single">
+        {items}
+      </TAccordion>
+      <TAccordion type="multiple" defaultValue={['returns', 'support']} aria-label="Multiple">
+        {items}
+      </TAccordion>
+    </TGrid>
+  )
+}
+
+function CollapsibleDemo() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <TCollapsible open={open} onOpenChange={setOpen} className="flex max-w-md flex-col gap-2">
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="font-medium">3 people starred this repository</span>
+        <TCollapsibleTrigger asChild>
+          <TButton variant="ghost" size="sm" label={open ? 'Hide' : 'Show all'} />
+        </TCollapsibleTrigger>
+      </div>
+      <div className="rounded-md border border-line px-3 py-2 text-sm">@ada</div>
+      <TCollapsibleContent>
+        <div className="flex flex-col gap-2">
+          <div className="rounded-md border border-line px-3 py-2 text-sm">@grace</div>
+          <div className="rounded-md border border-line px-3 py-2 text-sm">@linus</div>
+        </div>
+      </TCollapsibleContent>
+    </TCollapsible>
   )
 }
 
@@ -707,6 +906,48 @@ export const DOC_ENTRIES: DocEntry[] = [
 <TTreeSelector multiple valueMode="parents" value={picked} onValueChange={setPicked} options={regions} aria-label="Regions" />`,
   },
 
+  {
+    id: 'text',
+    name: 'TText',
+    group: 'actions',
+    summary:
+      'A labelled multi-line text field: a textarea with the input look, a hint or error under it, and a character count with maxLength.',
+    props: [
+      { name: 'label', type: 'string', description: 'Visible label, linked to the textarea. Required.' },
+      { name: 'value / defaultValue / onChange', type: 'string', description: 'The text, controlled or uncontrolled.' },
+      { name: 'description', type: 'string', description: 'Helper text under the textarea.' },
+      { name: 'error', type: 'string', description: 'Error text; replaces the description, marks it invalid and is announced.' },
+      { name: 'rows', type: 'number', default: '3', description: 'Visible lines (the minimum with autoResize).' },
+      { name: 'autoResize', type: 'boolean', default: 'false', description: 'Grows with its content; maxRows caps it.' },
+      { name: 'maxRows', type: 'number', description: 'With autoResize: the height it stops at, in rows.' },
+      { name: 'maxLength', type: 'number', description: 'Limits the length and shows a count under the textarea.' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Padding and type size, as TInput's." },
+      { name: '…textarea props', type: 'textarea attributes', description: 'Go on the textarea; className and style go on the root.' },
+    ],
+    demo: <TextDemo />,
+    code: `<TText label="Bio" value={bio} onChange={(e) => setBio(e.target.value)} maxLength={160} />
+<TText label="Notes" autoResize maxRows={8} />`,
+  },
+  {
+    id: 'slider',
+    name: 'TSlider',
+    group: 'actions',
+    summary:
+      'A slider (Radix Slider). The value is an array with one entry per thumb: [50] picks one value, [20, 80] a range.',
+    props: [
+      { name: 'value / defaultValue / onValueChange', type: 'number[]', description: 'One value per thumb, controlled or uncontrolled.' },
+      { name: 'min / max / step', type: 'number', default: '0 / 100 / 1', description: 'The range and its step.' },
+      { name: 'minStepsBetweenThumbs', type: 'number', default: '0', description: 'How many steps apart a range’s thumbs stay.' },
+      { name: 'thumbLabel', type: 'string | string[]', description: 'Names each thumb for assistive technology. Needed.' },
+      { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Vertical fills its container’s height.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Thumb and track size.' },
+      { name: 'disabled / name', type: 'boolean / string', description: 'Prevents interaction; form submission.' },
+    ],
+    demo: <SliderDemo />,
+    code: `<TSlider value={volume} onValueChange={setVolume} thumbLabel="Volume" />
+<TSlider defaultValue={[20, 80]} step={5} thumbLabel={['Minimum', 'Maximum']} />`,
+  },
+
   // Feedback
   {
     id: 'alarm',
@@ -725,6 +966,7 @@ export const DOC_ENTRIES: DocEntry[] = [
       },
       { name: 'options.duration', type: 'number', description: "ms before it closes; Infinity keeps it. The host's when omitted." },
       { name: 'options.onClose', type: '() => void', description: 'Called once it closes (timeout, dismiss, swipe).' },
+      { name: 'options.action', type: '{ label: string; onClick: () => void }', description: 'A button next to the message, e.g. Retry; clicking it runs onClick and closes the alarm.' },
       { name: 'TAlarmHost position', type: 'TAlarmPosition', default: "'bottom-right'", description: 'The default position.' },
       { name: 'TAlarmHost duration', type: 'number', default: '5000', description: 'The default duration.' },
       { name: 'TAlarmHost label', type: 'string', default: "'Notifications'", description: 'Names the region; F8 focuses it.' },
@@ -769,6 +1011,44 @@ alarm.error('Upload failed', { description: 'The file is larger than 10 MB.', po
 <TButton disabled>
   <TSpinner size="sm" aria-hidden className="text-current" /> Saving…
 </TButton>`,
+  },
+
+  {
+    id: 'progress',
+    name: 'TProgress',
+    group: 'feedback',
+    summary:
+      'A progress bar (Radix Progress), tinted by tone. Without a value it is indeterminate: a bar sliding across.',
+    props: [
+      { name: 'value', type: 'number | null', description: 'The amount done, out of max. null or omitted: indeterminate.' },
+      { name: 'max', type: 'number', default: '100', description: 'The total.' },
+      { name: 'tone', type: "'accent' | 'success' | 'info' | 'warning' | 'danger'", default: "'accent'", description: 'The bar colour.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: '4 or 8px high.' },
+      { name: 'getValueLabel', type: '(value, max) => string', description: 'The spoken value; the percentage by default.' },
+      { name: 'aria-label', type: 'string', description: 'Names the bar. Needed.' },
+    ],
+    demo: <ProgressDemo />,
+    code: `<TProgress value={35} aria-label="Upload" />
+<TProgress aria-label="Loading" />`,
+  },
+  {
+    id: 'toast',
+    name: 'TToast',
+    parts: ['toast()'],
+    group: 'feedback',
+    summary:
+      'An untinted message, typically with an action (Deleted · Undo), shown by TAlarmHost in the same stack as the alarms: toast(title, options) or a declarative TToast.',
+    props: [
+      { name: 'toast(title, options?)', type: '(string, TAlarmOptions) => id', description: 'The options of alarm.*(): description, position, duration, onClose, action.' },
+      { name: 'options.action', type: '{ label: string; onClick: () => void }', description: 'A button next to the message; clicking it runs onClick and closes the toast.' },
+      { name: 'TToast open / onOpenChange', type: 'boolean / (open) => void', description: 'Shown while open; onOpenChange(false) once it closes.' },
+      { name: 'TToast title / description / position / duration', type: '…', description: 'As toast() and its options.' },
+      { name: 'TToast actionLabel', type: 'string', description: 'Shows the action button; onAction runs when it is clicked.' },
+    ],
+    demo: <ToastDemo />,
+    code: `toast('Deleted “Welcome aboard”', { action: { label: 'Undo', onClick: restore } })
+
+<TToast open={reminder} onOpenChange={setReminder} title="Reminder set" actionLabel="Change" onAction={edit} />`,
   },
 
   // Icons
@@ -1112,6 +1392,74 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
   <TInline wrap gap={2}>…</TInline>
 </TPanel>
 <TPanel tone="accent" padding={3}>…</TPanel>`,
+  },
+
+  // Disclosure
+  {
+    id: 'tabs',
+    name: 'TTabs',
+    parts: ['TTabsList', 'TTabsTrigger', 'TTabsContent'],
+    group: 'disclosure',
+    summary:
+      'Tabbed panels (Radix Tabs): each trigger and content pair shares a value. Arrow keys move between tabs. The list has a line or pills look.',
+    props: [
+      { name: 'value / defaultValue / onValueChange', type: 'string', description: 'The selected tab, controlled or uncontrolled.' },
+      { name: 'activationMode', type: "'automatic' | 'manual'", default: "'automatic'", description: 'Manual: Enter or Space selects a focused tab.' },
+      { name: 'TTabsList variant', type: "'line' | 'pills'", default: "'line'", description: 'An underline, or raised chips on a track.' },
+      { name: 'TTabsTrigger value / disabled', type: 'string / boolean', description: 'Pairs it with the content of the same value.' },
+      { name: 'TTabsContent value', type: 'string', description: 'Shown while its tab is selected.' },
+    ],
+    demo: <TabsDemo />,
+    code: `<TTabs defaultValue="account">
+  <TTabsList variant="pills">
+    <TTabsTrigger value="account">Account</TTabsTrigger>
+    <TTabsTrigger value="password">Password</TTabsTrigger>
+  </TTabsList>
+  <TTabsContent value="account">…</TTabsContent>
+  <TTabsContent value="password">…</TTabsContent>
+</TTabs>`,
+  },
+  {
+    id: 'accordion',
+    name: 'TAccordion',
+    parts: ['TAccordionItem', 'TAccordionTrigger', 'TAccordionContent'],
+    group: 'disclosure',
+    summary:
+      'Stacked sections that open one at a time or several at once (Radix Accordion). The content animates its height.',
+    props: [
+      { name: 'type', type: "'single' | 'multiple'", description: 'One section open at a time, or several. Required.' },
+      { name: 'collapsible', type: 'boolean', default: 'false', description: 'With single: clicking the open section closes it.' },
+      { name: 'value / defaultValue / onValueChange', type: 'string | string[]', description: 'The open section(s): a string for single, an array for multiple.' },
+      { name: 'TAccordionItem value / disabled', type: 'string / boolean', description: 'Identifies the section.' },
+      { name: 'TAccordionTrigger', type: 'children', description: 'The heading text; a chevron follows it.' },
+      { name: 'TAccordionContent', type: 'children', description: 'The section body; className goes on its padded inner wrapper.' },
+    ],
+    demo: <AccordionDemo />,
+    code: `<TAccordion type="single" collapsible>
+  <TAccordionItem value="shipping">
+    <TAccordionTrigger>How long does shipping take?</TAccordionTrigger>
+    <TAccordionContent>Orders ship within two working days.</TAccordionContent>
+  </TAccordionItem>
+</TAccordion>`,
+  },
+  {
+    id: 'collapsible',
+    name: 'TCollapsible',
+    parts: ['TCollapsibleTrigger', 'TCollapsibleContent'],
+    group: 'disclosure',
+    summary:
+      'One section that shows and hides its content (Radix Collapsible). The root and trigger carry no styles; the content animates its height.',
+    props: [
+      { name: 'open / defaultOpen / onOpenChange', type: 'boolean / boolean / (open) => void', description: 'Open or closed, controlled or uncontrolled.' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'Prevents toggling.' },
+      { name: 'TCollapsibleTrigger', type: 'asChild', description: 'Wrap a TButton (or any button) to toggle it.' },
+      { name: 'TCollapsibleContent', type: 'children', description: 'Shown while open; put padding on an inner element.' },
+    ],
+    demo: <CollapsibleDemo />,
+    code: `<TCollapsible open={open} onOpenChange={setOpen}>
+  <TCollapsibleTrigger asChild><TButton label="Show all" /></TCollapsibleTrigger>
+  <TCollapsibleContent>…</TCollapsibleContent>
+</TCollapsible>`,
   },
 
   // Overlays
