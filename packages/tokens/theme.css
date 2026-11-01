@@ -61,4 +61,38 @@
   --shadow-lg: var(--t-shadow-lg);
 
   --ease-out: var(--t-ease-out);
+
+  /* Shared animations. Tailwind emits a keyframes block only where its animate-* utility is used.
+     expand/collapse animate a disclosure's content between 0 and its measured height, which each
+     component maps from its primitive's variable onto --t-collapsible-height. The primitives wait for
+     animationend before unmounting, so closing animates too. */
+  --animate-expand: expand 200ms var(--t-ease-out);
+  --animate-collapse: collapse 200ms var(--t-ease-out);
+  /* An unknown amount of work: a third-width bar sliding across its track. */
+  --animate-progress-indeterminate: progress-indeterminate 1.4s ease-in-out infinite;
+
+  @keyframes expand {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--t-collapsible-height);
+    }
+  }
+  @keyframes collapse {
+    from {
+      height: var(--t-collapsible-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes progress-indeterminate {
+    from {
+      translate: -100% 0;
+    }
+    to {
+      translate: 300% 0;
+    }
+  }
 }
