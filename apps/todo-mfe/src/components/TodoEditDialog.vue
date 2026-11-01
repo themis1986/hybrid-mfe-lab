@@ -14,7 +14,7 @@ import {
 } from '@repo/ui-vue'
 import { Pencil } from '@repo/ui-vue/icons'
 import { ref, watch } from 'vue'
-import { validateTitle } from '../hooks/validateTitle'
+import { validateTitle } from '../helpers/validation.helpers'
 
 const props = defineProps<{ title: string }>()
 const emit = defineEmits<{ save: [title: string] }>()
