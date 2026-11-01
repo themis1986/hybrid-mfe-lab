@@ -4,6 +4,7 @@ packages:
 
 # Single source of truth for dependency versions; packages reference these with "catalog:".
 catalog:
+  "@internationalized/date": ^3.12.4
   "@lucide/vue": ^1.64.0
   "@module-federation/vite": ^1.23.5
   "@r2wc/react-to-web-component": ^2.1.1

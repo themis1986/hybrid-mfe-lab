@@ -17,6 +17,7 @@ export default defineConfig({
       external: [
         /^vue$/,
         /^reka-ui($|\/)/,
+        /^@internationalized\/date$/,
         /^@lucide\/vue($|\/)/,
         /^class-variance-authority$/,
         /^clsx$/,
