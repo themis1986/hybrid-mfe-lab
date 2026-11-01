@@ -18,3 +18,19 @@ export function useRootAttrs(classes: () => ClassValue, style?: () => StyleValue
     return { ...rest, class: cn(classes(), callerClass as ClassValue), style: [style?.(), callerStyle as StyleValue] }
   }
 }
+
+/**
+ * Bindings for a component that wraps a native element: `class` and `style` go on the root, merged as in
+ * useRootAttrs; every other attribute and listener goes on the inner element (`v-bind="inner()"`).
+ */
+export function useSplitAttrs(classes: () => ClassValue, style?: () => StyleValue) {
+  const attrs = useAttrs()
+
+  return {
+    root: () => ({ class: cn(classes(), attrs.class as ClassValue), style: [style?.(), attrs.style as StyleValue] }),
+    inner: () => {
+      const { class: _class, style: _style, ...rest } = attrs
+      return rest
+    },
+  }
+}
