@@ -21,13 +21,14 @@ import SectionDemo from './demos/SectionDemo.vue'
 import SelectDemo from './demos/SelectDemo.vue'
 import SidebarLayoutDemo from './demos/SidebarLayoutDemo.vue'
 import SpacerDemo from './demos/SpacerDemo.vue'
+import SpinnerDemo from './demos/SpinnerDemo.vue'
 import SplitDemo from './demos/SplitDemo.vue'
 import StackDemo from './demos/StackDemo.vue'
 import SwitchDemo from './demos/SwitchDemo.vue'
 import TreeSelectorDemo from './demos/TreeSelectorDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
 
-export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
+export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
 
 export interface DocProp {
   name: string
@@ -52,6 +53,7 @@ export interface DocEntry {
 
 export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[] = [
   { id: 'actions', label: 'Actions & inputs', description: 'Buttons and form controls.' },
+  { id: 'feedback', label: 'Feedback', description: 'Loading and status indicators.' },
   {
     id: 'icons',
     label: 'Icons',
@@ -294,6 +296,26 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: TreeSelectorDemo,
     code: `<TTreeSelector v-model="country" :options="regions" aria-label="Country" />
 <TTreeSelector v-model="picked" multiple value-mode="parents" :options="regions" aria-label="Regions" />`,
+  },
+
+  // Feedback
+  {
+    id: 'spinner',
+    name: 'TSpinner',
+    group: 'feedback',
+    summary:
+      'A loading indicator: a turning ring in the current text colour (accent by default), announced through role="status".',
+    props: [
+      { name: 'size', type: "'sm' | 'md' | 'lg' | 'xl'", default: "'md'", description: '16, 20, 24 or 32px.' },
+      { name: 'label', type: 'string', default: "'Loading'", description: 'Visually hidden text in the status region, announced to screen readers.' },
+      { name: '…attributes', type: 'span attributes', description: 'class (text-* tints it), aria-hidden when visible text says it is loading.' },
+    ],
+    demo: SpinnerDemo,
+    code: `<TSpinner />
+<TSpinner size="xl" label="Loading the report" />
+<TButton disabled>
+  <TSpinner size="sm" aria-hidden="true" class="text-current" /> Saving…
+</TButton>`,
   },
 
   // Icons

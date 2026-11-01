@@ -39,6 +39,7 @@ import {
   TSidebarLayoutContent,
   TSidebarLayoutSidebar,
   TSpacer,
+  TSpinner,
   TSplit,
   TStack,
   TSwitch,
@@ -49,7 +50,7 @@ import {
 import { Bell, Check, Heart, Info, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
 import { type ReactNode, useState } from 'react'
 
-export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
+export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
 
 export interface DocProp {
   name: string
@@ -76,6 +77,7 @@ export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[
     label: 'Actions & inputs',
     description: 'Buttons and form controls.',
   },
+  { id: 'feedback', label: 'Feedback', description: 'Loading and status indicators.' },
   {
     id: 'icons',
     label: 'Icons',
@@ -654,6 +656,38 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: <TreeSelectorDemo />,
     code: `<TTreeSelector value={country} onValueChange={setCountry} options={regions} aria-label="Country" />
 <TTreeSelector multiple valueMode="parents" value={picked} onValueChange={setPicked} options={regions} aria-label="Regions" />`,
+  },
+
+  // Feedback
+  {
+    id: 'spinner',
+    name: 'TSpinner',
+    group: 'feedback',
+    summary:
+      'A loading indicator: a turning ring in the current text colour (accent by default), announced through role="status".',
+    props: [
+      { name: 'size', type: "'sm' | 'md' | 'lg' | 'xl'", default: "'md'", description: '16, 20, 24 or 32px.' },
+      { name: 'label', type: 'string', default: "'Loading'", description: 'Visually hidden text in the status region, announced to screen readers.' },
+      { name: '…span props', type: "ComponentProps<'span'>", description: 'className (text-* tints it), aria-hidden when visible text says it is loading.' },
+    ],
+    demo: (
+      <TCluster gap={6}>
+        <TSpinner size="sm" />
+        <TSpinner />
+        <TSpinner size="lg" />
+        <TSpinner size="xl" label="Loading the report" />
+        <TSpinner size="lg" className="text-fg-muted" />
+        <TButton variant="soft" disabled>
+          <TSpinner size="sm" aria-hidden className="text-current" />
+          Saving…
+        </TButton>
+      </TCluster>
+    ),
+    code: `<TSpinner />
+<TSpinner size="xl" label="Loading the report" />
+<TButton disabled>
+  <TSpinner size="sm" aria-hidden className="text-current" /> Saving…
+</TButton>`,
   },
 
   // Icons
