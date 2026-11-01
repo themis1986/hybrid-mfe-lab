@@ -16,6 +16,14 @@ export { TRadioGroup, TRadioGroupItem } from './components/TRadioGroup'
 export type { TRadioGroupItemProps, TRadioGroupProps } from './components/TRadioGroup'
 export { TSelect } from './components/TSelect'
 export type { TSelectMultipleProps, TSelectOption, TSelectProps, TSelectSingleProps } from './components/TSelect'
+export { TTreeSelector } from './components/TTreeSelector'
+export type {
+  TTreeNode,
+  TTreeSelectorMultipleProps,
+  TTreeSelectorProps,
+  TTreeSelectorSingleProps,
+  TTreeValueMode,
+} from './components/TTreeSelector'
 export { TIcon } from './components/TIcon'
 export type { TIconProps } from './components/TIcon'
 export { TStack } from './components/TStack'
