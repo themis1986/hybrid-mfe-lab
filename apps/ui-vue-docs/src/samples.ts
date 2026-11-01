@@ -1,3 +1,5 @@
+import type { TUploadContext } from '@repo/ui-vue'
+
 // Sample media for the demos. The picture is an inline SVG: no network, and it resolves the same when the
 // docs are hosted in the shell. The video and audio are MDN's public CC0 sample files.
 const picture = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
@@ -32,3 +34,28 @@ document.querySelector('button').addEventListener('click', () => {
   document.body.append(line)
 })
 </script>`
+
+/**
+ * A fake upload for the demos: progress in steps over about 2 seconds. A file whose name contains "fail"
+ * is refused halfway, to show the error and retry states.
+ */
+export function mockUpload(file: File, { signal, onProgress }: TUploadContext) {
+  return new Promise<void>((resolve, reject) => {
+    let percent = 0
+    const timer = setInterval(() => {
+      percent += 10
+      onProgress(percent)
+      if (percent >= 50 && /fail/i.test(file.name)) {
+        clearInterval(timer)
+        reject(new Error('The server refused the file.'))
+      } else if (percent >= 100) {
+        clearInterval(timer)
+        resolve()
+      }
+    }, 200)
+    signal.addEventListener('abort', () => {
+      clearInterval(timer)
+      reject(signal.reason)
+    })
+  })
+}
