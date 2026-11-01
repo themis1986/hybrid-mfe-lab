@@ -15,9 +15,9 @@ A pnpm + Turborepo microfrontends skeleton:
   - **`packages/ui-vue`** (`@repo/ui-vue`): Vue 3 + Reka UI + Tailwind v4.
 - **`packages/tokens`** (`@repo/tokens`): the design tokens and the token → Tailwind theme, shared by both libraries and by apps that run Tailwind.
 - **`packages/config`** (`@repo/config`) holds the shared tsconfig presets.
-- **Transition in progress:** the todo MFE still renders `@repo/ui` through the custom-element bridge (`@repo/ui/register`, "Option A"). It will move to `@repo/ui-vue`, and the bridge will be removed. Until then the bridge rules below still apply.
+- Every Vue app is on `@repo/ui-vue`. `@repo/ui` still builds the custom-element bridge (`@repo/ui/register`, "Option A"), but no app uses it.
 
-All content is placeholder; the repo exists to prove the wiring.
+The content is placeholder, apart from the todo MFE, a small working app that keeps its data in memory only. The repo exists to prove the wiring.
 - README.md: setup, the version table and the rationale for each deviation.
 - `documents/how-it-works.md`: the full build-time and runtime walkthrough.
 - `documents/module-federation-explained.md`: beginner's guide to the federation config.
@@ -28,8 +28,8 @@ All content is placeholder; the repo exists to prove the wiring.
 
 Current scope limits:
 - a minimal design system (tokens, Tailwind styles, placeholder components) only: no Storybook, icon set or web fonts;
-- no todo functionality;
-- no state management, auth, testing framework, linting, CI or Docker.
+- no persistence or backend: app state lives in memory;
+- no state management beyond Pinia in a Vue remote; no auth, testing framework, linting, CI or Docker.
 
 Don't add these unless asked.
 
@@ -76,22 +76,27 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 **Styles of a federated remote.**
 - A remote can't rely on its host, or on federation (`bundleAllCSS` is off), to load a CSS file. Its CSS travels inside its JavaScript.
 - A remote on a component library has one stylesheet, `src/styles.css`: the library's stylesheet (`@repo/ui-vue/styles.css` or `@repo/ui/styles.css`) plus its own Tailwind (no Preflight, `@repo/tokens/theme.css`). Its mount module imports it with `?inline`, injects it as `<style id="<app>-styles">` and removes it on unmount. Don't use SFC `<style>` blocks or CSS file imports in a remote. A React remote's copy of `@repo/ui`'s rules duplicates the shell's; they are identical, so that's harmless.
-- The todo MFE gets the `@repo/ui` stylesheet from `@repo/ui/register` (below).
 
-**React UI inside Vue (custom-element bridge, todo MFE only, being phased out).**
+**Inside a Vue remote (logic, state).**
+- Logic lives in composables in `src/hooks/`. Components render and call them; they hold no business logic.
+- App state is a Pinia setup store in `src/stores/`. Components never use a store directly: a hook hands them a readonly view of its state plus its actions. The store itself returns its state writable, as Pinia's devtools and plugins require.
+- `mount.ts` creates the Pinia instance (`app.use(createPinia())`) inside `mount`, never at module scope: the federated module stays cached between mounts, so module-level state would carry over into the next mount.
+- Shared types go in `src/types.ts`, pages in `src/pages/`, the rest of the components in `src/components/`.
+
+**React UI inside Vue (custom-element bridge, unused).** No app uses it now; the entry stays in `@repo/ui` until it is removed. If a Vue host uses it again, these rules apply.
 - `@repo/ui` has three JS entries and a stylesheet:
   - `.` exports the React components (`T<Name>`, `T<Name>Props`);
   - `./icons` re-exports the icon set (see the libraries below);
   - `./styles.css` is the stylesheet; React hosts import it once (the shell does, in `main.tsx`);
   - `./register` injects the same stylesheet as one `<style id="t-ui-styles">`, then defines each component as a `t-<name>` custom element with `@r2wc/react-to-web-component`.
-- The todo MFE imports `@repo/ui/register` once (in `mount.ts`). Vue's `isCustomElement` treats `t-*` tags as custom elements (`apps/todo-mfe/vite.config.ts`), so `t-` is reserved for design-system elements in its templates.
+- A host imports `@repo/ui/register` once (in `mount.ts`), and its `vite.config.ts` makes Vue's `isCustomElement` treat `t-*` tags as custom elements, so `t-` is reserved for design-system elements in its templates.
 - `register` carries its CSS inline on purpose (see above). Don't replace it with a CSS file import.
 - Props are declared in `r2wc(..., { props })`; undeclared props never reach the component. Booleans must be bound in Vue (`:flag="true"`): a bare attribute is an empty string, which r2wc parses as false.
 - `bridge()` in `register.ts` strips the `container` prop r2wc passes to every component; wrap every new component with it.
 - Native events (e.g. `click`) just bubble out of the element. Don't map their React handlers (e.g. `onClick`) in r2wc `events`: it would dispatch a second event.
 - Disabled states use the native `disabled` attribute, never `pointer-events: none`: the click would land on the `t-*` host, where Vue's listener is.
 - Text and content must come through props: in light DOM, React replaces child nodes, so slots don't work. Light DOM (no shadow root) is deliberate: global CSS and Radix portals need it.
-- New custom elements go in `register.ts` through `define()`, which keeps the `customElements.get` guard. Components that need children are never registered (children can't cross the bridge), and the bridge only keeps the todo MFE working until it migrates, so register only what it needs.
+- New custom elements go in `register.ts` through `define()`, which keeps the `customElements.get` guard. Components that need children are never registered (children can't cross the bridge); register only what a host needs.
 - A component that reports changes through a callback (not a native event) maps it in r2wc `events` (`onCheckedChange` → a `checkedchange` CustomEvent, value in `detail`). Hosts of elements that must be direct children of a flex or block parent (divider, spacer) get `display: contents` from the CSS string in `register.ts`.
 
 **Tokens (`packages/tokens`).**
@@ -129,7 +134,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
   - Radix and Reka CSS variables are mapped onto `--t-<name>-…` variables in an inline style; the shared class strings use only those.
   - When Radix lacks a mode Reka has, `@repo/ui` builds it on a lower-level Radix primitive and reproduces Reka's keyboard behaviour, roles and data attributes. When a primitive submits a value wrongly, the component withholds `name` from it and renders its own hidden native field. When a Vue composite's root renders no element, it uses `inheritAttrs: false` and binds `$attrs` on the part that renders the outer element.
 - Layout components hold no state (collapsing and the like is a caller-controlled prop) and are intrinsically responsive (flex-wrap, auto-fit, `min(100%, …)`), with no viewport breakpoints except the page-level app frame's one `max-md:`. A root restyles its parts only through direct-child `data-slot` selectors.
-- The shell runs its own Tailwind (`apps/shell/src/index.css`): theme + utilities **without Preflight** (remotes render inside its page), plus `@repo/tokens/theme.css`. It loads after `@repo/ui/styles.css`. The todo MFE doesn't run Tailwind: only classes used inside `packages/ui/src` exist there.
+- The shell runs its own Tailwind (`apps/shell/src/index.css`): theme + utilities **without Preflight** (remotes render inside its page), plus `@repo/tokens/theme.css`. It loads after `@repo/ui/styles.css`.
 
 **Libraries are consumed from `dist/`, not source.**
 - Apps resolve them through the package `exports` (`dist/*.js` + `dist/*.d.ts` + `dist/styles.css`). A change in a library's `src` reaches the apps only after a rebuild; `pnpm dev` keeps a watcher running for each library.
@@ -141,7 +146,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - A running `pnpm dev` doesn't pick up changes to a library's `package.json` `exports` or `vite.config.ts`, or new workspace packages: restart it.
 
 **Federation config.**
-- `shared: {}` everywhere, so each remote bundles its own framework (Vue, or React for a React remote; the todo MFE also bundles React for the bridge). This is a known, accepted duplication; sharing is a planned optimization. If React becomes a shared singleton, every `root.unmount()` run from the shell (a React remote's unmount, the custom element's) would run during the shell's commit and must be deferred.
+- `shared: {}` everywhere, so each remote bundles its own framework (Vue, or React for a React remote). This is a known, accepted duplication; sharing is a planned optimization. If React becomes a shared singleton, every `root.unmount()` run from the shell (a React remote's unmount, the custom element's) would run during the shell's commit and must be deferred.
 - Remotes must use `type: 'module'` in the shell's `remotes`.
 - Each remote sets `server.origin` so its dev-server URLs resolve when loaded from the shell.
 - The shell reads each remote's URL from a `VITE_*_REMOTE_URL` variable at **build time** (defaults: `http://localhost:5174/remoteEntry.js`, `:5175/…`, `:5176/…`). Each variable is listed in the root `turbo.json` `build.env`, so it is part of the cache key.

@@ -1,8 +1,8 @@
 # React components in Vue: the custom-element bridge
 
-> **Status: being phased out.** The repo has moved to Option B (section 1): `@repo/ui-vue` is a native Vue library on the same tokens, and new Vue apps use it (see [design-system.md](design-system.md#52-the-vue-library)). The todo MFE still uses the bridge described here until it migrates; then `register.ts` and r2wc go away.
+> **Status: unused.** The repo has moved to Option B (section 1): `@repo/ui-vue` is a native Vue library on the same tokens, and every Vue app uses it (see [design-system.md](design-system.md#52-the-vue-library)). The todo MFE, the last host of the bridge described here, has migrated. `@repo/ui` still builds `register.ts` until it is removed.
 
-The todo MFE renders `@repo/ui`'s React components as `<t-*>` custom elements. This document covers:
+Until its migration, the todo MFE rendered `@repo/ui`'s React components as `<t-*>` custom elements. This document covers:
 - why the repo works this way ("Option A");
 - how a bridged element works;
 - the rules for passing props, events and content across the boundary;
@@ -74,9 +74,9 @@ The DOM that results:
 </t-name>
 ```
 
-- `register.ts` runs once, when `apps/todo-mfe/src/mount.ts` imports `@repo/ui/register`. That happens before the Vue app mounts, so every tag is already defined when Vue first creates it.
+- `register.ts` runs once, when the host's `mount.ts` imports `@repo/ui/register`. That happens before the Vue app mounts, so every tag is already defined when Vue first creates it.
 - `define()` skips a tag that is already registered, so a second evaluation doesn't throw. That can happen through HMR, or when several MFEs bundle the entry.
-- Vue's compiler leaves `t-*` tags alone (`isCustomElement` in `apps/todo-mfe/vite.config.ts`); otherwise it would try to resolve them as Vue components.
+- Vue's compiler leaves `t-*` tags alone (`isCustomElement` in the host's `vite.config.ts`); otherwise it would try to resolve them as Vue components.
 
 ## 3. Light DOM, not shadow DOM
 

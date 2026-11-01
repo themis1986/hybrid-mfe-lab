@@ -27,8 +27,8 @@ This repo is a **monorepo**: several packages in one git repository that depend 
 | `apps/shell` | The host app. |
 | `apps/todo-mfe`, `apps/ui-vue-docs`, `apps/ui-react-docs` | Remote apps that the shell loads at runtime. |
 | `packages/tokens` | Design tokens shared by both component libraries (CSS only, no build). |
-| `packages/ui` | React components (the shell, and the todo MFE through custom elements). |
-| `packages/ui-vue` | The same components natively in Vue (the Vue docs remote). |
+| `packages/ui` | React components (the shell and the React docs remote). |
+| `packages/ui-vue` | The same components natively in Vue (the Vue remotes). |
 | `packages/config` | Shared TypeScript presets. |
 
 Three tools cooperate to make that work, and each has a separate job:
@@ -129,8 +129,8 @@ pnpm does not download this from a registry. It symlinks `apps/<app>/node_module
 **What it looks like on disk.** After `pnpm install`, each app has a symlink to the real folder:
 
 ```
-apps/shell/node_modules/@repo/ui     ->  ../../../../packages/ui
-apps/todo-mfe/node_modules/@repo/ui  ->  ../../../../packages/ui
+apps/shell/node_modules/@repo/ui           ->  ../../../../packages/ui
+apps/ui-react-docs/node_modules/@repo/ui   ->  ../../../../packages/ui
 ```
 
 The lockfile records the same thing for each app: `specifier: workspace:*` and `version: link:../../packages/ui`. When an app imports `@repo/ui`, Node and Vite look in `node_modules/@repo/ui` and are sent to `packages/ui`. There is a single copy of the package, shared by both apps.
