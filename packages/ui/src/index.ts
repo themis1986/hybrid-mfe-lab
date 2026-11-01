@@ -160,3 +160,14 @@ export type { TAudioProps } from './components/TAudio'
 export { TFrame } from './components/TFrame'
 export type { TFrameProps } from './components/TFrame'
 export type { TMediaFit, TMediaRadius, TMediaRatio, TMediaSource, TMediaStatus, TMediaTrack } from './lib/media'
+export { TUpload } from './components/TUpload'
+export type { TUploadProps } from './components/TUpload'
+export { formatBytes } from './lib/upload'
+export type {
+  TUploadContext,
+  TUploadFileState,
+  TUploadFn,
+  TUploadRejection,
+  TUploadRejectReason,
+  TUploadStatus,
+} from './lib/upload'
