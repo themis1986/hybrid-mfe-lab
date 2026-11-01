@@ -108,6 +108,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Each library's `src/styles/index.css` imports Tailwind's `theme.css` and `utilities.css` **without Preflight** (a library must not reset its host page), `@repo/tokens/tokens.css` into `layer(base)`, and `@repo/tokens/theme.css`. Only classes used inside that library's `src` exist in its stylesheet.
 - Variants use `cva`; classes are merged with `cn` (`src/lib/cn.ts`). Without Preflight, base classes must reset UA defaults themselves.
 - **The class strings in each `*.variants.ts`, and `src/lib/layout.ts`'s maps, are identical in both libraries.** Change them in both, or the libraries stop looking the same.
+- Shared pure logic in `src/lib/` (e.g. `tree.ts`, the tree selection rules) is identical in both libraries too. When a Reka feature's semantics don't fit, keep Reka for structure, focus and expansion, `preventDefault()` its selection event and apply the shared logic; the React side calls the same functions.
 - React (`@repo/ui`): a native element plus Radix `Slot` (`asChild`), or a Radix primitive for real behaviour.
 - **Icons:** Lucide, the same release in both (`lucide-react` / `@lucide/vue`; keep their catalog ranges equal).
   - Each library re-exports the whole set from its `./icons` entry (`src/icons.ts`, a bare `export *`), so apps import icons from `@repo/ui/icons` / `@repo/ui-vue/icons` and never add Lucide themselves. Unused icons are tree-shaken in the apps' builds.
