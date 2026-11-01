@@ -92,5 +92,7 @@ export type {
   TDialogTitleProps,
   TDialogTriggerProps,
 } from './components/TDialog'
+export { TTooltip } from './components/TTooltip'
+export type { TTooltipProps } from './components/TTooltip'
 export { TWidget } from './components/TWidget'
 export type { TWidgetProps } from './components/TWidget'
