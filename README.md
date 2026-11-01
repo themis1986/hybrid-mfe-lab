@@ -5,16 +5,21 @@ system (Tailwind v4) delivered as two native component libraries: React (Radix) 
 the tokens. Placeholder content, apart from one small in-memory app; this skeleton just proves the pieces
 fit together.
 
-For a step-by-step explanation of how everything connects at build time and at runtime, see
-[documents/how-it-works.md](documents/how-it-works.md). If Module Federation is new to you, start with
-[documents/module-federation-explained.md](documents/module-federation-explained.md), a beginner's guide
-to the federation configuration. For what the `.d.ts` files are for, see
-[documents/typescript-declaration-files.md](documents/typescript-declaration-files.md). New to the repo?
-[documents/monorepo-tooling.md](documents/monorepo-tooling.md) explains pnpm, Turborepo and what
-`pnpm dev` actually runs. The design system (tokens, Tailwind, the React and Vue component recipes) is
-described in [documents/design-system.md](documents/design-system.md), and the custom-element bridge that
-first brought it to Vue, with the reasoning behind moving to two libraries, in
-[documents/react-components-in-vue.md](documents/react-components-in-vue.md).
+Documentation:
+- [documents/monorepo-tooling.md](documents/monorepo-tooling.md): new to the repo? pnpm, Turborepo and what
+  `pnpm dev` actually runs.
+- [documents/how-it-works.md](documents/how-it-works.md): step by step, how everything connects at build time
+  and at runtime.
+- [documents/module-federation-explained.md](documents/module-federation-explained.md): a beginner's guide to
+  the federation configuration. Start here if Module Federation is new to you.
+- [documents/typescript-declaration-files.md](documents/typescript-declaration-files.md): what the `.d.ts`
+  files are for.
+- [documents/design-system.md](documents/design-system.md): the design system (tokens, Tailwind, the React and
+  Vue component recipes).
+- [documents/react-components-in-vue.md](documents/react-components-in-vue.md): the custom-element bridge that
+  first brought the design system to Vue, and the reasoning behind moving to two libraries.
+- [documents/authentication.md](documents/authentication.md): how the shell signs users in and decides which
+  remotes each may open.
 
 ## Architecture
 
@@ -55,6 +60,7 @@ Requirements: Node ≥ 22.22 and pnpm 12 (`npm install -g pnpm@12.16.0`; Node 25
 
 ```sh
 pnpm install
+cp apps/shell/.env.example apps/shell/.env.local   # the shell's mock sign-in accounts
 pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell's dev servers
 ```
 
@@ -70,8 +76,11 @@ pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
 
-The shell opens on a login page. The mock accounts, and the apps each one may open, are in
-`apps/shell/src/lib/users.ts`.
+The shell opens on a login page. The mock accounts, and the apps each one may open, are a JSON array in
+`VITE_MOCK_ACCOUNTS`, set in `apps/shell/.env.local` (git-ignored). `apps/shell/.env.example` documents the
+format and holds a starting set. Vite inlines the value into the shell's bundle, so it keeps the accounts
+out of git, not out of the browser: use dev-only passwords. Without it, sign-in fails with a message saying
+what is missing.
 
 Other root scripts:
 
@@ -126,8 +135,8 @@ export function mount(el: HTMLElement, props: { basePath: string }): () => void
 ### Login and app access
 
 - The shell's session store (`apps/shell/src/lib/auth.ts`) keeps the signed-in user's id in `sessionStorage`:
-  a reload keeps the session, closing the tab ends it. The accounts are mock ones (`src/lib/users.ts`); a
-  real identity provider would replace them behind the same async `signIn`.
+  a reload keeps the session, closing the tab ends it. The accounts are mock ones (`VITE_MOCK_ACCOUNTS`,
+  read by `src/lib/users.ts`); a real identity provider would replace them behind the same async `signIn`.
 - Each user holds grants: every app, every app of one framework, or named apps. They combine, and one
   function (`canAccess`, `src/lib/access.ts`) applies them for the menu, the home page and the routes.
 - Every route except `/login` sits behind `RequireAuth`, and each remote's route behind `RequireApp`, which
@@ -228,8 +237,9 @@ To add a component, follow the checklist in [documents/design-system.md](documen
    - add a host file built with `createRemoteHost`, and its splat route in `App.tsx`, wrapped in
      `<RequireApp id="…">` so only users with access can open it;
    - add its entry to the sidebar menu config (`apps/shell/src/lib/navigation.ts`), with a new `AppId`;
-   - grant it to the accounts that should see it (`apps/shell/src/lib/users.ts`). A user with an `all` grant,
-     or a `tech` grant for its framework, sees it without changes.
+   - grant it to the accounts that should see it (`VITE_MOCK_ACCOUNTS` in `apps/shell/.env.local`, and the
+     starting set in `apps/shell/.env.example`). A user with an `all` grant, or a `tech` grant for its
+     framework, sees it without changes.
 5. Turborepo picks up the new app's `dev`, `build`, `typecheck` and `preview` tasks automatically.
 
 ## Versions

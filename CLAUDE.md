@@ -25,6 +25,7 @@ The content is placeholder, apart from the todo MFE, a small working app that ke
 - `documents/monorepo-tooling.md`: onboarding guide to pnpm, Turborepo and what `pnpm dev` runs.
 - `documents/design-system.md`: tokens, the Tailwind layer, the React and Vue component recipes, naming, adding a component.
 - `documents/react-components-in-vue.md`: the Option A/B decision and the custom-element bridge rules (props, booleans, events, styles, costs).
+- `documents/authentication.md`: onboarding walkthrough of the shell's session store, guards and access rule.
 
 Current scope limits:
 - a minimal design system (tokens, Tailwind styles, placeholder components) only: no Storybook, icon set or web fonts;
@@ -41,6 +42,7 @@ Requirements: Node ≥ 22.22 and pnpm 12. The repo pins `packageManager: pnpm@12
 
 ```sh
 pnpm install
+cp apps/shell/.env.example apps/shell/.env.local   # once: the shell's mock accounts
 pnpm dev         # turbo: ui + ui-vue `vite build --watch`, todo-mfe (:5174), ui-vue-docs (:5175), ui-react-docs (:5176), shell (:5173)
 pnpm build       # turbo; builds the libraries first (^build)
 pnpm typecheck   # tsc in shell/ui, vue-tsc in ui-vue and the Vue apps; needs the libraries built first (turbo handles it)
@@ -75,7 +77,10 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 
 **Auth and app access (shell only).**
 - Remotes know nothing about auth; the `mount` contract carries no user. The shell decides which remotes may mount.
-- `src/lib/users.ts` is a stand-in identity provider: mock accounts in the bundle, plain-text passwords, dev only. Only `src/lib/auth.ts` calls it, so a real backend or IdP replaces it there.
+- `src/lib/users.ts` is a stand-in identity provider: plain-text passwords, dev only. Only `src/lib/auth.ts` calls it, so a real backend or IdP replaces it there.
+  - The accounts are a JSON array in `VITE_MOCK_ACCOUNTS`, set in `apps/shell/.env.local` (git-ignored); `apps/shell/.env.example` documents the format and holds a starting set. Vite inlines it into the bundle: it keeps the accounts out of git, not out of the browser.
+  - `users.ts` parses and validates it on first use, not at import, so a missing or invalid value fails the sign-in with its message instead of breaking the page. Unknown techs and app ids are rejected, since a typo would otherwise grant nothing silently.
+  - The variable is listed in the root `turbo.json` `build.env`, and typed in `src/env.d.ts`.
 - `src/lib/auth.ts` is the session store, built like `theme.ts` (module state + `useSyncExternalStore`). It keeps only the user id in `sessionStorage` and looks the user up again on load, so grants are never stale. `signIn` is async on purpose.
 - Each user holds a list of grants (`src/lib/access.ts`): all apps, every app of one tech, or named apps. Grants combine. `canAccess` is the one rule; the menu, the home page and the guards all go through it. Never test grants anywhere else.
 - `navigation.ts`'s `NAV_ITEMS` is the app registry: each entry has an `id` (`AppId`) and a `tech`. `getAccessibleItems` filters it for the menu and home page.

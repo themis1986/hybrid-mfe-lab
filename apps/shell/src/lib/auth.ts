@@ -14,7 +14,7 @@ function restoreSession(): User | null {
     const id = sessionStorage.getItem(SESSION_STORAGE_KEY)
     return id ? findUserById(id) : null
   } catch {
-    // Storage blocked (private mode, policy): start signed out.
+    // Storage blocked (private mode, policy) or no valid accounts configured: start signed out.
     return null
   }
 }
