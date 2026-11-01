@@ -181,6 +181,12 @@ For components with real behaviour (dialogs, selects, tabs), the recipe wraps th
 
 **Composite components** are built from the library's own components, imported relatively, not from copies of their classes. Their parts keep their own look and behaviour, and the composite's variants file holds only the classes it adds. The caller's class and attributes go on the part that renders the outer element. In Vue, when the composite's own root renders no element (a behaviour root such as a dialog's), that takes `inheritAttrs: false` plus `v-bind="$attrs"` on that part.
 
+**Decorative indicators.** A form control can't sit inside another interactive role (an option, for example), so a composite that needs a control's look there renders an `aria-hidden` span with the control's variants, imported from its variants file. This works without state classes because each such control is split in two:
+- the root draws the unchecked look;
+- an indicator that the primitive mounts only while checked covers it with the checked look.
+
+The composite puts its own primitive's indicator (or a conditionally rendered span) inside the decorative root, so the shared strings apply unchanged.
+
 **Styles come from `cva`.**
 
 ```tsx
@@ -234,6 +240,10 @@ Layout components hold children, so they are never registered as custom elements
 | Structure around content | `Slottable` keeps `asChild` working | `as` only: the root changes, the inner structure stays |
 
 **The class strings are the contract.** Every `*.variants.ts`, and the maps in `lib/layout.ts`, are identical in both libraries; their built stylesheets contain the same utilities. Change a variant in both libraries, or they stop looking the same.
+
+- **Primitive variables.** Radix and Reka name their CSS variables differently (`--radix-…-trigger-width`, `--reka-…-trigger-width`). A component maps its primitive's variable onto a `--t-<name>-…` variable in an inline style, and the shared class strings use only the `--t-` one.
+- **Behaviour Radix lacks.** When Reka has a mode that Radix doesn't, `@repo/ui` builds it on a lower-level Radix primitive (a popover, for example). It then reproduces Reka's keyboard behaviour, ARIA roles and data attributes (`data-state`, `data-highlighted`, `data-disabled`), so the shared class strings style it unchanged.
+- **A primitive's form bug.** When a primitive submits a value incorrectly, the component withholds `name` from it and renders its own visually hidden native field. That field mirrors the value and hands focus to the trigger when an invalid form focuses it. Say in a comment which release has the bug, so the workaround can be dropped once it's fixed.
 
 ### 5.3 Icons
 
