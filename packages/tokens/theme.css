@@ -28,6 +28,22 @@
   --color-danger: var(--t-color-danger);
   --color-danger-hover: var(--t-color-danger-hover);
   --color-danger-contrast: var(--t-color-danger-contrast);
+  --color-danger-subtle: var(--t-color-danger-subtle);
+  --color-danger-line: var(--t-color-danger-line);
+  --color-danger-fg: var(--t-color-danger-fg);
+
+  --color-success: var(--t-color-success);
+  --color-success-subtle: var(--t-color-success-subtle);
+  --color-success-line: var(--t-color-success-line);
+  --color-success-fg: var(--t-color-success-fg);
+  --color-info: var(--t-color-info);
+  --color-info-subtle: var(--t-color-info-subtle);
+  --color-info-line: var(--t-color-info-line);
+  --color-info-fg: var(--t-color-info-fg);
+  --color-warning: var(--t-color-warning);
+  --color-warning-subtle: var(--t-color-warning-subtle);
+  --color-warning-line: var(--t-color-warning-line);
+  --color-warning-fg: var(--t-color-warning-fg);
 
   --color-focus: var(--t-color-focus);
 
