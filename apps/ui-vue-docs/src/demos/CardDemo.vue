@@ -15,5 +15,14 @@ const variants = ['outline', 'filled', 'elevated'] as const
         <TButton size="sm" variant="soft" label="Action" />
       </TCardFooter>
     </TCard>
+    <TCard :dividers="false">
+      <TCardHeader>
+        <h4>no dividers</h4>
+      </TCardHeader>
+      <TCardBody class="text-sm">Body content.</TCardBody>
+      <TCardFooter>
+        <TButton size="sm" variant="soft" label="Action" />
+      </TCardFooter>
+    </TCard>
   </TGrid>
 </template>

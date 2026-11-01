@@ -317,10 +317,11 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
     parts: ['TCardHeader', 'TCardBody', 'TCardFooter'],
     group: 'surfaces',
     summary:
-      'A bordered surface. Its padding is also the gap between the optional header, body and footer, whose dividers run edge to edge.',
+      'A bordered surface. Its padding is also the gap between the optional header, body and footer, whose dividers span the content width, inset from the edges (or are left out).',
     props: [
       { name: 'variant', type: "'outline' | 'filled' | 'elevated'", default: "'outline'", description: 'Transparent, surface fill, or canvas with a shadow.' },
       { name: 'padding', type: SPACE, default: '4', description: 'Padding and the space between parts. Use this, not a p-* class.' },
+      { name: 'dividers', type: 'boolean', default: 'true', description: 'Lines under the header and above the footer; without them the parts are separated by space only.' },
       ...asProps('div'),
     ],
     slots: [defaultSlot('The parts, or any content.')],
@@ -334,7 +335,8 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
   <TCardFooter>
     <TButton size="sm" label="Open" />
   </TCardFooter>
-</TCard>`,
+</TCard>
+<TCard :dividers="false">…</TCard>`,
   },
   {
     id: 'widget',
@@ -349,7 +351,7 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
       { name: 'expandedSize', type: "'sm' | 'md' | 'lg' | 'full'", default: "'full'", description: 'Size of the expanded view.' },
       { name: 'expandLabel', type: 'string', default: "'Expand'", description: "Start of the expand button's name, followed by the title." },
       { name: 'headingLevel', type: '2 – 6', default: '3', description: "The default title's element; it doesn't change the size." },
-      { name: 'variant / padding', type: 'TCard props', default: "'outline' / 4", description: 'The card look.' },
+      { name: 'variant / padding / dividers', type: 'TCard props', default: "'outline' / 4 / true", description: 'The card look.' },
       asOnly('div', "The card's root element; the header and body render inside it."),
     ],
     slots: [

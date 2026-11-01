@@ -12,6 +12,7 @@ defineOptions({ inheritAttrs: false })
 // Explicit undefined, as in TDialog: an absent boolean would otherwise cast to `false`.
 withDefaults(defineProps<TWidgetProps>(), {
   defaultExpanded: undefined,
+  dividers: undefined,
   expandedSize: 'full',
   expandLabel: 'Expand',
   headingLevel: 3,
@@ -26,7 +27,7 @@ const expanded = defineModel<boolean | undefined>('expanded', { default: undefin
 -->
 <template>
   <TDialog v-model:open="expanded" :default-open="defaultExpanded">
-    <TCard data-slot="widget" v-bind="$attrs" :variant="variant" :padding="padding" :as="as">
+    <TCard data-slot="widget" v-bind="$attrs" :variant="variant" :padding="padding" :dividers="dividers" :as="as">
       <TCardHeader>
         <div :class="tWidgetHeaderClasses">
           <slot name="header">

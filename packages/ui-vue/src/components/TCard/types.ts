@@ -6,6 +6,8 @@ export interface TCardProps extends PrimitiveProps {
   variant?: 'outline' | 'filled' | 'elevated'
   /** Padding and the space between parts (0–8). Use this, not a p-* class, or the parts drift. */
   padding?: Space
+  /** Lines between the header, body and footer; without them the parts are separated by space only. */
+  dividers?: boolean
 }
 
 export interface TCardHeaderProps extends PrimitiveProps {}

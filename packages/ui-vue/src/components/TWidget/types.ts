@@ -17,6 +17,8 @@ export interface TWidgetProps {
   variant?: 'outline' | 'filled' | 'elevated'
   /** Card padding and the space between header and content (0–8). */
   padding?: Space
+  /** The line between header and content (default true). */
+  dividers?: boolean
   /** The card's root element. The header and body render inside it. */
   as?: AsTag | Component
 }

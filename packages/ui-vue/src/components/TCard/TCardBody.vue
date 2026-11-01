@@ -10,7 +10,7 @@ const root = useRootAttrs(() => tCardBodyClasses)
 </script>
 
 <template>
-  <Primitive v-bind="root()" :as="as" :as-child="asChild">
+  <Primitive data-slot="card-body" v-bind="root()" :as="as" :as-child="asChild">
     <slot />
   </Primitive>
 </template>

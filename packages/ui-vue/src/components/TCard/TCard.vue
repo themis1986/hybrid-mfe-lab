@@ -5,8 +5,11 @@ import { tCardVariants } from './TCard.variants'
 import type { TCardProps } from './types'
 
 defineOptions({ inheritAttrs: false })
-const props = withDefaults(defineProps<TCardProps>(), { as: 'div' })
-const root = useRootAttrs(() => tCardVariants({ variant: props.variant, padding: props.padding }))
+// An absent boolean would cast to `false`, so dividers defaults to true explicitly.
+const props = withDefaults(defineProps<TCardProps>(), { as: 'div', dividers: true })
+const root = useRootAttrs(() =>
+  tCardVariants({ variant: props.variant, padding: props.padding, dividers: props.dividers }),
+)
 </script>
 
 <template>
