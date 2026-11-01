@@ -88,6 +88,9 @@ export type {
   TDialogTitleProps,
   TDialogTriggerProps,
 } from './components/TDialog'
+export { TAlarm, TAlarmHost } from './components/TAlarm'
+export type { TAlarmHostProps, TAlarmOptions, TAlarmPosition, TAlarmProps, TAlarmVariant } from './components/TAlarm'
+export { alarm } from './lib/alarm'
 export { TTooltip } from './components/TTooltip'
 export type { TTooltipProps } from './components/TTooltip'
 export { TWidget } from './components/TWidget'
