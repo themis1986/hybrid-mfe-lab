@@ -1,6 +1,6 @@
 import type { TAlarmPosition, TAlarmVariant } from '../../lib/alarm'
 
-export type { TAlarmOptions, TAlarmPosition, TAlarmVariant } from '../../lib/alarm'
+export type { TAlarmAction, TAlarmOptions, TAlarmPosition, TAlarmVariant } from '../../lib/alarm'
 
 export interface TAlarmHostProps {
   /** Where alarms appear unless one asks for another position. */
@@ -24,4 +24,8 @@ export interface TAlarmProps {
   position?: TAlarmPosition
   /** Milliseconds before it closes; Infinity keeps it open. The host's when omitted. */
   duration?: number
+  /** Shows a button with this label next to the message. */
+  actionLabel?: string
+  /** Called when that button is clicked; the alarm then closes. */
+  onAction?: () => void
 }

@@ -24,10 +24,12 @@ export const tAlarmViewportVariants = cva(
 
 // Each alarm is tinted by its status. It sets its font and colour itself: the viewport inherits nothing
 // from the app. It appears with a short entry transition (closing is instant), and follows the pointer
-// while swiped: each library maps its primitive's swipe variables onto --t-alarm-swipe-x/y.
+// while swiped: each library maps its primitive's swipe variables onto --t-alarm-swipe-x/y. Its padding
+// is longhands only (py, ps, pe): an app stylesheet that also has p-3 loads after this one, and its p-3
+// would beat a pe-10 override and put the action under the close button.
 export const tAlarmVariants = cva(
   [
-    'relative m-0 box-border flex w-full items-start gap-3 rounded-lg border p-3 pe-10',
+    'relative m-0 box-border flex w-full items-start gap-3 rounded-lg border py-3 ps-3 pe-10',
     'font-sans text-sm text-fg shadow-lg',
     'transition-[opacity,scale] duration-200 ease-out starting:scale-95 starting:opacity-0 motion-reduce:transition-none',
     'data-[swipe=move]:translate-x-(--t-alarm-swipe-x) data-[swipe=move]:translate-y-(--t-alarm-swipe-y)',
@@ -40,6 +42,8 @@ export const tAlarmVariants = cva(
         error: 'border-danger-line bg-danger-subtle',
         info: 'border-info-line bg-info-subtle',
         warning: 'border-warning-line bg-warning-subtle',
+        // An untinted toast: no icon either.
+        neutral: 'border-line bg-canvas',
       },
     },
     defaultVariants: { variant: 'info' },
@@ -53,6 +57,7 @@ export const tAlarmIconVariants = cva('mt-px', {
       error: 'text-danger-fg',
       info: 'text-info-fg',
       warning: 'text-warning-fg',
+      neutral: '',
     },
   },
   defaultVariants: { variant: 'info' },
@@ -61,5 +66,7 @@ export const tAlarmIconVariants = cva('mt-px', {
 export const tAlarmBodyClasses = 'flex min-w-0 flex-1 flex-col gap-0.5'
 export const tAlarmTitleClasses = 'm-0 font-medium leading-snug'
 export const tAlarmDescriptionClasses = 'm-0 leading-snug text-fg-muted'
+// Merged onto an outline TButton, between the text and the close button.
+export const tAlarmActionClasses = 'shrink-0 self-center'
 // Merged onto a ghost TButton.
 export const tAlarmCloseClasses = 'absolute end-2 top-2 h-7 w-7 px-0 text-fg-muted'

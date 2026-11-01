@@ -8,6 +8,15 @@
 
 export type TAlarmVariant = 'success' | 'error' | 'info' | 'warning'
 
+/** Every kind of item: the four statuses, and the untinted toast. */
+export type TAlarmItemVariant = TAlarmVariant | 'neutral'
+
+/** A button in the alarm. Clicking it runs onClick and closes the alarm. */
+export interface TAlarmAction {
+  label: string
+  onClick: () => void
+}
+
 export type TAlarmPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
 
 export interface TAlarmOptions {
@@ -17,13 +26,15 @@ export interface TAlarmOptions {
   position?: TAlarmPosition
   /** Milliseconds before it closes on its own; `Infinity` keeps it until dismissed. The host's when omitted. */
   duration?: number
-  /** Called once it closes: dismissed, timed out or swiped away. */
+  /** A button next to the message, e.g. Undo. */
+  action?: TAlarmAction
+  /** Called once it closes: dismissed, timed out, swiped away or its action clicked. */
   onClose?: () => void
 }
 
 export interface TAlarmItem extends TAlarmOptions {
   id: string
-  variant: TAlarmVariant
+  variant: TAlarmItemVariant
   /** The message. */
   title: string
 }
@@ -88,8 +99,8 @@ function createAlarmStore(): TAlarmStore {
   }
 }
 
-// Versioned, so a future incompatible store never picks up this one.
-const STORE_KEY = '__tAlarmStore_v1'
+// Versioned, so an app built with another item shape never shares this store (v2: neutral items, actions).
+const STORE_KEY = '__tAlarmStore_v2'
 const page = globalThis as typeof globalThis & { [STORE_KEY]?: TAlarmStore }
 export const alarmStore: TAlarmStore = (page[STORE_KEY] ??= createAlarmStore())
 
@@ -97,7 +108,7 @@ export function newAlarmId() {
   return `alarm-${Math.random().toString(36).slice(2)}`
 }
 
-function show(variant: TAlarmVariant, title: string, options: TAlarmOptions = {}) {
+function show(variant: TAlarmItemVariant, title: string, options: TAlarmOptions = {}) {
   const id = newAlarmId()
   alarmStore.set({ ...options, id, variant, title })
   return id
@@ -111,6 +122,11 @@ export const alarm = {
   warning: (title: string, options?: TAlarmOptions) => show('warning', title, options),
   /** Closes an alarm early. */
   dismiss: (id: string) => alarmStore.dismiss(id),
+}
+
+/** Raises an untinted toast, typically with an action ('Message deleted' · Undo). Returns its id. */
+export function toast(title: string, options?: TAlarmOptions) {
+  return show('neutral', title, options)
 }
 
 /** The alarms per position, oldest first. The host's own position is always present (its viewport holds F8). */
@@ -130,7 +146,7 @@ export function alarmSwipeDirection(position: TAlarmPosition) {
   return position.startsWith('top') ? 'up' : 'down'
 }
 
-/** Errors and warnings interrupt a screen reader (assertive); successes and infos wait (polite). */
-export function alarmUrgency(variant: TAlarmVariant) {
+/** Errors and warnings interrupt a screen reader (assertive); the rest wait (polite). */
+export function alarmUrgency(variant: TAlarmItemVariant) {
   return variant === 'error' || variant === 'warning' ? 'foreground' : 'background'
 }

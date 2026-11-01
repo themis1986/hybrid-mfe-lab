@@ -5,6 +5,7 @@ import { alarmStore, alarmSwipeDirection, alarmUrgency, groupAlarms, type TAlarm
 import { TButton } from '../TButton'
 import { TIcon } from '../TIcon'
 import {
+  tAlarmActionClasses,
   tAlarmBodyClasses,
   tAlarmCloseClasses,
   tAlarmDescriptionClasses,
@@ -66,11 +67,17 @@ function Alarm({ item }: { item: TAlarmItem }) {
       className={tAlarmVariants({ variant })}
       style={swipeStyle}
     >
-      <TIcon icon={ICONS[variant]} size="md" className={tAlarmIconVariants({ variant })} />
+      {variant !== 'neutral' && <TIcon icon={ICONS[variant]} size="md" className={tAlarmIconVariants({ variant })} />}
       <div className={tAlarmBodyClasses}>
         <Toast.Title className={tAlarmTitleClasses}>{item.title}</Toast.Title>
         {item.description && <Toast.Description className={tAlarmDescriptionClasses}>{item.description}</Toast.Description>}
       </div>
+      {/* altText describes the action for screen readers, which reach it through F8. */}
+      {item.action && (
+        <Toast.Action asChild altText={item.action.label}>
+          <TButton variant="outline" size="sm" label={item.action.label} onClick={item.action.onClick} className={tAlarmActionClasses} />
+        </Toast.Action>
+      )}
       <Toast.Close asChild>
         <TButton variant="ghost" size="sm" aria-label="Dismiss" className={tAlarmCloseClasses}>
           <TIcon icon={X} size="sm" />

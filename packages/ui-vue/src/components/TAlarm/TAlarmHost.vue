@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { CircleCheck, CircleX, Info, TriangleAlert, X } from '@lucide/vue'
-import { ToastClose, ToastDescription, ToastProvider, ToastRoot, ToastTitle, ToastViewport } from 'reka-ui'
+import { ToastAction, ToastClose, ToastDescription, ToastProvider, ToastRoot, ToastTitle, ToastViewport } from 'reka-ui'
 import { computed, onBeforeUnmount, onMounted, shallowRef } from 'vue'
 import { alarmStore, alarmSwipeDirection, alarmUrgency, groupAlarms } from '../../lib/alarm'
 import { TButton } from '../TButton'
 import { TIcon } from '../TIcon'
 import {
+  tAlarmActionClasses,
   tAlarmBodyClasses,
   tAlarmCloseClasses,
   tAlarmDescriptionClasses,
@@ -70,11 +71,26 @@ onBeforeUnmount(() => {
       :style="swipeStyle"
       @update:open="(open: boolean) => !open && dismiss(item.id)"
     >
-      <TIcon :icon="ICONS[item.variant]" size="md" :class="tAlarmIconVariants({ variant: item.variant })" />
+      <TIcon
+        v-if="item.variant !== 'neutral'"
+        :icon="ICONS[item.variant]"
+        size="md"
+        :class="tAlarmIconVariants({ variant: item.variant })"
+      />
       <div :class="tAlarmBodyClasses">
         <ToastTitle :class="tAlarmTitleClasses">{{ item.title }}</ToastTitle>
         <ToastDescription v-if="item.description" :class="tAlarmDescriptionClasses">{{ item.description }}</ToastDescription>
       </div>
+      <!-- alt-text describes the action for screen readers, which reach it through F8. -->
+      <ToastAction v-if="item.action" as-child :alt-text="item.action.label">
+        <TButton
+          variant="outline"
+          size="sm"
+          :label="item.action.label"
+          :class="tAlarmActionClasses"
+          @click="item.action.onClick()"
+        />
+      </ToastAction>
       <ToastClose as-child>
         <TButton variant="ghost" size="sm" aria-label="Dismiss" :class="tAlarmCloseClasses">
           <TIcon :icon="X" size="sm" />
