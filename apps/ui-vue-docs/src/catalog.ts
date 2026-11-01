@@ -1,4 +1,5 @@
 import type { Component } from 'vue'
+import AlarmDemo from './demos/AlarmDemo.vue'
 import AppShellDemo from './demos/AppShellDemo.vue'
 import AspectRatioDemo from './demos/AspectRatioDemo.vue'
 import ButtonDemo from './demos/ButtonDemo.vue'
@@ -300,6 +301,39 @@ export const DOC_ENTRIES: DocEntry[] = [
   },
 
   // Feedback
+  {
+    id: 'alarm',
+    name: 'TAlarm',
+    parts: ['TAlarmHost', 'alarm()'],
+    group: 'feedback',
+    summary:
+      'A short message in a corner of the screen (Reka Toast), tinted success, error, info or warning. Mount one TAlarmHost per app; raise alarms with alarm.success(…) and the like, or a declarative TAlarm. Inside the shell, its host shows every app’s alarms.',
+    props: [
+      { name: 'alarm.<variant>(title, options?)', type: '(string, TAlarmOptions) => id', description: 'success | error | info | warning. Returns the id for alarm.dismiss(id).' },
+      { name: 'options.description', type: 'string', description: 'A second, quieter line.' },
+      {
+        name: 'options.position',
+        type: "'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'",
+        description: "The host's position when omitted.",
+      },
+      { name: 'options.duration', type: 'number', description: "ms before it closes; Infinity keeps it. The host's when omitted." },
+      { name: 'options.onClose', type: '() => void', description: 'Called once it closes (timeout, dismiss, swipe).' },
+      { name: 'TAlarmHost position', type: 'TAlarmPosition', default: "'bottom-right'", description: 'The default position.' },
+      { name: 'TAlarmHost duration', type: 'number', default: '5000', description: 'The default duration.' },
+      { name: 'TAlarmHost label', type: 'string', default: "'Notifications'", description: 'Names the region; F8 focuses it.' },
+      { name: 'TAlarm v-model:open', type: 'boolean', description: 'Shown while true; set to false when it closes on its own.' },
+      { name: 'TAlarm variant / title / description / position / duration', type: '…', description: 'As alarm.*() and its options; variant defaults to info.' },
+    ],
+    events: [{ name: 'TAlarm update:open', payload: 'boolean', description: 'false when it times out, is dismissed or swiped.' }],
+    demo: AlarmDemo,
+    code: `<!-- once, at the app root -->
+<TAlarmHost position="bottom-right" />
+
+alarm.success('Profile saved')
+alarm.error('Upload failed', { description: 'The file is larger than 10 MB.', position: 'top-center' })
+
+<TAlarm v-model:open="offline" variant="warning" title="You are offline" :duration="Infinity" />`,
+  },
   {
     id: 'spinner',
     name: 'TSpinner',

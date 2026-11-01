@@ -1,4 +1,7 @@
 import {
+  alarm,
+  TAlarm,
+  type TAlarmPosition,
   TAppShell,
   TAppShellFooter,
   TAppShellHeader,
@@ -349,6 +352,51 @@ function TreeSelectorDemo() {
   )
 }
 
+const alarmPositions = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'] as const
+const alarmPositionOptions = [
+  { value: 'host', label: "Host's (bottom-right)" },
+  ...alarmPositions.map((p) => ({ value: p, label: p })),
+]
+
+function AlarmDemo() {
+  const [choice, setChoice] = useState('host')
+  const position = choice === 'host' ? undefined : (choice as TAlarmPosition)
+  const [offline, setOffline] = useState(false)
+
+  return (
+    <TStack gap={4}>
+      <TCluster gap={3}>
+        <TSelect value={choice} onValueChange={setChoice} options={alarmPositionOptions} size="sm" aria-label="Position" className="w-52" />
+        <TButton variant="soft" label="Success" onClick={() => alarm.success('Profile saved', { position })} />
+        <TButton
+          variant="soft"
+          label="Error"
+          onClick={() => alarm.error('Upload failed', { description: 'The file is larger than 10 MB.', position })}
+        />
+        <TButton variant="soft" label="Info" onClick={() => alarm.info('A new version is available', { position })} />
+        <TButton
+          variant="soft"
+          label="Warning"
+          onClick={() => alarm.warning('Your session expires in 5 minutes', { position, duration: 10000 })}
+        />
+      </TCluster>
+      <label className="inline-flex items-center gap-2 text-sm">
+        <TSwitch checked={offline} onCheckedChange={setOffline} />
+        Declarative {'<TAlarm open>'}: {offline ? 'open' : 'closed'}
+      </label>
+      <TAlarm
+        open={offline}
+        onOpenChange={setOffline}
+        variant="warning"
+        title="You are offline"
+        description="Changes are saved locally until the connection is back."
+        duration={Infinity}
+        position={position}
+      />
+    </TStack>
+  )
+}
+
 function DialogDemo() {
   const [open, setOpen] = useState(false)
 
@@ -660,6 +708,38 @@ export const DOC_ENTRIES: DocEntry[] = [
   },
 
   // Feedback
+  {
+    id: 'alarm',
+    name: 'TAlarm',
+    parts: ['TAlarmHost', 'alarm()'],
+    group: 'feedback',
+    summary:
+      'A short message in a corner of the screen (Radix Toast), tinted success, error, info or warning. Mount one TAlarmHost per app; raise alarms with alarm.success(…) and the like, or a declarative TAlarm. Inside the shell, its host shows every app’s alarms.',
+    props: [
+      { name: 'alarm.<variant>(title, options?)', type: '(string, TAlarmOptions) => id', description: 'success | error | info | warning. Returns the id for alarm.dismiss(id).' },
+      { name: 'options.description', type: 'string', description: 'A second, quieter line.' },
+      {
+        name: 'options.position',
+        type: "'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'",
+        description: "The host's position when omitted.",
+      },
+      { name: 'options.duration', type: 'number', description: "ms before it closes; Infinity keeps it. The host's when omitted." },
+      { name: 'options.onClose', type: '() => void', description: 'Called once it closes (timeout, dismiss, swipe).' },
+      { name: 'TAlarmHost position', type: 'TAlarmPosition', default: "'bottom-right'", description: 'The default position.' },
+      { name: 'TAlarmHost duration', type: 'number', default: '5000', description: 'The default duration.' },
+      { name: 'TAlarmHost label', type: 'string', default: "'Notifications'", description: 'Names the region; F8 focuses it.' },
+      { name: 'TAlarm open / onOpenChange', type: 'boolean / (open) => void', description: 'Shown while open; onOpenChange(false) when it closes on its own.' },
+      { name: 'TAlarm variant / title / description / position / duration', type: '…', description: 'As alarm.*() and its options; variant defaults to info.' },
+    ],
+    demo: <AlarmDemo />,
+    code: `// once, at the app root
+<TAlarmHost position="bottom-right" />
+
+alarm.success('Profile saved')
+alarm.error('Upload failed', { description: 'The file is larger than 10 MB.', position: 'top-center' })
+
+<TAlarm open={offline} onOpenChange={setOffline} variant="warning" title="You are offline" duration={Infinity} />`,
+  },
   {
     id: 'spinner',
     name: 'TSpinner',
