@@ -41,7 +41,7 @@ export function add(a: number, b: number): number
 
 | File | Written by | Describes | Why it is needed |
 |---|---|---|---|
-| `apps/shell/src/remotes.d.ts` | Hand | The federated module the shell loads at runtime | The module does not exist on disk, so the compiler cannot find it. |
+| `apps/shell/src/remotes/remotes.d.ts` | Hand | The federated module the shell loads at runtime | The module does not exist on disk, so the compiler cannot find it. |
 | `apps/shell/src/env.d.ts`, `apps/todo-mfe/src/env.d.ts` and `packages/ui/src/env.d.ts` | Hand | Vite's browser-side types | `types` is empty in the base config, so Vite's types must be pulled in explicitly. |
 | `packages/ui/dist/*.d.ts` | `tsc` (generated) | The built `@repo/ui` package | The apps import the built JavaScript, which carries no types. |
 
@@ -55,7 +55,7 @@ The shell contains `import('todo/mount')`. There is no `todo/mount` in the shell
 
 ### The solution
 
-`apps/shell/src/remotes.d.ts` declares the module by hand:
+`apps/shell/src/remotes/remotes.d.ts` declares the module by hand:
 
 ```ts
 declare module 'todo/mount' {
@@ -74,9 +74,9 @@ This tells the compiler: "a module named `todo/mount` exists and exports a funct
 The real function lives in `apps/todo-mfe/src/mount.ts`. `remotes.d.ts` is a **hand-written copy of its signature**. The compiler cannot look inside the remote, so it trusts the copy completely:
 
 ```
-apps/todo-mfe/src/mount.ts      the real signature
+apps/todo-mfe/src/mount.ts              the real signature
           ▲   keep identical, by hand
-apps/shell/src/remotes.d.ts     what the shell's compiler believes
+apps/shell/src/remotes/remotes.d.ts     what the shell's compiler believes
 ```
 
 If the two drift apart, nothing warns you. `pnpm typecheck` passes, because the shell is checked only against its own copy, and the mismatch surfaces at runtime. Federation can generate these declarations automatically, but that is turned off (`dts: false` in both Vite configs), so keeping the files in sync is part of the job. Importing the MFE's source into the shell to share the type is not an option, because the shell must only know the contract.
@@ -196,7 +196,7 @@ Each package runs a second pass over `vite.config.ts` through its `tsconfig.node
 **When you change the remote's contract** (the signature of the exposed function, or the exposed key):
 
 1. Edit `apps/todo-mfe/src/mount.ts`.
-2. Edit `apps/shell/src/remotes.d.ts` to match, including the module name if you changed the `exposes` key.
+2. Edit `apps/shell/src/remotes/remotes.d.ts` to match, including the module name if you changed the `exposes` key.
 3. Update the host component that calls it.
 4. Run `pnpm typecheck`, then run the apps. Typecheck cannot catch a mismatch between steps 1 and 2.
 

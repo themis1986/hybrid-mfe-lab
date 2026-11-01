@@ -1,6 +1,6 @@
 import { TIcon, TSwitch } from '@repo/ui'
 import { Moon, Sun } from '@repo/ui/icons'
-import { setTheme, useTheme } from './theme'
+import { setTheme, useTheme } from '../lib/theme'
 
 export function ThemeSwitch() {
   const theme = useTheme()

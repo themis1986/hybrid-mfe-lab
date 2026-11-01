@@ -57,16 +57,17 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 ## Architecture: how the pieces connect
 
 **Runtime composition (shell → remotes).**
+- The shell's `src/` is split by role: `components/` (app-frame pieces), `pages/`, `remotes/` (everything that loads a remote, plus the hand-written `remotes.d.ts`), `lib/` (plain logic: menu config, theme). `App.tsx`, `main.tsx` and `index.css` stay at the root. Imports are relative; there is no path alias.
 - Each remote exposes `./mount` (`src/mount.ts`) with the contract
   `mount(el: HTMLElement, props: { basePath: string }) => unmount`.
-- `apps/shell/src/RemoteMfeHost.tsx` has `createRemoteHost(load, basePath, appName)`, which builds a remote's host component:
+- `apps/shell/src/remotes/RemoteMfeHost.tsx` has `createRemoteHost(load, basePath, appName)`, which builds a remote's host component:
   - it lazy-loads the remote's `mount` with `React.lazy`, inside `<Suspense>` and an `ErrorBoundary`;
   - it calls `mount` in a `useEffect` and returns the unmount function as its cleanup;
   - it stays safe under StrictMode's double effects because unmount fully tears the app down.
 - One small file per remote (`TodoMfeHost.tsx`, …) creates its host and exports its base path.
 - Each remote has a splat route (`<basePath>/*`). A Vue remote uses `createWebHistory(basePath)`, so its own routes are relative to its base path.
 - The shell must never import a remote's source (Vue or React); it only knows the contract.
-- The contract's types are hand-written in `apps/shell/src/remotes.d.ts` (federation `dts` is off). **Keep that file in sync with each `mount.ts`.**
+- The contract's types are hand-written in `apps/shell/src/remotes/remotes.d.ts` (federation `dts` is off). **Keep that file in sync with each `mount.ts`.**
 - A Vue remote's unmount calls `app.unmount()` **and** `history.destroy()`. The second call is required: `app.unmount()` leaves Vue Router's `popstate` listener on `window`.
 - Each Vue remote sets its own `app.config.idPrefix`: `useId()` is unique only within one app, and several Vue apps share the page.
 - A React remote creates its own root, `createRoot(el, { identifierPrefix: '<app>-' })` (React's counterpart of `idPrefix`), and its unmount calls `root.unmount()`. That synchronous unmount from the shell's effect cleanup is safe only because the remote bundles its own React (see `shared` below).
@@ -98,7 +99,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - `tokens.css`: primitives `--t-<hue>-<step>` (Radix Colors scales, each a `light-dark(<light>, <dark>)` pair) and semantic `--t-color-<role>` etc. Status roles (`success`, `info`, `warning`, and `danger` as error) each have a solid, `-subtle`, `-line` and `-fg`. Components use semantic tokens only, via Tailwind utilities, and never `dark:` classes.
 - **Light/dark:** `:root { color-scheme: light dark }` follows the OS; `data-theme="light|dark"` on `<html>` forces a scheme for the whole page, remotes included.
   - Lightning CSS compiles `light-dark()` into variables set on `:root`, so the scheme is page-level only: an inner element's `color-scheme` doesn't re-theme its subtree.
-  - The host owns the choice. The shell (`src/theme.ts`) stores it in `localStorage`, and an inline script in `index.html` applies it before the first paint; keep their storage keys in sync. Remotes have no theme code.
+  - The host owns the choice. The shell (`src/lib/theme.ts`) stores it in `localStorage`, and an inline script in `index.html` applies it before the first paint; keep their storage keys in sync. Remotes have no theme code.
 - `theme.css`: the `@theme inline` bridge that maps tokens to utilities. `--color-*: initial` removes Tailwind's default palette; only token colours exist.
 - Radius, font, shadow and easing reuse Tailwind's standard names so `tailwind-merge` works without config. Keep it that way, or extend tailwind-merge.
 - Shared animations (keyframes and their `--animate-*`) live in `theme.css` too, so both libraries and every Tailwind app get them. Disclosure content animates between 0 and `--t-collapsible-height`, onto which each component maps its primitive's content-height variable.
@@ -165,4 +166,4 @@ Follow the steps in README.md ("Adding another microfrontend"):
    - a `remotes` entry with its own `VITE_*_REMOTE_URL` variable (also added to the root `turbo.json` `build.env`);
    - a declaration in `remotes.d.ts`;
    - a host file built with `createRemoteHost`, and its splat route;
-   - an entry in the sidebar menu config (`apps/shell/src/navigation.ts`).
+   - an entry in the sidebar menu config (`apps/shell/src/lib/navigation.ts`).

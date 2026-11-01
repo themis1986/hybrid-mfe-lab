@@ -1,6 +1,6 @@
-import { TODO_BASE_PATH } from './TodoMfeHost'
-import { UI_REACT_DOCS_BASE_PATH } from './UiReactDocsHost'
-import { UI_VUE_DOCS_BASE_PATH } from './UiVueDocsHost'
+import { TODO_BASE_PATH } from '../remotes/TodoMfeHost'
+import { UI_REACT_DOCS_BASE_PATH } from '../remotes/UiReactDocsHost'
+import { UI_VUE_DOCS_BASE_PATH } from '../remotes/UiVueDocsHost'
 
 // The sidebar menu. Every sub-application (a Vue or React microfrontend) gets an entry here, plus its
 // route in App.tsx.

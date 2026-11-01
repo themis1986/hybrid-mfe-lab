@@ -1,7 +1,7 @@
 import { TButton, TCard, TCardBody, TCardFooter, TCardHeader, TContainer, TGrid, TPageHeader, TStack } from '@repo/ui'
 import { Link } from 'react-router'
-import { NAV_ITEMS } from './navigation'
-import { TechTag } from './TechTag'
+import { TechTag } from '../components/TechTag'
+import { NAV_ITEMS } from '../lib/navigation'
 
 export function HomePage() {
   return (

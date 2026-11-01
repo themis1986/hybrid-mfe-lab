@@ -43,7 +43,7 @@ packages/ui-vue  (@repo/ui-vue)  the same components natively in Vue (Reka UI + 
 packages/config  (@repo/config)  shared tsconfig presets (base, react, vue, node)
 ```
 
-- The shell imports no remote code, Vue or React. It only knows the `mount` contract (typed in `apps/shell/src/remotes.d.ts`).
+- The shell imports no remote code, Vue or React. It only knows the `mount` contract (typed in `apps/shell/src/remotes/remotes.d.ts`).
 - A remote imports nothing from the shell or from another remote. No app imports another's source.
 - Each remote is independently buildable and servable, and also runs standalone.
 
@@ -110,7 +110,7 @@ export function mount(el: HTMLElement, props: { basePath: string }): () => void
   `app.unmount()` doesn't remove Vue Router's `popstate` listener on `window`.
 - Each Vue remote sets `app.config.idPrefix`: `useId()` is unique only within one app, and several apps share
   the page.
-- In the shell, `createRemoteHost(load, basePath, appName)` (`apps/shell/src/RemoteMfeHost.tsx`) builds each
+- In the shell, `createRemoteHost(load, basePath, appName)` (`apps/shell/src/remotes/RemoteMfeHost.tsx`) builds each
   remote's host component, which lazy-loads the module with `React.lazy`.
   - `<Suspense>` shows a loading state, and an error boundary shows a fallback if the remote can't be loaded.
   - A `useEffect` calls `mount` on a container ref and returns the unmount function as its cleanup.
@@ -203,9 +203,9 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 4. In the shell:
    - add the remote to `remotes` in `apps/shell/vite.config.ts` with its own `VITE_*_REMOTE_URL` variable, and
      list that variable in the root `turbo.json` `build.env`;
-   - declare its module in `apps/shell/src/remotes.d.ts`;
+   - declare its module in `apps/shell/src/remotes/remotes.d.ts`;
    - add a host file built with `createRemoteHost`, and its splat route in `App.tsx`;
-   - add its entry to the sidebar menu config (`apps/shell/src/navigation.ts`).
+   - add its entry to the sidebar menu config (`apps/shell/src/lib/navigation.ts`).
 5. Turborepo picks up the new app's `dev`, `build`, `typecheck` and `preview` tasks automatically.
 
 ## Versions

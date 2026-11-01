@@ -1,13 +1,13 @@
 import { TAlarmHost, TAppShell, TAppShellHeader, TAppShellMain, TAppShellSidebar, TContainer, TSpacer } from '@repo/ui'
 import { Route, Routes } from 'react-router'
-import { GithubLink } from './GithubLink'
-import { HomePage } from './HomePage'
-import { Logo } from './Logo'
-import { Sidebar } from './Sidebar'
-import { ThemeSwitch } from './ThemeSwitch'
-import { TODO_BASE_PATH, TodoMfeHost } from './TodoMfeHost'
-import { UI_REACT_DOCS_BASE_PATH, UiReactDocsHost } from './UiReactDocsHost'
-import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './UiVueDocsHost'
+import { GithubLink } from './components/GithubLink'
+import { Logo } from './components/Logo'
+import { Sidebar } from './components/Sidebar'
+import { ThemeSwitch } from './components/ThemeSwitch'
+import { HomePage } from './pages/HomePage'
+import { TODO_BASE_PATH, TodoMfeHost } from './remotes/TodoMfeHost'
+import { UI_REACT_DOCS_BASE_PATH, UiReactDocsHost } from './remotes/UiReactDocsHost'
+import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './remotes/UiVueDocsHost'
 
 export function App() {
   return (

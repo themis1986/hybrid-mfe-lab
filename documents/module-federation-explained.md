@@ -219,7 +219,7 @@ Sharing React is a planned optimization with a known catch, described in [how-it
 
 ### `dts: false`
 
-The plugin can generate TypeScript declarations for exposed modules and download them into hosts. That is turned off here, so the host's compiler knows nothing about `todo/mount` by default. `apps/shell/src/remotes.d.ts` declares it by hand, and it must be kept in sync with `apps/todo-mfe/src/mount.ts`. Nothing checks them against each other.
+The plugin can generate TypeScript declarations for exposed modules and download them into hosts. That is turned off here, so the host's compiler knows nothing about `todo/mount` by default. `apps/shell/src/remotes/remotes.d.ts` declares it by hand, and it must be kept in sync with `apps/todo-mfe/src/mount.ts`. Nothing checks them against each other.
 
 ### `server.origin` (remote, dev only)
 
@@ -235,7 +235,7 @@ Only the remote sets it. The host only needs to know the final URL, which includ
 
 ## 7. The host component that ties it together
 
-The shell builds one host component per remote with `createRemoteHost(load, basePath, appName)` (`apps/shell/src/RemoteMfeHost.tsx`). Each remote's small host file (for example `TodoMfeHost.tsx`) passes it the federation import, `() => import('todo/mount')`, which is where that import is actually used. In order, the host component does this:
+The shell builds one host component per remote with `createRemoteHost(load, basePath, appName)` (`apps/shell/src/remotes/RemoteMfeHost.tsx`). Each remote's small host file (for example `TodoMfeHost.tsx`) passes it the federation import, `() => import('todo/mount')`, which is where that import is actually used. In order, the host component does this:
 
 1. **`React.lazy` wraps the import**, so the remote is requested only the first time the route renders, not when the shell starts. `React` caches the result, so later visits reuse it.
 2. **`Suspense`** shows a loading fallback while the import is in flight.

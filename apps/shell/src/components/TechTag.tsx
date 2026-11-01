@@ -1,4 +1,4 @@
-import type { Tech } from './navigation'
+import type { Tech } from '../lib/navigation'
 
 const labels: Record<Tech, string> = { vue: 'Vue', react: 'React' }
 

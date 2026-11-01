@@ -1,6 +1,6 @@
 import { TStack } from '@repo/ui'
 import { NavLink } from 'react-router'
-import { NAV_GROUPS, NAV_ITEMS } from './navigation'
+import { NAV_GROUPS, NAV_ITEMS } from '../lib/navigation'
 import { TechTag } from './TechTag'
 
 export function Sidebar() {

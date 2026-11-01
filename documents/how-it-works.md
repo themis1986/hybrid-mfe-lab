@@ -251,7 +251,7 @@ Changing where the remote lives in production means rebuilding the shell with `V
 | Boundary | How types flow |
 |---|---|
 | ui → apps | `tsc` emits `.d.ts` files into `packages/ui/dist`, and `exports` points `types` at them. `@repo/ui/register` has an empty declaration (`export {}`): it's a side-effect import. Inside ui, `src/env.d.ts` loads Vite's types so the `.css` and `?inline` imports typecheck. |
-| MFE → shell | Nothing is generated. `apps/shell/src/remotes.d.ts` declares the module `todo/mount` by hand, mirroring `apps/todo-mfe/src/mount.ts`. Keep them in sync. Federation's automatic type generation is off (`dts: false`). |
+| MFE → shell | Nothing is generated. `apps/shell/src/remotes/remotes.d.ts` declares the module `todo/mount` by hand, mirroring `apps/todo-mfe/src/mount.ts`. Keep them in sync. Federation's automatic type generation is off (`dts: false`). |
 | `.vue` files | `vue-tsc` typechecks them. That's why the repo uses TypeScript 6: TypeScript 7 removed the compiler API `vue-tsc` builds on. |
 
 ## 9. What happens when something is missing
