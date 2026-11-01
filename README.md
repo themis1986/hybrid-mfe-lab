@@ -22,8 +22,9 @@ first brought it to Vue, with the reasoning behind moving to two libraries, in
                       browser: http://localhost:5173
 ┌──────────────────────────────────────────────────────────────────────┐
 │ apps/shell  (@repo/shell)            React 19 + React Router 8       │
-│   frame, menu, home page: React components from @repo/ui             │
-│   /<base>/*   a host per remote (createRemoteHost)                   │
+│   login, frame, menu, home page: React components from @repo/ui      │
+│   /<base>/*   a host per remote (createRemoteHost), behind an access │
+│               guard: only users granted the remote can open it       │
 │                 └─ import('<remote>/mount') ──────────┐ runtime,     │
 │                    mount(div, { basePath })           │ federation   │
 └───────────────────────────────────────────────────────┼──────────────┘
@@ -44,6 +45,7 @@ packages/config  (@repo/config)  shared tsconfig presets (base, react, vue, node
 ```
 
 - The shell imports no remote code, Vue or React. It only knows the `mount` contract (typed in `apps/shell/src/remotes/remotes.d.ts`).
+- The shell owns sign-in and decides which remotes each user may open. The remotes know nothing about it.
 - A remote imports nothing from the shell or from another remote. No app imports another's source.
 - Each remote is independently buildable and servable, and also runs standalone.
 
@@ -67,6 +69,9 @@ pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell
 | React UI docs MFE remote entry | http://localhost:5176/remoteEntry.js |
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
+
+The shell opens on a login page. The mock accounts, and the apps each one may open, are in
+`apps/shell/src/lib/users.ts`.
 
 Other root scripts:
 
@@ -117,6 +122,21 @@ export function mount(el: HTMLElement, props: { basePath: string }): () => void
   - React StrictMode's dev-only mount → unmount → mount is therefore harmless.
 - Each remote's route is a splat (`<base>/*`), so the remote can own deeper URLs without the shell knowing
   about them.
+
+### Login and app access
+
+- The shell's session store (`apps/shell/src/lib/auth.ts`) keeps the signed-in user's id in `sessionStorage`:
+  a reload keeps the session, closing the tab ends it. The accounts are mock ones (`src/lib/users.ts`); a
+  real identity provider would replace them behind the same async `signIn`.
+- Each user holds grants: every app, every app of one framework, or named apps. They combine, and one
+  function (`canAccess`, `src/lib/access.ts`) applies them for the menu, the home page and the routes.
+- Every route except `/login` sits behind `RequireAuth`, and each remote's route behind `RequireApp`, which
+  shows a "no access" page instead of the remote's host. A forbidden remote is therefore never mounted and
+  its app code never downloaded.
+- This is client-side gating, not security: a remote's files stay reachable from its server. Real
+  enforcement needs the server (remote assets behind auth, or a per-user list of remotes).
+
+See [how-it-works.md section 4.5](documents/how-it-works.md#45-login-and-app-access) for the runtime flow.
 
 ### Two libraries on shared tokens
 
@@ -205,8 +225,11 @@ To add a component, follow the checklist in [documents/design-system.md](documen
    - add the remote to `remotes` in `apps/shell/vite.config.ts` with its own `VITE_*_REMOTE_URL` variable, and
      list that variable in the root `turbo.json` `build.env`;
    - declare its module in `apps/shell/src/remotes/remotes.d.ts`;
-   - add a host file built with `createRemoteHost`, and its splat route in `App.tsx`;
-   - add its entry to the sidebar menu config (`apps/shell/src/lib/navigation.ts`).
+   - add a host file built with `createRemoteHost`, and its splat route in `App.tsx`, wrapped in
+     `<RequireApp id="…">` so only users with access can open it;
+   - add its entry to the sidebar menu config (`apps/shell/src/lib/navigation.ts`), with a new `AppId`;
+   - grant it to the accounts that should see it (`apps/shell/src/lib/users.ts`). A user with an `all` grant,
+     or a `tech` grant for its framework, sees it without changes.
 5. Turborepo picks up the new app's `dev`, `build`, `typecheck` and `preview` tasks automatically.
 
 ## Versions

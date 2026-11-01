@@ -138,10 +138,13 @@ Two things to notice:
 ```
 Browser on :5173 (shell)                          Server on :5174 (todo MFE)
 ────────────────────────                          ──────────────────────────
+0. The shell starts: the runtime reads
+   "todo" → entry URL from its address
+   book and fetches the catalog          ──GET──▶  remoteEntry.js   (the catalog)
 1. The user opens the MFE's route
 2. Shell code runs import('todo/mount')
 3. Federation runtime looks up "todo"
-   in its address book → entry URL       ──GET──▶  remoteEntry.js   (the catalog)
+   and finds its catalog
 4. Catalog says: "./mount lives in
    this chunk"                           ──GET──▶  the chunk         (mount.ts + Vue + deps)
 5. The import resolves to { mount }
@@ -202,7 +205,7 @@ The snippet above comes from a production build. The dev server (`pnpm dev`) ser
 1. **The import is rewritten at build time.** `import('todo/mount')` doesn't point at any file in the shell's project, because there isn't one. The plugin replaces it with a call into the federation runtime, which performs steps 3–5. Resolving a remote is therefore always **asynchronous**, and the import must be treated like any other network request.
 2. **The browser does all the fetching.** The shell's server never talks to the MFE's server. The user's browser requests files from both origins, so the MFE's server must be reachable from the browser, and in production it must allow the shell's origin through CORS.
 
-The shell is also told about its remotes at startup: the plugin injects a small init script that registers `todo` → entry URL. **Registering downloads nothing.** The catalog is fetched only when something first imports from `todo/…`.
+The shell is also told about its remotes at startup: the plugin injects a small init script that registers `todo` → entry URL and initializes the federation runtime, which **fetches every registered remote's catalog right away**, whatever the route (step 0). A catalog is small. The chunk holding the app's code is fetched only when something first imports from `todo/…`.
 
 ## 6. The other options
 
@@ -237,11 +240,13 @@ Only the remote sets it. The host only needs to know the final URL, which includ
 
 The shell builds one host component per remote with `createRemoteHost(load, basePath, appName)` (`apps/shell/src/remotes/RemoteMfeHost.tsx`). Each remote's small host file (for example `TodoMfeHost.tsx`) passes it the federation import, `() => import('todo/mount')`, which is where that import is actually used. In order, the host component does this:
 
-1. **`React.lazy` wraps the import**, so the remote is requested only the first time the route renders, not when the shell starts. `React` caches the result, so later visits reuse it.
+1. **`React.lazy` wraps the import**, so the remote's chunk is requested only the first time the route renders, not when the shell starts. `React` caches the result, so later visits reuse it.
 2. **`Suspense`** shows a loading fallback while the import is in flight.
 3. **An error boundary** wraps both, so a failed import (server down, wrong URL) shows a message instead of breaking the page.
 4. **An empty container element** is rendered once the import has resolved. React owns that element but nothing inside it.
 5. **`useEffect` calls `mount(container, props)`** after React has put the container in the page, and **returns the unmount function as its cleanup**. React then tears the MFE down automatically when the route changes.
+
+Each remote's route also sits behind the shell's access guard ([how-it-works.md section 4.5](how-it-works.md#45-login-and-app-access)). For a user without access the host component never renders, so step 1 never runs and the chunk is never fetched.
 
 The rule behind steps 4 and 5: the shell hands the remote a DOM node and a function signature, and nothing else. It never imports Vue or any MFE source. To add another MFE, create its host with the same factory (see "Adding another microfrontend" in the [README](../README.md)).
 
@@ -262,6 +267,6 @@ The rule behind steps 4 and 5: the shell hands the remote a DOM node and a funct
 
 1. The **remote** generates a catalog (`remoteEntry.js`) listing what it **exposes** (`./mount`).
 2. The **host** keeps the catalog's address under a nickname in `remotes`.
-3. When the host runs `import('todo/mount')`, the federation runtime fetches the catalog, then the one chunk it points to, in the browser.
+3. The federation runtime fetches the catalog when the host starts. When the host runs `import('todo/mount')`, it fetches the one chunk the catalog points to, in the browser.
 4. Nothing is **shared**, so each app brings its own libraries. This is simple but duplicates code.
 5. The two apps agree on a single thing: the signature of `mount`. It is typed by hand on the host side, so keep it in sync.
