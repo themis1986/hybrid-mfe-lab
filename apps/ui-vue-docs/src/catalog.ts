@@ -4,12 +4,16 @@ import AlarmDemo from './demos/AlarmDemo.vue'
 import AppShellDemo from './demos/AppShellDemo.vue'
 import AspectRatioDemo from './demos/AspectRatioDemo.vue'
 import ButtonDemo from './demos/ButtonDemo.vue'
+import CalendarDemo from './demos/CalendarDemo.vue'
 import CardDemo from './demos/CardDemo.vue'
 import CheckboxDemo from './demos/CheckboxDemo.vue'
 import ClusterDemo from './demos/ClusterDemo.vue'
 import CollapsibleDemo from './demos/CollapsibleDemo.vue'
 import ComboboxDemo from './demos/ComboboxDemo.vue'
 import ContainerDemo from './demos/ContainerDemo.vue'
+import DateFieldDemo from './demos/DateFieldDemo.vue'
+import DatePickerDemo from './demos/DatePickerDemo.vue'
+import DateRangeFieldDemo from './demos/DateRangeFieldDemo.vue'
 import DialogDemo from './demos/DialogDemo.vue'
 import DividerDemo from './demos/DividerDemo.vue'
 import FieldDemo from './demos/FieldDemo.vue'
@@ -22,6 +26,8 @@ import PanelDemo from './demos/PanelDemo.vue'
 import PopoverDemo from './demos/PopoverDemo.vue'
 import ProgressDemo from './demos/ProgressDemo.vue'
 import RadioGroupDemo from './demos/RadioGroupDemo.vue'
+import RangeCalendarDemo from './demos/RangeCalendarDemo.vue'
+import RangeDatePickerDemo from './demos/RangeDatePickerDemo.vue'
 import ScrollAreaDemo from './demos/ScrollAreaDemo.vue'
 import SectionDemo from './demos/SectionDemo.vue'
 import SelectDemo from './demos/SelectDemo.vue'
@@ -34,12 +40,22 @@ import StackDemo from './demos/StackDemo.vue'
 import SwitchDemo from './demos/SwitchDemo.vue'
 import TabsDemo from './demos/TabsDemo.vue'
 import TextDemo from './demos/TextDemo.vue'
+import TimeFieldDemo from './demos/TimeFieldDemo.vue'
 import ToastDemo from './demos/ToastDemo.vue'
 import TooltipDemo from './demos/TooltipDemo.vue'
 import TreeSelectorDemo from './demos/TreeSelectorDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
 
-export type DocGroupId = 'actions' | 'feedback' | 'icons' | 'primitives' | 'surfaces' | 'disclosure' | 'overlays' | 'app'
+export type DocGroupId =
+  | 'actions'
+  | 'dates'
+  | 'feedback'
+  | 'icons'
+  | 'primitives'
+  | 'surfaces'
+  | 'disclosure'
+  | 'overlays'
+  | 'app'
 
 export interface DocProp {
   name: string
@@ -64,6 +80,11 @@ export interface DocEntry {
 
 export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[] = [
   { id: 'actions', label: 'Actions & inputs', description: 'Buttons and form controls.' },
+  {
+    id: 'dates',
+    label: 'Dates & time',
+    description: "Calendars, date and time fields, and date pickers. Values are ISO strings ('2026-11-01', '14:30').",
+  },
   { id: 'feedback', label: 'Feedback', description: 'Loading and status indicators.' },
   {
     id: 'icons',
@@ -129,6 +150,38 @@ const justifyProp = (fallback?: string): DocProp => ({
   description: 'Main-axis distribution (justify-content).',
 })
 const defaultSlot = (description: string) => ({ name: 'default', description })
+
+// The date and time components' shared props. Dates are ISO strings ('2026-11-01').
+const dateLimitProps: DocProp[] = [
+  { name: 'min / max', type: 'string', description: 'The first and last date allowed.' },
+  { name: 'isDateUnavailable', type: '(date: string) => boolean', description: 'Dates that can’t be picked (struck through in a calendar, invalid in a field).' },
+]
+const calendarProps: DocProp[] = [
+  ...dateLimitProps,
+  { name: 'isDateDisabled', type: '(date: string) => boolean', description: 'Dates that can’t be picked or focused (faded).' },
+  { name: 'locale', type: 'string', default: "'en-US'", description: 'Formats the heading, weekdays and each day’s accessible name.' },
+  { name: 'weekStartsOn', type: '0 – 6', description: 'First day of the week, 0 = Sunday; the locale’s by default.' },
+  { name: 'numberOfMonths', type: 'number', default: '1', description: 'Months side by side; they wrap when narrow.' },
+  { name: 'pagedNavigation', type: 'boolean', default: 'false', description: 'Previous/next move by all the months shown.' },
+  { name: 'fixedWeeks', type: 'boolean', default: 'false', description: 'Always six weeks, so the height never changes.' },
+  { name: 'label', type: 'string', description: 'Accessible name of the calendar; the visible month is added to it.' },
+  { name: 'prevLabel / nextLabel', type: 'string', default: "'Previous month' / 'Next month'", description: 'Accessible names of the navigation buttons.' },
+  { name: 'disabled / readonly', type: 'boolean', description: 'Prevents interaction / shows the value without changing it.' },
+]
+const fieldProps: DocProp[] = [
+  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Field height and text size, as TInput's." },
+  { name: 'invalid', type: 'boolean', default: 'false', description: 'aria-invalid and the error border. An out-of-range value is marked anyway.' },
+  { name: 'locale', type: 'string', default: "'en-US'", description: 'The order of the segments and their separators.' },
+  { name: 'disabled / readonly', type: 'boolean', description: 'Prevents interaction / shows the value without changing it.' },
+  { name: 'name / required', type: 'string / boolean', description: 'Form submission; required blocks it until the value is complete.' },
+  { name: '…attributes', type: 'attributes', description: 'Go on the field (role group): aria-label or aria-labelledby names it.' },
+]
+// A picker takes the calendar's props and the field's; these are the field's that the calendar's don't repeat.
+const pickerFieldProps = fieldProps.filter((prop) => !['locale', 'disabled / readonly'].includes(prop.name))
+const pickerProps: DocProp[] = [
+  { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close the calendar once a date (a range’s end) is picked.' },
+  { name: 'triggerLabel', type: 'string', default: "'Open calendar'", description: 'Accessible name of the calendar button.' },
+]
 
 export const DOC_ENTRIES: DocEntry[] = [
   // Actions & inputs
@@ -380,6 +433,133 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: SliderDemo,
     code: `<TSlider v-model="volume" thumb-label="Volume" />
 <TSlider v-model="price" :step="5" :thumb-label="['Minimum', 'Maximum']" />`,
+  },
+
+  // Dates & time
+  {
+    id: 'calendar',
+    name: 'TCalendar',
+    group: 'dates',
+    summary:
+      'A month grid that picks one date (Reka Calendar). Arrow keys move by day and week, Page Up/Down by month (with Shift, by year), Home/End to the week’s ends.',
+    props: [
+      { name: 'v-model', type: 'string', description: "The picked date, an ISO date ('2026-11-01')." },
+      { name: 'defaultValue', type: 'string', description: 'Initial date when no v-model is bound.' },
+      ...calendarProps,
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string | undefined', description: 'When a date is picked (v-model).' }],
+    demo: CalendarDemo,
+    code: `<TCalendar v-model="date" label="Date" />
+<TCalendar v-model="day" :min="today" :is-date-unavailable="isWeekend" :week-starts-on="1" />`,
+  },
+  {
+    id: 'range-calendar',
+    name: 'TRangeCalendar',
+    group: 'dates',
+    summary:
+      'A month grid that picks a range (Reka RangeCalendar): the first pick sets the start, the days up to the pointer are previewed, the second sets the end. The value changes only once both ends are picked; Escape while picking returns to the last range.',
+    props: [
+      { name: 'v-model', type: '{ start: string; end: string }', description: 'The range, in ISO dates.' },
+      { name: 'defaultValue', type: '{ start: string; end: string }', description: 'Initial range when no v-model is bound.' },
+      { name: 'presets', type: '{ label: string; value: { start; end } }[]', description: 'Ranges listed beside the grid. defaultRangePresets() gives Today, Last 7 days, Last 30 days, This month and Last month.' },
+      { name: 'presetsLabel', type: 'string', default: "'Presets'", description: 'Accessible name of the presets list.' },
+      ...calendarProps,
+    ],
+    events: [{ name: 'update:modelValue', payload: '{ start: string; end: string }', description: 'When both ends are picked (v-model).' }],
+    demo: RangeCalendarDemo,
+    code: `<TRangeCalendar v-model="range" :presets="defaultRangePresets()" :number-of-months="2" />`,
+  },
+  {
+    id: 'date-field',
+    name: 'TDateField',
+    group: 'dates',
+    summary:
+      'A date typed into segments in the locale’s order (Reka DateField). Digits move on by themselves; Arrow Up/Down step a segment, Arrow Left/Right move between them, Backspace clears one.',
+    props: [
+      { name: 'v-model', type: 'string', description: 'An ISO date; undefined until every segment is filled.' },
+      { name: 'defaultValue', type: 'string', description: 'Initial date when no v-model is bound.' },
+      ...dateLimitProps,
+      ...fieldProps,
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string | undefined', description: 'When the date is complete or cleared (v-model).' }],
+    demo: DateFieldDemo,
+    code: `<TDateField v-model="birthday" aria-labelledby="birthday-label" />`,
+  },
+  {
+    id: 'date-range-field',
+    name: 'TDateRangeField',
+    group: 'dates',
+    summary:
+      'A range typed as two dates in one field (Reka DateRangeField), with TDateField’s keys. It submits an ISO interval (2026-11-01/2026-11-07), empty while incomplete.',
+    props: [
+      { name: 'v-model', type: '{ start: string; end: string }', description: 'The range; it changes once both dates are complete.' },
+      { name: 'defaultValue', type: '{ start: string; end: string }', description: 'Initial range when no v-model is bound.' },
+      ...dateLimitProps,
+      ...fieldProps,
+    ],
+    events: [{ name: 'update:modelValue', payload: '{ start: string; end: string }', description: 'When both dates are complete (v-model).' }],
+    demo: DateRangeFieldDemo,
+    code: `<TDateRangeField v-model="stay" aria-label="Stay" />`,
+  },
+  {
+    id: 'time-field',
+    name: 'TTimeField',
+    group: 'dates',
+    summary: 'A time of day typed into segments (Reka TimeField), with TDateField’s keys; A or P sets the AM/PM segment.',
+    props: [
+      { name: 'v-model', type: 'string', description: "An ISO time: '14:30', or '14:30:15' with seconds." },
+      { name: 'defaultValue', type: 'string', description: 'Initial time when no v-model is bound.' },
+      { name: 'granularity', type: "'hour' | 'minute' | 'second'", default: "'minute'", description: 'The smallest segment shown.' },
+      { name: 'hourCycle', type: '12 | 24', description: '12 adds an AM/PM segment; the locale’s by default.' },
+      { name: 'min / max', type: 'string', description: 'The allowed times; outside them the field is marked invalid.' },
+      ...fieldProps,
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string | undefined', description: 'When the time is complete or cleared (v-model).' }],
+    demo: TimeFieldDemo,
+    code: `<TTimeField v-model="opens" :hour-cycle="24" aria-label="Opens at" />`,
+  },
+  {
+    id: 'date-picker',
+    name: 'TDatePicker',
+    group: 'dates',
+    summary:
+      'A date field with a calendar button (Reka DatePicker): type the date, or open the calendar and pick it there. The calendar closes once a date is picked.',
+    props: [
+      { name: 'v-model', type: 'string', description: 'An ISO date.' },
+      { name: 'v-model:open', type: 'boolean', description: 'Whether the calendar is open.' },
+      { name: 'defaultValue / defaultOpen', type: 'string / boolean', description: 'Initial values when no v-model is bound.' },
+      ...pickerProps,
+      ...calendarProps,
+      ...pickerFieldProps,
+    ],
+    events: [
+      { name: 'update:modelValue', payload: 'string | undefined', description: 'When the date changes (v-model).' },
+      { name: 'update:open', payload: 'boolean', description: 'When the calendar opens or closes.' },
+    ],
+    demo: DatePickerDemo,
+    code: `<TDatePicker v-model="due" name="due" required aria-label="Due date" />`,
+  },
+  {
+    id: 'range-date-picker',
+    name: 'TRangeDatePicker',
+    group: 'dates',
+    summary:
+      'A range field with a calendar button (Reka DateRangePicker): type both dates, pick the start and end in the calendar, or pick a preset. It submits an ISO interval.',
+    props: [
+      { name: 'v-model', type: '{ start: string; end: string }', description: 'The range; it changes once both ends are set.' },
+      { name: 'v-model:open', type: 'boolean', description: 'Whether the calendar is open.' },
+      { name: 'defaultValue / defaultOpen', type: '{ start; end } / boolean', description: 'Initial values when no v-model is bound.' },
+      { name: 'presets / presetsLabel', type: 'TDatePreset[] / string', description: 'Ranges listed beside the calendar, as TRangeCalendar’s.' },
+      ...pickerProps,
+      ...calendarProps,
+      ...pickerFieldProps,
+    ],
+    events: [
+      { name: 'update:modelValue', payload: '{ start: string; end: string }', description: 'When both ends are set (v-model).' },
+      { name: 'update:open', payload: 'boolean', description: 'When the calendar opens or closes.' },
+    ],
+    demo: RangeDatePickerDemo,
+    code: `<TRangeDatePicker v-model="period" :presets="defaultRangePresets()" :number-of-months="2" aria-label="Period" />`,
   },
 
   // Feedback
