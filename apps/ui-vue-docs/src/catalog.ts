@@ -47,6 +47,7 @@ import TimeFieldDemo from './demos/TimeFieldDemo.vue'
 import ToastDemo from './demos/ToastDemo.vue'
 import TooltipDemo from './demos/TooltipDemo.vue'
 import TreeSelectorDemo from './demos/TreeSelectorDemo.vue'
+import UploadDemo from './demos/UploadDemo.vue'
 import VideoDemo from './demos/VideoDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
 
@@ -1382,5 +1383,56 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
   ratio="4-3"
   radius="md"
 />`,
+  },
+  {
+    id: 'upload',
+    name: 'TUpload',
+    group: 'actions',
+    summary:
+      'A file picker: a drop zone (click, keyboard or drag and drop), checks on type, size and count, a list with thumbnails, and optional uploads with progress, retry and abort. The native input holds the list, so a form submits every file.',
+    props: [
+      { name: 'v-model', type: 'File[]', description: 'The listed files.' },
+      { name: 'label', type: 'string', description: 'Visible label; names the file input. Without one, pass aria-label.' },
+      { name: 'description', type: 'string', description: 'Helper text; replaced by error while one is set.' },
+      { name: 'error', type: 'string', description: 'Error text: marks the input invalid and is announced.' },
+      { name: 'accept', type: 'string | string[]', description: "MIME types, wildcards or extensions ('image/*', '.pdf'). Dropped files are checked too." },
+      { name: 'multiple', type: 'boolean', default: 'false', description: 'Several files; otherwise a new file replaces the current one.' },
+      { name: 'maxFiles', type: 'number', description: 'The most files the list may hold.' },
+      { name: 'maxSize / minSize', type: 'number', description: 'File size limits, in bytes.' },
+      { name: 'validate', type: '(file: File) => string | undefined', description: 'Extra check: return a message to reject the file.' },
+      { name: 'formatRejection', type: '(rejection: TUploadRejection) => string', description: 'The text shown for a rejected file; English by default.' },
+      { name: 'upload', type: '(file, { signal, onProgress }) => Promise', description: 'Sends one file. Without it, files are only listed (and submitted with the form).' },
+      { name: 'autoUpload', type: 'boolean', default: 'true', description: 'Upload when added; otherwise an upload button sends the files.' },
+      { name: 'maxConcurrent', type: 'number', default: '3', description: 'How many files upload at once.' },
+      { name: 'variant', type: "'dropzone' | 'compact'", default: "'dropzone'", description: 'A large drop zone, or a one-line one for forms.' },
+      { name: 'showList', type: 'boolean', default: 'true', description: 'The list of files: thumbnail, size, progress, retry, remove.' },
+      { name: 'previews', type: 'boolean', default: 'true', description: 'Thumbnails for images (object URLs, revoked on removal).' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'No picking, dropping or removing.' },
+      { name: 'dropLabel / browseLabel', type: 'string', default: "'Drag and drop files here, or' / 'Browse'", description: 'The drop zone’s text.' },
+      { name: 'removeLabel / retryLabel / uploadLabel / uploadedLabel', type: 'string', default: "'Remove' / 'Retry' / 'Upload' / 'Uploaded'", description: 'Button names (followed by the file name) and the done mark’s name.' },
+      { name: '…attributes', type: 'attributes', description: 'name, required, form, capture… go on the native <input type="file">.' },
+      { name: 'ref → element', type: 'HTMLInputElement', description: 'Exposed: the native input.' },
+    ],
+    events: [
+      { name: 'update:modelValue', payload: 'File[]', description: 'Files added or removed (v-model).' },
+      { name: 'reject', payload: 'TUploadRejection[]', description: 'The files that weren’t added: { file, reason, message? }.' },
+      { name: 'upload-complete', payload: '(file, result)', description: 'A file has uploaded.' },
+      { name: 'upload-error', payload: '(file, error)', description: 'A file’s upload failed.' },
+    ],
+    demo: UploadDemo,
+    code: `const upload: TUploadFn = (file, { signal, onProgress }) =>
+  new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', '/api/files')
+    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress((e.loaded / e.total) * 100)
+    xhr.onload = () => (xhr.status < 300 ? resolve(xhr.response) : reject(new Error(xhr.statusText)))
+    xhr.onerror = () => reject(new Error('Network error'))
+    signal.addEventListener('abort', () => xhr.abort())
+    const body = new FormData()
+    body.append('file', file)
+    xhr.send(body)
+  })
+
+<TUpload v-model="files" label="Photos" accept="image/*" multiple :max-size="10_000_000" :upload="upload" @reject="log" />`,
   },
 ]

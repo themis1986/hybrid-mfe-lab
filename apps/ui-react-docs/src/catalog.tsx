@@ -83,6 +83,7 @@ import {
   TTooltip,
   type TTreeNode,
   TTreeSelector,
+  TUpload,
   TVideo,
   TWidget,
 } from '@repo/ui'
@@ -93,6 +94,7 @@ import {
   brokenImage,
   brokenVideo,
   growingFrameDoc,
+  mockUpload,
   sampleAudio,
   sampleFrameDoc,
   sampleImage,
@@ -2645,5 +2647,75 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
   ratio="4-3"
   radius="md"
 />`,
+  },
+  {
+    id: 'upload',
+    name: 'TUpload',
+    group: 'actions',
+    summary:
+      'A file picker: a drop zone (click, keyboard or drag and drop), checks on type, size and count, a list with thumbnails, and optional uploads with progress, retry and abort. The native input holds the list, so a form submits every file.',
+    props: [
+      { name: 'value / defaultValue', type: 'File[]', description: 'The listed files.' },
+      { name: 'onValueChange', type: '(files: File[]) => void', description: 'Called when files are added or removed.' },
+      { name: 'label', type: 'string', description: 'Visible label; names the file input. Without one, pass aria-label.' },
+      { name: 'description', type: 'string', description: 'Helper text; replaced by error while one is set.' },
+      { name: 'error', type: 'string', description: 'Error text: marks the input invalid and is announced.' },
+      { name: 'accept', type: 'string | string[]', description: "MIME types, wildcards or extensions ('image/*', '.pdf'). Dropped files are checked too." },
+      { name: 'multiple', type: 'boolean', default: 'false', description: 'Several files; otherwise a new file replaces the current one.' },
+      { name: 'maxFiles', type: 'number', description: 'The most files the list may hold.' },
+      { name: 'maxSize / minSize', type: 'number', description: 'File size limits, in bytes.' },
+      { name: 'validate', type: '(file: File) => string | undefined', description: 'Extra check: return a message to reject the file.' },
+      { name: 'formatRejection', type: '(rejection: TUploadRejection) => string', description: 'The text shown for a rejected file; English by default.' },
+      { name: 'onReject', type: '(rejections: TUploadRejection[]) => void', description: 'The files that weren’t added: { file, reason, message? }.' },
+      { name: 'upload', type: '(file, { signal, onProgress }) => Promise', description: 'Sends one file. Without it, files are only listed (and submitted with the form).' },
+      { name: 'autoUpload', type: 'boolean', default: 'true', description: 'Upload when added; otherwise an upload button sends the files.' },
+      { name: 'maxConcurrent', type: 'number', default: '3', description: 'How many files upload at once.' },
+      { name: 'onUploadComplete / onUploadError', type: '(file, result | error) => void', description: 'Per-file upload outcome.' },
+      { name: 'variant', type: "'dropzone' | 'compact'", default: "'dropzone'", description: 'A large drop zone, or a one-line one for forms.' },
+      { name: 'showList', type: 'boolean', default: 'true', description: 'The list of files: thumbnail, size, progress, retry, remove.' },
+      { name: 'previews', type: 'boolean', default: 'true', description: 'Thumbnails for images (object URLs, revoked on removal).' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'No picking, dropping or removing.' },
+      { name: 'dropLabel / browseLabel', type: 'string', default: "'Drag and drop files here, or' / 'Browse'", description: 'The drop zone’s text.' },
+      { name: 'removeLabel / retryLabel / uploadLabel / uploadedLabel', type: 'string', default: "'Remove' / 'Retry' / 'Upload' / 'Uploaded'", description: 'Button names (followed by the file name) and the done mark’s name.' },
+      { name: '…props', type: 'input props', description: 'name, required, form, capture… go on the native <input type="file">.' },
+      { name: 'ref', type: 'Ref<HTMLInputElement>', description: 'The native input.' },
+    ],
+    demo: (
+      <TStack gap={6} className="max-w-lg">
+        <TUpload
+          label="Photos"
+          description="Images or PDF, up to 10 MB each, 5 files at most. A file named …fail… is refused, to show a retry."
+          accept="image/*,.pdf"
+          multiple
+          maxFiles={5}
+          maxSize={10_000_000}
+          upload={mockUpload}
+        />
+        <TUpload label="Avatar" variant="compact" accept="image/*" name="avatar" description="One image; a new one replaces it." />
+        <TUpload
+          label="Attachments"
+          multiple
+          upload={mockUpload}
+          autoUpload={false}
+          uploadLabel="Send files"
+          description="Uploads when you press the button."
+        />
+        <TUpload label="Disabled" variant="compact" disabled />
+      </TStack>
+    ),
+    code: `const upload: TUploadFn = (file, { signal, onProgress }) =>
+  new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', '/api/files')
+    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress((e.loaded / e.total) * 100)
+    xhr.onload = () => (xhr.status < 300 ? resolve(xhr.response) : reject(new Error(xhr.statusText)))
+    xhr.onerror = () => reject(new Error('Network error'))
+    signal.addEventListener('abort', () => xhr.abort())
+    const body = new FormData()
+    body.append('file', file)
+    xhr.send(body)
+  })
+
+<TUpload value={files} onValueChange={setFiles} label="Photos" accept="image/*" multiple maxSize={10_000_000} upload={upload} />`,
   },
 ]
