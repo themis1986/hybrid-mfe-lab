@@ -7,7 +7,8 @@ import type { User } from './users'
 // The sidebar menu and the registry the access rules check. Every sub-application (a Vue or React
 // microfrontend) gets an entry here, plus its route in App.tsx wrapped in <RequireApp>.
 export type NavGroup = 'apps' | 'developer'
-export type Tech = 'vue' | 'react'
+export const TECHS = ['vue', 'react'] as const
+export type Tech = (typeof TECHS)[number]
 export type AppId = 'todo' | 'ui-react-docs' | 'ui-vue-docs'
 
 export interface NavItem {
