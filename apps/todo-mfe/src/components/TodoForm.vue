@@ -38,7 +38,7 @@ defineExpose({ focus });
 
 <template>
   <form
-    class="grid grid-cols-[minmax(0,1fr)_auto] gap-y-2"
+    class="grid grid-cols-[minmax(0,1fr)_auto] gap-2"
     novalidate
     @submit.prevent="submit"
   >
