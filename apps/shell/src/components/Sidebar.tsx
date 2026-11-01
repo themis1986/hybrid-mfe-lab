@@ -1,14 +1,17 @@
 import { TStack } from '@repo/ui'
 import { NavLink } from 'react-router'
-import { NAV_GROUPS, NAV_ITEMS } from '../lib/navigation'
+import { useSession } from '../lib/auth'
+import { getAccessibleItems, NAV_GROUPS } from '../lib/navigation'
 import { TechTag } from './TechTag'
 
 export function Sidebar() {
+  const navItems = getAccessibleItems(useSession())
+
   return (
     <nav aria-label="Main">
       <TStack gap={5}>
         {NAV_GROUPS.map((group) => {
-          const items = NAV_ITEMS.filter((item) => item.group === group.id)
+          const items = navItems.filter((item) => item.group === group.id)
           if (items.length === 0) return null
 
           return (
