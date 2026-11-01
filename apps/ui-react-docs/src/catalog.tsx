@@ -18,6 +18,7 @@ import {
   TCardFooter,
   TCardHeader,
   TCheckbox,
+  TCombobox,
   TCluster,
   TCollapsible,
   TCollapsibleContent,
@@ -292,6 +293,86 @@ function SelectDemo() {
       </div>
       <TSelect options={fruits} size="sm" invalid placeholder="Invalid, small" aria-label="Invalid" />
       <TSelect options={fruits} disabled defaultValue="banana" aria-label="Disabled" />
+    </TGrid>
+  )
+}
+
+const timeZones = [
+  ['UTC', 'UTC'],
+  ['Europe/London', 'Europe/London'],
+  ['Europe/Lisbon', 'Europe/Lisbon'],
+  ['Europe/Paris', 'Europe/Paris'],
+  ['Europe/Berlin', 'Europe/Berlin'],
+  ['Europe/Zurich', 'Europe/Zürich'],
+  ['Europe/Athens', 'Europe/Athens'],
+  ['Europe/Istanbul', 'Europe/Istanbul'],
+  ['Africa/Cairo', 'Africa/Cairo'],
+  ['Asia/Dubai', 'Asia/Dubai'],
+  ['Asia/Kolkata', 'Asia/Kolkata'],
+  ['Asia/Singapore', 'Asia/Singapore'],
+  ['Asia/Tokyo', 'Asia/Tokyo'],
+  ['Australia/Sydney', 'Australia/Sydney'],
+  ['America/Sao_Paulo', 'America/São Paulo'],
+  ['America/New_York', 'America/New York'],
+  ['America/Chicago', 'America/Chicago'],
+  ['America/Los_Angeles', 'America/Los Angeles'],
+].map(([value, label]) => ({ value, label }))
+
+const watchableServices = [
+  'api-gateway',
+  'auth',
+  'billing',
+  'catalog',
+  'checkout',
+  'email-worker',
+  'inventory',
+  'notifications',
+  'payments',
+  'search',
+  'search-indexer',
+]
+  .map((s) => ({ value: s, label: s, disabled: false }))
+  .concat({ value: 'legacy-ftp', label: 'legacy-ftp (retired)', disabled: true })
+
+function ComboboxDemo() {
+  const [zone, setZone] = useState<string>()
+  const [watched, setWatched] = useState(['auth', 'billing'])
+
+  return (
+    <TGrid minChildWidth="16rem" gap={4}>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="combobox-demo-zone" className="text-sm font-medium">
+          Time zone
+        </label>
+        <TCombobox
+          id="combobox-demo-zone"
+          name="timeZone"
+          value={zone}
+          onValueChange={setZone}
+          options={timeZones}
+          placeholder="Search time zones…"
+        />
+        <span className="text-sm text-fg-muted">
+          Selected: {timeZones.find((z) => z.value === zone)?.label ?? '—'}
+        </span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="combobox-demo-services" className="text-sm font-medium">
+          Services to watch
+        </label>
+        <TCombobox
+          id="combobox-demo-services"
+          name="services"
+          multiple
+          value={watched}
+          onValueChange={setWatched}
+          options={watchableServices}
+          placeholder="Search services…"
+        />
+        <span className="text-sm text-fg-muted">Watching: {watched.join(', ') || '—'}</span>
+      </div>
+      <TCombobox options={timeZones} size="sm" invalid placeholder="Invalid, small" aria-label="Invalid" />
+      <TCombobox options={timeZones} disabled defaultValue="UTC" aria-label="Disabled" />
     </TGrid>
   )
 }
@@ -1065,6 +1146,30 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: <TreeSelectorDemo />,
     code: `<TTreeSelector value={country} onValueChange={setCountry} options={regions} aria-label="Country" />
 <TTreeSelector multiple valueMode="parents" value={picked} onValueChange={setPicked} options={regions} aria-label="Regions" />`,
+  },
+
+  {
+    id: 'combobox',
+    name: 'TCombobox',
+    group: 'actions',
+    summary:
+      'A text field that filters a list of options as you type, single or multiple. Radix has no combobox, so it is an input anchoring a Radix Popover that behaves as Reka\'s. Matching ignores case and accents; with multiple, the selected options are chips in the field.',
+    props: [
+      { name: 'options', type: '{ value: string; label: string; disabled?: boolean }[]', description: 'The choices; the label is what typing matches. Required.' },
+      { name: 'value / defaultValue', type: 'string | string[]', description: 'Controlled / initial value; an array with multiple.' },
+      { name: 'onValueChange', type: '(value) => void', description: 'Called with the new value.' },
+      { name: 'multiple', type: 'boolean', default: 'false', description: 'Several values, shown as chips; the list stays open while toggling.' },
+      { name: 'placeholder', type: 'string', description: 'Shown in the empty field.' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Field height and text size, as TInput's." },
+      { name: 'invalid', type: 'boolean', default: 'false', description: 'aria-invalid and the error border.' },
+      { name: 'emptyText', type: 'string', default: "'No results'", description: 'Shown when nothing matches.' },
+      { name: 'removeLabel', type: 'string', default: "'Remove'", description: 'Names each chip\'s remove button: "Remove billing".' },
+      { name: 'disabled / name / required', type: 'boolean / string / boolean', description: 'Native disabled; form submission.' },
+      { name: 'id / aria-label / className', type: 'string', description: 'id and aria-* go on the input (id is for a <label htmlFor>); className on the field.' },
+    ],
+    demo: <ComboboxDemo />,
+    code: `<TCombobox value={zone} onValueChange={setZone} options={timeZones} placeholder="Search time zones…" aria-label="Time zone" />
+<TCombobox multiple value={watched} onValueChange={setWatched} options={services} aria-label="Services to watch" />`,
   },
 
   {

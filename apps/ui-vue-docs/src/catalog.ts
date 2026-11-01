@@ -8,6 +8,7 @@ import CardDemo from './demos/CardDemo.vue'
 import CheckboxDemo from './demos/CheckboxDemo.vue'
 import ClusterDemo from './demos/ClusterDemo.vue'
 import CollapsibleDemo from './demos/CollapsibleDemo.vue'
+import ComboboxDemo from './demos/ComboboxDemo.vue'
 import ContainerDemo from './demos/ContainerDemo.vue'
 import DialogDemo from './demos/DialogDemo.vue'
 import DividerDemo from './demos/DividerDemo.vue'
@@ -307,6 +308,31 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: TreeSelectorDemo,
     code: `<TTreeSelector v-model="country" :options="regions" aria-label="Country" />
 <TTreeSelector v-model="picked" multiple value-mode="parents" :options="regions" aria-label="Regions" />`,
+  },
+
+  {
+    id: 'combobox',
+    name: 'TCombobox',
+    group: 'actions',
+    summary:
+      'A text field that filters a list of options as you type (Reka Combobox), single or multiple. Matching ignores case and accents; with multiple, the selected options are chips in the field.',
+    props: [
+      { name: 'options', type: '{ value: string; label: string; disabled?: boolean }[]', description: 'The choices; the label is what typing matches. Required.' },
+      { name: 'v-model', type: 'string | string[]', description: 'The selected value; an array with multiple.' },
+      { name: 'multiple', type: 'boolean', default: 'false', description: 'Several values, shown as chips; the list stays open while toggling.' },
+      { name: 'defaultValue', type: 'string | string[]', description: 'Initial value when no v-model is bound.' },
+      { name: 'placeholder', type: 'string', description: 'Shown in the empty field.' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Field height and text size, as TInput's." },
+      { name: 'invalid', type: 'boolean', default: 'false', description: 'aria-invalid and the error border.' },
+      { name: 'emptyText', type: 'string', default: "'No results'", description: 'Shown when nothing matches.' },
+      { name: 'removeLabel', type: 'string', default: "'Remove'", description: 'Names each chip\'s remove button: "Remove billing".' },
+      { name: 'disabled / name / required', type: 'boolean / string / boolean', description: 'Native disabled; form submission.' },
+      { name: '…attributes', type: 'input attributes', description: 'Go on the input (id for a <label for>, aria-label); class and style go on the field.' },
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string | string[]', description: 'When the selection changes (v-model).' }],
+    demo: ComboboxDemo,
+    code: `<TCombobox v-model="zone" :options="timeZones" placeholder="Search time zones…" aria-label="Time zone" />
+<TCombobox v-model="watched" multiple :options="services" aria-label="Services to watch" />`,
   },
 
   {
