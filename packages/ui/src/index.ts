@@ -18,6 +18,8 @@ export { TRadioGroup, TRadioGroupItem } from './components/TRadioGroup'
 export type { TRadioGroupItemProps, TRadioGroupProps } from './components/TRadioGroup'
 export { TSelect } from './components/TSelect'
 export type { TSelectMultipleProps, TSelectOption, TSelectProps, TSelectSingleProps } from './components/TSelect'
+export { TCombobox } from './components/TCombobox'
+export type { TComboboxMultipleProps, TComboboxOption, TComboboxProps, TComboboxSingleProps } from './components/TCombobox'
 export { TTreeSelector } from './components/TTreeSelector'
 export type {
   TTreeNode,
