@@ -42,6 +42,8 @@ import {
   TSplit,
   TStack,
   TSwitch,
+  type TTreeNode,
+  TTreeSelector,
   TWidget,
 } from '@repo/ui'
 import { Bell, Check, Heart, Info, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
@@ -262,6 +264,84 @@ function SelectDemo() {
       </div>
       <TSelect options={fruits} size="sm" invalid placeholder="Invalid, small" aria-label="Invalid" />
       <TSelect options={fruits} disabled defaultValue="banana" aria-label="Disabled" />
+    </TGrid>
+  )
+}
+
+const regions: TTreeNode[] = [
+  {
+    value: 'europe',
+    label: 'Europe',
+    children: [
+      {
+        value: 'western-europe',
+        label: 'Western Europe',
+        children: [
+          { value: 'fr', label: 'France' },
+          { value: 'es', label: 'Spain' },
+          { value: 'pt', label: 'Portugal' },
+        ],
+      },
+      { value: 'it', label: 'Italy' },
+      { value: 'gr', label: 'Greece' },
+      { value: 'ch', label: 'Switzerland', disabled: true },
+    ],
+  },
+  {
+    value: 'asia',
+    label: 'Asia',
+    children: [
+      { value: 'jp', label: 'Japan' },
+      { value: 'kr', label: 'South Korea' },
+      { value: 'in', label: 'India' },
+    ],
+  },
+  { value: 'aq', label: 'Antarctica' },
+]
+
+function TreeSelectorDemo() {
+  const [country, setCountry] = useState<string>()
+  const [leaves, setLeaves] = useState(['fr', 'es'])
+  const [parents, setParents] = useState(['asia'])
+
+  return (
+    <TGrid minChildWidth="14rem" gap={4}>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="tree-demo-single" className="text-sm font-medium">
+          Single
+        </label>
+        <TTreeSelector id="tree-demo-single" value={country} onValueChange={setCountry} options={regions} placeholder="Pick a country" />
+        <span className="text-sm text-fg-muted">Controlled: {country ?? '—'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="tree-demo-leaves" className="text-sm font-medium">
+          Multiple, value mode leaves
+        </label>
+        <TTreeSelector
+          id="tree-demo-leaves"
+          multiple
+          value={leaves}
+          onValueChange={setLeaves}
+          options={regions}
+          placeholder="Pick countries"
+        />
+        <span className="text-sm text-fg-muted">Controlled: {leaves.join(', ') || '—'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="tree-demo-parents" className="text-sm font-medium">
+          Multiple, value mode parents
+        </label>
+        <TTreeSelector
+          id="tree-demo-parents"
+          multiple
+          valueMode="parents"
+          value={parents}
+          onValueChange={setParents}
+          options={regions}
+          placeholder="Pick regions"
+        />
+        <span className="text-sm text-fg-muted">Controlled: {parents.join(', ') || '—'}</span>
+      </div>
     </TGrid>
   )
 }
@@ -542,6 +622,38 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: <SelectDemo />,
     code: `<TSelect value={fruit} onValueChange={setFruit} options={fruits} placeholder="Pick a fruit" aria-label="Fruit" />
 <TSelect multiple value={basket} onValueChange={setBasket} options={fruits} aria-label="Basket" />`,
+  },
+  {
+    id: 'tree-selector',
+    name: 'TTreeSelector',
+    group: 'actions',
+    summary:
+      'A select whose options are a tree (a tree in a Radix Popover). Single picks one leaf; with multiple, a parent selects or clears its whole subtree and shows a partial state.',
+    props: [
+      {
+        name: 'options',
+        type: 'TTreeNode[]',
+        description: '{ value, label, disabled?, children? }; values unique across the tree. A disabled parent disables its subtree. Required.',
+      },
+      { name: 'multiple', type: 'boolean', default: 'false', description: 'Several leaves, with a checkbox per row; the list stays open.' },
+      {
+        name: 'valueMode',
+        type: "'leaves' | 'parents'",
+        default: "'leaves'",
+        description: 'With multiple: a fully selected parent appears as its leaves, or as the parent itself.',
+      },
+      { name: 'value', type: 'string | string[]', description: 'Controlled value (an array with multiple); pair it with onValueChange.' },
+      { name: 'defaultValue', type: 'string | string[]', description: 'Initial value when uncontrolled.' },
+      { name: 'onValueChange', type: '(value: string | string[]) => void', description: 'Called when the selection changes.' },
+      { name: 'placeholder', type: 'string', description: 'Shown while nothing is selected.' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Trigger size, as TInput's." },
+      { name: 'invalid', type: 'boolean', default: 'false', description: 'aria-invalid and the error border.' },
+      { name: 'disabled / name / required', type: 'boolean / string / boolean', description: 'Native disabled; form submission.' },
+      { name: 'id / aria-label / className', type: 'string', description: 'Go on the trigger; id is for a <label htmlFor>.' },
+    ],
+    demo: <TreeSelectorDemo />,
+    code: `<TTreeSelector value={country} onValueChange={setCountry} options={regions} aria-label="Country" />
+<TTreeSelector multiple valueMode="parents" value={picked} onValueChange={setPicked} options={regions} aria-label="Regions" />`,
   },
 
   // Icons

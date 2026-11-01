@@ -24,6 +24,7 @@ import SpacerDemo from './demos/SpacerDemo.vue'
 import SplitDemo from './demos/SplitDemo.vue'
 import StackDemo from './demos/StackDemo.vue'
 import SwitchDemo from './demos/SwitchDemo.vue'
+import TreeSelectorDemo from './demos/TreeSelectorDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
 
 export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
@@ -261,6 +262,38 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: SelectDemo,
     code: `<TSelect v-model="fruit" :options="fruits" placeholder="Pick a fruit" aria-label="Fruit" />
 <TSelect v-model="basket" multiple :options="fruits" aria-label="Basket" />`,
+  },
+  {
+    id: 'tree-selector',
+    name: 'TTreeSelector',
+    group: 'actions',
+    summary:
+      'A select whose options are a tree (Reka Popover + Tree). Single picks one leaf; with multiple, a parent selects or clears its whole subtree and shows a partial state.',
+    props: [
+      {
+        name: 'options',
+        type: 'TTreeNode[]',
+        description: '{ value, label, disabled?, children? }; values unique across the tree. A disabled parent disables its subtree. Required.',
+      },
+      { name: 'v-model', type: 'string | string[]', description: 'The selected leaf; an array with multiple.' },
+      { name: 'multiple', type: 'boolean', default: 'false', description: 'Several leaves, with a checkbox per row; the list stays open.' },
+      {
+        name: 'valueMode',
+        type: "'leaves' | 'parents'",
+        default: "'leaves'",
+        description: 'With multiple: a fully selected parent appears as its leaves, or as the parent itself.',
+      },
+      { name: 'defaultValue', type: 'string | string[]', description: 'Initial value when no v-model is bound.' },
+      { name: 'placeholder', type: 'string', description: 'Shown while nothing is selected.' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Trigger size, as TInput's." },
+      { name: 'invalid', type: 'boolean', default: 'false', description: 'aria-invalid and the error border.' },
+      { name: 'disabled / name / required', type: 'boolean / string / boolean', description: 'Native disabled; form submission.' },
+      { name: '…attributes', type: 'button attributes', description: 'Go on the trigger: id (for a <label for>), aria-label, class.' },
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string | string[]', description: 'When the selection changes (v-model).' }],
+    demo: TreeSelectorDemo,
+    code: `<TTreeSelector v-model="country" :options="regions" aria-label="Country" />
+<TTreeSelector v-model="picked" multiple value-mode="parents" :options="regions" aria-label="Regions" />`,
   },
 
   // Icons
