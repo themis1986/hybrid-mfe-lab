@@ -31,6 +31,7 @@ packages/ui/src/       @repo/ui: React + Radix
   lib/cn.ts            class-name helper (clsx + tailwind-merge)
   lib/layout.ts        shared variants (gap, padding, alignment) and the style-merge helper of the layout components
   lib/media.ts         the media components' shared prop types, class maps and attribute helpers
+  lib/upload.ts        file selection rules, the upload queue and image previews, shared with ui-vue
   lib/refs.ts          useComposedRef(): the caller's ref plus a component's own, on one element
   components/T<Name>/  one folder per component: T<Name>.tsx, T<Name>.variants.ts, types.ts, index.ts
   index.ts             entry ".":          the React components (and the stylesheet, for the build)
@@ -41,7 +42,7 @@ packages/ui/src/       @repo/ui: React + Radix
 packages/ui-vue/src/   @repo/ui-vue: the same components natively in Vue, on Reka UI
   styles/index.css     the same setup as ui's
   lib/cn.ts, layout.ts copies of ui's (the layout maps, plus written-out prop types)
-  lib/media.ts         identical to ui's
+  lib/media.ts, upload.ts identical to ui's
   lib/attrs.ts         useRootAttrs(): merges the caller's class and style onto a component's root;
                        useSplitAttrs(): class and style on the root, the rest on a wrapped native element
   components/T<Name>/  T<Name>.vue (+ part SFCs), T<Name>.variants.ts (identical to ui's), types.ts, index.ts
