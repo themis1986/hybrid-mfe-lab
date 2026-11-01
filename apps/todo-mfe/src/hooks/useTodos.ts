@@ -19,6 +19,7 @@ export function useTodos() {
 
   return {
     todos,
+    announcement: readonly(refs.announcement),
     openCount: refs.openCount,
     doneCount: refs.doneCount,
     filtered,

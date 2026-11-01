@@ -15,7 +15,6 @@ import { ArrowLeft } from '@repo/ui-vue/icons'
 import { ref, useTemplateRef } from 'vue'
 import TodoForm from '../components/TodoForm.vue'
 import TodoList from '../components/TodoList.vue'
-import { provideAnnouncer } from '../hooks/useAnnouncer'
 import { useTodos } from '../hooks/useTodos'
 import type { TodoFilter } from '../types'
 
@@ -25,16 +24,13 @@ const FILTERS: { value: TodoFilter; label: string; emptyTitle: string; emptyText
   { value: 'done', label: 'Done', emptyTitle: 'Nothing done yet', emptyText: 'Tick a todo to mark it as done.' },
 ]
 
-const { openCount, doneCount, filtered, clearCompleted } = useTodos()
-const { message, announce } = provideAnnouncer()
+const { announcement, openCount, doneCount, filtered, clearCompleted } = useTodos()
 
 const filter = ref<TodoFilter>('all')
 const form = useTemplateRef('form')
 
 function onClearCompleted() {
-  const count = doneCount.value
   clearCompleted()
-  announce(`Cleared ${count} done ${count === 1 ? 'todo' : 'todos'}.`)
   // The button goes away with the done todos: focus would otherwise drop to the page.
   form.value?.focus()
 }
@@ -77,7 +73,7 @@ function onClearCompleted() {
       </TTabsContent>
     </TTabs>
 
-    <!-- The one live region: the list and the form announce what they did through provideAnnouncer. -->
-    <p class="sr-only" role="status">{{ message }}</p>
+    <!-- The one live region: the store's actions set what it says. -->
+    <p class="sr-only" role="status">{{ announcement }}</p>
   </TStack>
 </template>

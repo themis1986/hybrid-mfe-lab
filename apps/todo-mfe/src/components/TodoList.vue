@@ -2,7 +2,6 @@
 import { TIcon } from '@repo/ui-vue'
 import { ClipboardList } from '@repo/ui-vue/icons'
 import { nextTick } from 'vue'
-import { useAnnouncer } from '../hooks/useAnnouncer'
 import { useTodos } from '../hooks/useTodos'
 import type { Todo } from '../types'
 import TodoItem from './TodoItem.vue'
@@ -19,7 +18,6 @@ const emit = defineEmits<{
 }>()
 
 const { toggle, update, remove } = useTodos()
-const announce = useAnnouncer()
 
 function checkboxId(todo: Readonly<Todo>) {
   return `todo-${todo.id}-done`
@@ -39,18 +37,15 @@ async function keepFocus(id: string, action: () => void) {
 }
 
 function onToggle(todo: Readonly<Todo>) {
-  const state = todo.done ? 'open' : 'done'
   void keepFocus(todo.id, () => toggle(todo.id))
-  announce(`“${todo.title}” marked as ${state}.`)
 }
 
 function onUpdate(todo: Readonly<Todo>, title: string) {
-  if (update(todo.id, title)) announce(`Renamed to “${title.trim()}”.`)
+  update(todo.id, title)
 }
 
 function onRemove(todo: Readonly<Todo>) {
   void keepFocus(todo.id, () => remove(todo.id))
-  announce(`Removed “${todo.title}”.`)
 }
 </script>
 
