@@ -13,6 +13,7 @@ import {
   TAppShellMain,
   TAppShellSidebar,
   TAspectRatio,
+  TAudio,
   TButton,
   TCalendar,
   TCard,
@@ -41,8 +42,10 @@ import {
   TDialogTrigger,
   TDivider,
   TField,
+  TFrame,
   TGrid,
   TIcon,
+  TImage,
   TInline,
   TInput,
   toast,
@@ -80,10 +83,21 @@ import {
   TTooltip,
   type TTreeNode,
   TTreeSelector,
+  TVideo,
   TWidget,
 } from '@repo/ui'
 import { Bell, Check, Heart, Info, Plus, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
 import { type FormEvent, type ReactNode, useState } from 'react'
+import {
+  brokenAudio,
+  brokenImage,
+  brokenVideo,
+  growingFrameDoc,
+  sampleAudio,
+  sampleFrameDoc,
+  sampleImage,
+  sampleVideoSources,
+} from './samples'
 
 export type DocGroupId =
   | 'actions'
@@ -94,6 +108,7 @@ export type DocGroupId =
   | 'surfaces'
   | 'disclosure'
   | 'overlays'
+  | 'media'
   | 'app'
 
 export interface DocProp {
@@ -149,6 +164,11 @@ export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[
     description: 'Content layered above the page, portalled to the end of <body>.',
   },
   {
+    id: 'media',
+    label: 'Media',
+    description: 'Images, video, audio and embedded pages, with loading and error states.',
+  },
+  {
     id: 'app',
     label: 'App-level layout',
     description: 'Page frames, two-pane layouts, wrapping groups, scrolling and media boxes.',
@@ -180,6 +200,42 @@ const justifyProp = (fallback?: string): DocProp => ({
   type: "'start' | 'center' | 'end' | 'between'",
   default: fallback,
   description: 'Main-axis distribution (justify-content).',
+})
+
+// The media components' shared props. `className` and `style` go on the root; every other prop, ref
+// included, on the native element.
+const RATIO = "'square' | '4-3' | '3-2' | '16-9' | '21-9' | number"
+const FIT = "'cover' | 'contain' | 'fill' | 'none' | 'scale-down'"
+const radiusProp: DocProp = {
+  name: 'radius',
+  type: "'none' | 'sm' | 'md' | 'lg' | 'full'",
+  default: "'none'",
+  description: 'Corner rounding of the box.',
+}
+const borderedProp = (fallback: string): DocProp => ({
+  name: 'bordered',
+  type: 'boolean',
+  default: fallback,
+  description: 'A line around the box.',
+})
+const captionProp: DocProp = {
+  name: 'caption',
+  type: 'ReactNode',
+  description: 'Shown under the media; the root becomes a <figure>.',
+}
+const playbackProps: DocProp[] = [
+  { name: 'src', type: 'string', description: 'One file. Ignored when sources is given.' },
+  { name: 'sources', type: 'TMediaSource[]', description: '{ src, type?, media? }: alternative files; the browser plays the first it supports.' },
+  { name: 'controls', type: 'boolean', default: 'true', description: 'Native controls.' },
+  { name: 'preload', type: "'none' | 'metadata' | 'auto'", default: "'metadata'", description: 'How much to fetch before playing.' },
+  { name: 'volume', type: 'number', description: '0 to 1.' },
+  { name: 'playbackRate', type: 'number', description: '1 is normal speed.' },
+  { name: 'startTime', type: 'number', description: 'Where playback starts, in seconds.' },
+]
+const refProp = (element: string): DocProp => ({
+  name: 'ref',
+  type: `Ref<${element}>`,
+  description: 'The native element, e.g. to call play() or pause().',
 })
 
 // Placeholder content for the demos.
@@ -1186,6 +1242,25 @@ const pickerProps: DocProp[] = [
   { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close the calendar once a date (a range’s end) is picked.' },
   { name: 'triggerLabel', type: 'string', default: "'Open calendar'", description: 'Accessible name of the calendar button.' },
 ]
+
+function AudioDemo() {
+  const [playing, setPlaying] = useState(false)
+
+  return (
+    <TStack gap={5} className="max-w-md">
+      <TAudio
+        src={sampleAudio}
+        aria-label="T-rex roar"
+        caption={playing ? 'T-rex roar · playing' : 'T-rex roar'}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => setPlaying(false)}
+      />
+      <TAudio src={sampleAudio} playbackRate={0.5} volume={0.5} aria-label="T-rex roar, slowed" caption="Half speed, half volume" />
+      <TAudio src={brokenAudio} aria-label="Missing recording" />
+    </TStack>
+  )
+}
 
 export const DOC_ENTRIES: DocEntry[] = [
   // Actions & inputs
@@ -2418,5 +2493,157 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
     code: `<TAspectRatio ratio="16-9">
   <img src={cover} alt="" />
 </TAspectRatio>`,
+  },
+  {
+    id: 'image',
+    name: 'TImage',
+    group: 'media',
+    summary:
+      'An <img> in a box: an optional ratio, a skeleton while it loads, a fallback image and then fallback content when it fails, and an optional caption. Lazy-loaded and decoded off the main thread by default.',
+    props: [
+      { name: 'src', type: 'string', description: 'The image.' },
+      { name: 'alt', type: 'string', description: "Text alternative. Required: '' for a decorative image." },
+      { name: 'ratio', type: RATIO, description: 'The box’s ratio; the image then fills its width. Without one, the box hugs the image.' },
+      { name: 'fit', type: FIT, default: "'cover'", description: 'How the image fills its box (object-fit).' },
+      { name: 'position', type: 'string', description: "The part kept visible when cropped (object-position), e.g. 'top'." },
+      radiusProp,
+      borderedProp('false'),
+      { name: 'placeholder', type: "'skeleton' | 'none'", default: "'skeleton'", description: 'Shown while loading: a pulsing surface, or nothing.' },
+      { name: 'fallbackSrc', type: 'string', description: 'Tried once when src fails.' },
+      { name: 'fallback', type: 'ReactNode', description: 'Shown when the image can’t load. Default: an icon named by alt.' },
+      captionProp,
+      { name: 'loading', type: "'lazy' | 'eager'", default: "'lazy'", description: 'Native lazy loading.' },
+      { name: 'decoding', type: "'async' | 'sync' | 'auto'", default: "'async'", description: 'Native decoding hint.' },
+      { name: '…props', type: 'img props', description: 'srcSet, sizes, width, height, onLoad, onError… go on the <img>.' },
+      refProp('HTMLImageElement'),
+    ],
+    demo: (
+      <TGrid minChildWidth="12rem" gap={4}>
+        <TImage src={sampleImage} alt="Mountains under a violet sky" ratio="4-3" radius="md" caption="ratio 4-3, cover" />
+        <TImage
+          src={sampleImage}
+          alt="Mountains under a violet sky"
+          ratio="square"
+          fit="contain"
+          radius="md"
+          bordered
+          caption="square, contain, bordered"
+        />
+        <TImage src={sampleImage} alt="" ratio="square" position="right" radius="full" caption="radius full, position right" />
+        <TImage
+          src={brokenImage}
+          fallbackSrc={sampleImage}
+          alt="Mountains under a violet sky"
+          ratio="4-3"
+          radius="md"
+          caption="broken src, fallbackSrc"
+        />
+        <TImage src={brokenImage} alt="Mountains under a violet sky" ratio="4-3" radius="md" caption="broken, default fallback" />
+      </TGrid>
+    ),
+    code: `<TImage src={cover} alt="Team at the offsite" ratio="16-9" radius="md" fallbackSrc={placeholder} caption="Lisbon, 2026" />`,
+  },
+  {
+    id: 'video',
+    name: 'TVideo',
+    group: 'media',
+    summary:
+      'A <video> in a box with a fixed ratio, native controls, sources, caption tracks and a fallback over the box when nothing can be played. Autoplay starts muted and is skipped for users who prefer reduced motion.',
+    props: [
+      ...playbackProps,
+      { name: 'tracks', type: 'TMediaTrack[]', description: '{ src, kind?, srcLang?, label?, default? }: captions, subtitles, chapters (WebVTT).' },
+      { name: 'ratio', type: RATIO, default: "'16-9'", description: 'The box’s ratio.' },
+      { name: 'fit', type: FIT, default: "'contain'", description: 'How the video fills its box (object-fit).' },
+      radiusProp,
+      borderedProp('false'),
+      captionProp,
+      { name: 'autoPlay', type: 'boolean', default: 'false', description: 'Starts muted; skipped with prefers-reduced-motion.' },
+      { name: 'muted', type: 'boolean', default: 'false', description: 'Starts without sound.' },
+      { name: 'playsInline', type: 'boolean', default: 'true', description: 'Plays inline on iOS instead of full screen.' },
+      { name: 'fallback', type: 'ReactNode', description: 'Shown over the box when no source plays.' },
+      { name: 'errorLabel', type: 'string', default: "\"This video can't be played\"", description: 'The default fallback’s text.' },
+      { name: '…props', type: 'video props', description: 'poster, loop, onPlay, onTimeUpdate… go on the <video>.' },
+      refProp('HTMLVideoElement'),
+    ],
+    demo: (
+      <TGrid minChildWidth="16rem" gap={4}>
+        <TVideo sources={sampleVideoSources} radius="md" caption="Two sources (WebM, MP4), native controls" />
+        <TVideo
+          sources={sampleVideoSources}
+          autoPlay
+          loop
+          controls={false}
+          ratio="square"
+          fit="cover"
+          radius="md"
+          caption="Muted autoplay loop, cover (paused with reduced motion)"
+        />
+        <TVideo src={brokenVideo} radius="md" bordered caption="No playable source" />
+      </TGrid>
+    ),
+    code: `<TVideo
+  sources={[{ src: '/intro.webm', type: 'video/webm' }, { src: '/intro.mp4', type: 'video/mp4' }]}
+  tracks={[{ src: '/intro.en.vtt', kind: 'captions', srcLang: 'en', label: 'English', default: true }]}
+  poster="/intro.jpg"
+  radius="md"
+/>`,
+  },
+  {
+    id: 'audio',
+    name: 'TAudio',
+    group: 'media',
+    summary:
+      'An <audio> player with native controls, the width of its container, and a fallback in its place when nothing can be played. Name it with aria-label when no visible text says what it plays.',
+    props: [
+      ...playbackProps,
+      { name: 'autoPlay', type: 'boolean', default: 'false', description: 'Often blocked unless muted; skipped with prefers-reduced-motion.' },
+      captionProp,
+      { name: 'fallback', type: 'ReactNode', description: 'Shown in place of the player when no source plays.' },
+      { name: 'errorLabel', type: 'string', default: "\"This audio can't be played\"", description: 'The default fallback’s text.' },
+      { name: '…props', type: 'audio props', description: 'loop, muted, aria-label, onPlay, onEnded… go on the <audio>.' },
+      refProp('HTMLAudioElement'),
+    ],
+    demo: <AudioDemo />,
+    code: `<TAudio src="/episode-12.mp3" aria-label="Episode 12" caption="Episode 12 · 42 min" onEnded={next} />`,
+  },
+  {
+    id: 'frame',
+    name: 'TFrame',
+    group: 'media',
+    summary:
+      'An <iframe> in a box sized by a ratio, a fixed height or its own content, with a spinner until it loads. Lazy-loaded, and sends only the origin as referrer by default.',
+    props: [
+      { name: 'src', type: 'string', description: 'The page to embed.' },
+      { name: 'srcDoc', type: 'string', description: 'Inline HTML to embed instead.' },
+      { name: 'title', type: 'string', description: 'The frame’s accessible name. Required.' },
+      { name: 'ratio', type: RATIO, default: "'16-9'", description: 'The box’s ratio, unless height or autoHeight applies.' },
+      { name: 'height', type: 'string | number', description: 'A fixed height instead (a number is pixels).' },
+      { name: 'autoHeight', type: 'boolean', default: 'false', description: 'Follows the document’s height. Same-origin only (srcDoc, or a same-origin URL); otherwise the ratio applies.' },
+      { name: 'sandbox', type: 'boolean | string | string[]', description: "true: every restriction; or what to allow back, e.g. ['allow-scripts']." },
+      { name: 'allow', type: 'string | string[]', description: "Permissions policy, e.g. ['fullscreen', 'clipboard-write']." },
+      radiusProp,
+      borderedProp('true'),
+      captionProp,
+      { name: 'showLoader', type: 'boolean', default: 'true', description: 'A spinner over the box until the frame loads.' },
+      { name: 'loadingLabel', type: 'string', default: "'Loading'", description: 'The spinner’s announced label.' },
+      { name: 'loading', type: "'lazy' | 'eager'", default: "'lazy'", description: 'Native lazy loading.' },
+      { name: 'referrerPolicy', type: 'ReferrerPolicy', default: "'strict-origin-when-cross-origin'", description: 'What the embedded page learns about this one.' },
+      { name: '…props', type: 'iframe props', description: 'name, allowFullScreen, onLoad… go on the <iframe>.' },
+      refProp('HTMLIFrameElement'),
+    ],
+    demo: (
+      <TGrid minChildWidth="16rem" gap={4}>
+        <TFrame srcDoc={sampleFrameDoc} title="Sandboxed example" sandbox ratio="4-3" radius="md" caption="Sandboxed srcDoc, ratio 4-3" />
+        <TFrame srcDoc={growingFrameDoc} title="Growing example" autoHeight radius="md" caption="autoHeight: follows its content" />
+      </TGrid>
+    ),
+    code: `<TFrame
+  src="https://example.com/embed/report"
+  title="Quarterly report"
+  sandbox={['allow-scripts', 'allow-popups']}
+  allow={['fullscreen']}
+  ratio="4-3"
+  radius="md"
+/>`,
   },
 ]
