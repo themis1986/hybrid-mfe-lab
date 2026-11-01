@@ -10,6 +10,7 @@ import {
   TCardBody,
   TCardFooter,
   TCardHeader,
+  TCheckbox,
   TCluster,
   TContainer,
   TDialog,
@@ -29,8 +30,11 @@ import {
   TInput,
   TPageHeader,
   TPanel,
+  TRadioGroup,
+  TRadioGroupItem,
   TScrollArea,
   TSection,
+  TSelect,
   TSidebarLayout,
   TSidebarLayoutContent,
   TSidebarLayoutSidebar,
@@ -153,6 +157,112 @@ function SwitchDemo() {
         Disabled
       </label>
     </TCluster>
+  )
+}
+
+function CheckboxDemo() {
+  const [checked, setChecked] = useState<boolean | 'indeterminate'>(true)
+
+  return (
+    <TCluster gap={6}>
+      <label className="inline-flex items-center gap-2 text-sm">
+        <TCheckbox checked={checked} onCheckedChange={setChecked} />
+        Controlled: {String(checked)}
+      </label>
+      <label className="inline-flex items-center gap-2 text-sm">
+        <TCheckbox defaultChecked="indeterminate" />
+        Indeterminate
+      </label>
+      <label className="inline-flex items-center gap-2 text-sm">
+        <TCheckbox size="sm" />
+        Small, uncontrolled
+      </label>
+      <label className="inline-flex items-center gap-2 text-sm text-fg-muted">
+        <TCheckbox disabled defaultChecked />
+        Disabled
+      </label>
+    </TCluster>
+  )
+}
+
+const plans = [
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'yearly', label: 'Yearly' },
+  { value: 'lifetime', label: 'Lifetime' },
+]
+
+function RadioGroupDemo() {
+  const [plan, setPlan] = useState('monthly')
+
+  return (
+    <TCluster gap={8} align="start">
+      <div className="flex flex-col gap-3">
+        <TRadioGroup value={plan} onValueChange={setPlan} aria-label="Plan">
+          {plans.map((item) => (
+            <label key={item.value} className="inline-flex items-center gap-2 text-sm">
+              <TRadioGroupItem value={item.value} />
+              {item.label}
+            </label>
+          ))}
+        </TRadioGroup>
+        <span className="text-sm text-fg-muted">Controlled: {plan}</span>
+      </div>
+      <TRadioGroup orientation="horizontal" defaultValue="b" aria-label="Size">
+        <label className="inline-flex items-center gap-2 text-sm">
+          <TRadioGroupItem value="a" size="sm" />
+          Small
+        </label>
+        <label className="inline-flex items-center gap-2 text-sm">
+          <TRadioGroupItem value="b" size="sm" />
+          Medium
+        </label>
+        <label className="inline-flex items-center gap-2 text-sm text-fg-muted">
+          <TRadioGroupItem value="c" size="sm" disabled />
+          Large (disabled)
+        </label>
+      </TRadioGroup>
+    </TCluster>
+  )
+}
+
+const fruits = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'cherry', label: 'Cherry' },
+  { value: 'durian', label: 'Durian', disabled: true },
+  { value: 'elderberry', label: 'Elderberry' },
+]
+
+function SelectDemo() {
+  const [fruit, setFruit] = useState<string>()
+  const [basket, setBasket] = useState(['apple', 'cherry'])
+
+  return (
+    <TGrid minChildWidth="14rem" gap={4}>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="select-demo-single" className="text-sm font-medium">
+          Single
+        </label>
+        <TSelect id="select-demo-single" value={fruit} onValueChange={setFruit} options={fruits} placeholder="Pick a fruit" />
+        <span className="text-sm text-fg-muted">Controlled: {fruit ?? '—'}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="select-demo-multiple" className="text-sm font-medium">
+          Multiple
+        </label>
+        <TSelect
+          id="select-demo-multiple"
+          multiple
+          value={basket}
+          onValueChange={setBasket}
+          options={fruits}
+          placeholder="Pick fruits"
+        />
+        <span className="text-sm text-fg-muted">Controlled: {basket.join(', ') || '—'}</span>
+      </div>
+      <TSelect options={fruits} size="sm" invalid placeholder="Invalid, small" aria-label="Invalid" />
+      <TSelect options={fruits} disabled defaultValue="banana" aria-label="Disabled" />
+    </TGrid>
   )
 }
 
@@ -365,6 +475,73 @@ export const DOC_ENTRIES: DocEntry[] = [
 <label>
   <TSwitch defaultChecked size="sm" /> Remember me
 </label>`,
+  },
+  {
+    id: 'checkbox',
+    name: 'TCheckbox',
+    group: 'actions',
+    summary:
+      'A checkbox (Radix Checkbox): a <button role="checkbox">, also indeterminate. Name it with a wrapping <label> or aria-label.',
+    props: [
+      { name: 'checked', type: "boolean | 'indeterminate'", description: 'Controlled state; pair it with onCheckedChange.' },
+      { name: 'defaultChecked', type: "boolean | 'indeterminate'", default: 'false', description: 'Initial state when uncontrolled.' },
+      { name: 'onCheckedChange', type: "(checked: boolean | 'indeterminate') => void", description: 'Called when the user toggles it.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Box size.' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'Native disabled; not focusable or togglable.' },
+      { name: 'name / value / required', type: 'string / string / boolean', description: 'Form submission, as a native checkbox.' },
+      asChildProp,
+    ],
+    demo: <CheckboxDemo />,
+    code: `<label>
+  <TCheckbox checked={accepted} onCheckedChange={setAccepted} /> I accept the terms
+</label>
+<TCheckbox defaultChecked="indeterminate" aria-label="Select all" />`,
+  },
+  {
+    id: 'radio-group',
+    name: 'TRadioGroup',
+    parts: ['TRadioGroupItem'],
+    group: 'actions',
+    summary:
+      'A set of radio buttons (Radix RadioGroup): one value, arrow keys move it. Name the group with aria-label, each item with a <label>.',
+    props: [
+      { name: 'value', type: 'string', description: "The checked item's value; pair it with onValueChange." },
+      { name: 'defaultValue', type: 'string', description: 'Initial value when uncontrolled.' },
+      { name: 'onValueChange', type: '(value: string) => void', description: 'Called when the user checks an item.' },
+      { name: 'orientation', type: "'vertical' | 'horizontal'", default: "'vertical'", description: 'Layout (horizontal wraps) and arrow keys.' },
+      { name: 'disabled / name / required', type: 'boolean / string / boolean', description: 'For every item; form submission.' },
+      { name: 'TRadioGroupItem value', type: 'string', description: 'The group value while this item is checked. Required.' },
+      { name: 'TRadioGroupItem size', type: "'sm' | 'md'", default: "'md'", description: 'Circle size.' },
+      { name: 'TRadioGroupItem disabled', type: 'boolean', default: 'false', description: 'Disables this item only.' },
+      asChildProp,
+    ],
+    demo: <RadioGroupDemo />,
+    code: `<TRadioGroup value={plan} onValueChange={setPlan} aria-label="Plan">
+  <label><TRadioGroupItem value="monthly" /> Monthly</label>
+  <label><TRadioGroupItem value="yearly" /> Yearly</label>
+</TRadioGroup>`,
+  },
+  {
+    id: 'select',
+    name: 'TSelect',
+    group: 'actions',
+    summary:
+      'A select over a list of options, single (Radix Select) or multiple (a listbox in a Radix Popover). Options show a radio (single) or a checkbox (multiple).',
+    props: [
+      { name: 'options', type: '{ value: string; label: string; disabled?: boolean }[]', description: 'The choices. Required.' },
+      { name: 'multiple', type: 'boolean', default: 'false', description: 'Several values; the list stays open while toggling.' },
+      { name: 'value', type: 'string | string[]', description: 'Controlled value (an array with multiple); pair it with onValueChange.' },
+      { name: 'defaultValue', type: 'string | string[]', description: 'Initial value when uncontrolled.' },
+      { name: 'onValueChange', type: '(value: string | string[]) => void', description: 'Called when the selection changes.' },
+      { name: 'placeholder', type: 'string', description: 'Shown while nothing is selected.' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Trigger size, as TInput's." },
+      { name: 'invalid', type: 'boolean', default: 'false', description: 'aria-invalid and the error border.' },
+      { name: 'disabled / name / required', type: 'boolean / string / boolean', description: 'Native disabled; form submission.' },
+      { name: 'id / aria-label / className', type: 'string', description: 'Go on the trigger; id is for a <label htmlFor>.' },
+    ],
+    demo: <SelectDemo />,
+    code: `<TSelect value={fruit} onValueChange={setFruit} options={fruits} placeholder="Pick a fruit" aria-label="Fruit" />
+<TSelect multiple value={basket} onValueChange={setBasket} options={fruits} aria-label="Basket" />`,
   },
 
   // Icons

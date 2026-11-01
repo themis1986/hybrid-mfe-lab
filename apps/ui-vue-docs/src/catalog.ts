@@ -3,6 +3,7 @@ import AppShellDemo from './demos/AppShellDemo.vue'
 import AspectRatioDemo from './demos/AspectRatioDemo.vue'
 import ButtonDemo from './demos/ButtonDemo.vue'
 import CardDemo from './demos/CardDemo.vue'
+import CheckboxDemo from './demos/CheckboxDemo.vue'
 import ClusterDemo from './demos/ClusterDemo.vue'
 import ContainerDemo from './demos/ContainerDemo.vue'
 import DialogDemo from './demos/DialogDemo.vue'
@@ -14,8 +15,10 @@ import InlineDemo from './demos/InlineDemo.vue'
 import InputDemo from './demos/InputDemo.vue'
 import PageHeaderDemo from './demos/PageHeaderDemo.vue'
 import PanelDemo from './demos/PanelDemo.vue'
+import RadioGroupDemo from './demos/RadioGroupDemo.vue'
 import ScrollAreaDemo from './demos/ScrollAreaDemo.vue'
 import SectionDemo from './demos/SectionDemo.vue'
+import SelectDemo from './demos/SelectDemo.vue'
 import SidebarLayoutDemo from './demos/SidebarLayoutDemo.vue'
 import SpacerDemo from './demos/SpacerDemo.vue'
 import SplitDemo from './demos/SplitDemo.vue'
@@ -188,6 +191,76 @@ export const DOC_ENTRIES: DocEntry[] = [
 <label>
   <TSwitch :default-value="true" size="sm" /> Remember me
 </label>`,
+  },
+  {
+    id: 'checkbox',
+    name: 'TCheckbox',
+    group: 'actions',
+    summary:
+      'A checkbox (Reka Checkbox): a <button role="checkbox">, also indeterminate. Name it with a wrapping <label> or aria-label.',
+    props: [
+      { name: 'v-model', type: "boolean | 'indeterminate'", description: 'The state (modelValue / update:modelValue).' },
+      { name: 'defaultValue', type: "boolean | 'indeterminate'", default: 'false', description: 'Initial state when no v-model is bound.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Box size.' },
+      { name: 'disabled', type: 'boolean', default: 'false', description: 'Native disabled; not focusable or togglable.' },
+      { name: 'name / value / required', type: 'string / string / boolean', description: 'Form submission, as a native checkbox.' },
+      ...asProps('button'),
+    ],
+    events: [
+      { name: 'update:modelValue', payload: "boolean | 'indeterminate'", description: 'When the user toggles it (v-model).' },
+    ],
+    demo: CheckboxDemo,
+    code: `<label>
+  <TCheckbox v-model="accepted" /> I accept the terms
+</label>
+<TCheckbox :default-value="'indeterminate'" aria-label="Select all" />`,
+  },
+  {
+    id: 'radio-group',
+    name: 'TRadioGroup',
+    parts: ['TRadioGroupItem'],
+    group: 'actions',
+    summary:
+      'A set of radio buttons (Reka RadioGroup): one value, arrow keys move it. Name the group with aria-label, each item with a <label>.',
+    props: [
+      { name: 'v-model', type: 'string', description: "The checked item's value." },
+      { name: 'defaultValue', type: 'string', description: 'Initial value when no v-model is bound.' },
+      { name: 'orientation', type: "'vertical' | 'horizontal'", default: "'vertical'", description: 'Layout (horizontal wraps) and arrow keys.' },
+      { name: 'disabled / name / required', type: 'boolean / string / boolean', description: 'For every item; form submission.' },
+      { name: 'TRadioGroupItem value', type: 'string', description: 'The group value while this item is checked. Required.' },
+      { name: 'TRadioGroupItem size', type: "'sm' | 'md'", default: "'md'", description: 'Circle size.' },
+      { name: 'TRadioGroupItem disabled', type: 'boolean', default: 'false', description: 'Disables this item only.' },
+      ...asProps('div'),
+    ],
+    slots: [{ name: 'default', description: 'The TRadioGroupItems, usually each in a <label>.' }],
+    events: [{ name: 'update:modelValue', payload: 'string', description: 'When the user checks an item (v-model).' }],
+    demo: RadioGroupDemo,
+    code: `<TRadioGroup v-model="plan" aria-label="Plan">
+  <label><TRadioGroupItem value="monthly" /> Monthly</label>
+  <label><TRadioGroupItem value="yearly" /> Yearly</label>
+</TRadioGroup>`,
+  },
+  {
+    id: 'select',
+    name: 'TSelect',
+    group: 'actions',
+    summary:
+      'A select over a list of options (Reka Select), single or multiple. Options show a radio (single) or a checkbox (multiple).',
+    props: [
+      { name: 'options', type: '{ value: string; label: string; disabled?: boolean }[]', description: 'The choices. Required.' },
+      { name: 'v-model', type: 'string | string[]', description: 'The selected value; an array with multiple.' },
+      { name: 'multiple', type: 'boolean', default: 'false', description: 'Several values; the list stays open while toggling.' },
+      { name: 'defaultValue', type: 'string | string[]', description: 'Initial value when no v-model is bound.' },
+      { name: 'placeholder', type: 'string', description: 'Shown while nothing is selected.' },
+      { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: "Trigger size, as TInput's." },
+      { name: 'invalid', type: 'boolean', default: 'false', description: 'aria-invalid and the error border.' },
+      { name: 'disabled / name / required', type: 'boolean / string / boolean', description: 'Native disabled; form submission.' },
+      { name: '…attributes', type: 'button attributes', description: 'Go on the trigger: id (for a <label for>), aria-label, class.' },
+    ],
+    events: [{ name: 'update:modelValue', payload: 'string | string[]', description: 'When the selection changes (v-model).' }],
+    demo: SelectDemo,
+    code: `<TSelect v-model="fruit" :options="fruits" placeholder="Pick a fruit" aria-label="Fruit" />
+<TSelect v-model="basket" multiple :options="fruits" aria-label="Basket" />`,
   },
 
   // Icons
