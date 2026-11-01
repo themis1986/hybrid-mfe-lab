@@ -12,6 +12,15 @@ import {
   TCardHeader,
   TCluster,
   TContainer,
+  TDialog,
+  TDialogBody,
+  TDialogClose,
+  TDialogContent,
+  TDialogDescription,
+  TDialogFooter,
+  TDialogHeader,
+  TDialogTitle,
+  TDialogTrigger,
   TDivider,
   TField,
   TGrid,
@@ -33,7 +42,7 @@ import {
 import { Bell, Check, Heart, Info, Search, Settings, Star, TriangleAlert } from '@repo/ui/icons'
 import { type ReactNode, useState } from 'react'
 
-export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'app'
+export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
 
 export interface DocProp {
   name: string
@@ -74,6 +83,11 @@ export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[
     id: 'surfaces',
     label: 'Surfaces & structure',
     description: 'Group and title content: cards, sections, page headers and panels.',
+  },
+  {
+    id: 'overlays',
+    label: 'Overlays',
+    description: 'Content layered above the page, portalled to the end of <body>.',
   },
   {
     id: 'app',
@@ -137,6 +151,80 @@ function SwitchDemo() {
         <TSwitch disabled defaultChecked />
         Disabled
       </label>
+    </TCluster>
+  )
+}
+
+function DialogDemo() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <TCluster>
+      <TDialog open={open} onOpenChange={setOpen}>
+        <TDialogTrigger asChild>
+          <TButton label="Edit profile" />
+        </TDialogTrigger>
+        <TDialogContent>
+          <TDialogHeader>
+            <TDialogTitle>Edit profile</TDialogTitle>
+            <TDialogDescription>Controlled: Save closes it by setting open to false.</TDialogDescription>
+          </TDialogHeader>
+          <TDialogBody>
+            <TStack gap={3}>
+              <TField label="Name" defaultValue="Ada Lovelace" />
+              <TField label="Email" type="email" defaultValue="ada@example.com" />
+            </TStack>
+          </TDialogBody>
+          <TDialogFooter>
+            <TDialogClose asChild>
+              <TButton variant="ghost" label="Cancel" />
+            </TDialogClose>
+            <TButton label="Save" onClick={() => setOpen(false)} />
+          </TDialogFooter>
+        </TDialogContent>
+      </TDialog>
+      <TDialog>
+        <TDialogTrigger asChild>
+          <TButton variant="outline" label="Delete…" />
+        </TDialogTrigger>
+        <TDialogContent size="sm">
+          <TDialogHeader>
+            <TDialogTitle>Delete this item?</TDialogTitle>
+            <TDialogDescription>Small and uncontrolled. This can't be undone.</TDialogDescription>
+          </TDialogHeader>
+          <TDialogFooter>
+            <TDialogClose asChild>
+              <TButton variant="ghost" label="Cancel" />
+            </TDialogClose>
+            <TDialogClose asChild>
+              <TButton variant="danger" label="Delete" />
+            </TDialogClose>
+          </TDialogFooter>
+        </TDialogContent>
+      </TDialog>
+      <TDialog>
+        <TDialogTrigger asChild>
+          <TButton variant="soft" label="Full screen" />
+        </TDialogTrigger>
+        <TDialogContent size="full">
+          <TDialogHeader>
+            <TDialogTitle>Full screen</TDialogTitle>
+            <TDialogDescription>size="full" fills the viewport; the body takes the free height and scrolls.</TDialogDescription>
+          </TDialogHeader>
+          <TDialogBody>
+            <TStack gap={2}>
+              {Array.from({ length: 40 }, (_, i) => (
+                <Block key={i}>Row {i + 1}</Block>
+              ))}
+            </TStack>
+          </TDialogBody>
+          <TDialogFooter>
+            <TDialogClose asChild>
+              <TButton label="Done" />
+            </TDialogClose>
+          </TDialogFooter>
+        </TDialogContent>
+      </TDialog>
     </TCluster>
   )
 }
@@ -543,6 +631,64 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
   <TInline wrap gap={2}>…</TInline>
 </TPanel>
 <TPanel tone="accent" padding={3}>…</TPanel>`,
+  },
+
+  // Overlays
+  {
+    id: 'dialog',
+    name: 'TDialog',
+    parts: [
+      'TDialogTrigger',
+      'TDialogContent',
+      'TDialogHeader',
+      'TDialogTitle',
+      'TDialogDescription',
+      'TDialogBody',
+      'TDialogFooter',
+      'TDialogClose',
+    ],
+    group: 'overlays',
+    summary:
+      'A modal dialog (Radix Dialog): focus is trapped inside, Escape or a click on the overlay closes it, and focus returns to the trigger. The content has a close button; the body scrolls when it is too tall. Always give it a TDialogTitle.',
+    props: [
+      { name: 'open', type: 'boolean', description: 'TDialog: controlled state; pair it with onOpenChange.' },
+      { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'TDialog: initial state when uncontrolled.' },
+      { name: 'onOpenChange', type: '(open: boolean) => void', description: 'TDialog: called when it opens or closes.' },
+      { name: 'modal', type: 'boolean', default: 'true', description: 'TDialog: make the rest of the page inert while open.' },
+      {
+        name: 'size',
+        type: "'sm' | 'md' | 'lg' | 'full'",
+        default: "'md'",
+        description: 'TDialogContent: maximum width, or full to fill the viewport (no margin, border or radius).',
+      },
+      { name: 'hideClose', type: 'boolean', default: 'false', description: 'TDialogContent: leave out the close button.' },
+      { name: 'closeLabel', type: 'string', default: "'Close'", description: "TDialogContent: the close button's accessible name." },
+      {
+        name: 'on…',
+        type: 'Radix Content handlers',
+        description: 'TDialogContent: onEscapeKeyDown, onInteractOutside, … (call preventDefault() to keep it open).',
+      },
+      { ...asChildProp, description: 'Trigger, Close, Header, Title, Description, Body, Footer: ' + asChildProp.description },
+    ],
+    demo: <DialogDemo />,
+    code: `<TDialog open={open} onOpenChange={setOpen}>
+  <TDialogTrigger asChild>
+    <TButton label="Edit profile" />
+  </TDialogTrigger>
+  <TDialogContent>
+    <TDialogHeader>
+      <TDialogTitle>Edit profile</TDialogTitle>
+      <TDialogDescription>…</TDialogDescription>
+    </TDialogHeader>
+    <TDialogBody>…</TDialogBody>
+    <TDialogFooter>
+      <TDialogClose asChild>
+        <TButton variant="ghost" label="Cancel" />
+      </TDialogClose>
+      <TButton label="Save" onClick={save} />
+    </TDialogFooter>
+  </TDialogContent>
+</TDialog>`,
   },
 
   // App-level layout

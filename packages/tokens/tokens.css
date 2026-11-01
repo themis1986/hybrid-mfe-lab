@@ -59,6 +59,8 @@
   --t-red-12: light-dark(#641723, #ffd1d9);
 
   --t-white: #ffffff;
+  /* Radix blackA9: a translucent black, the same in both schemes */
+  --t-black-a9: #00000072;
 }
 
 /* ...unless the host page forces a scheme: <html data-theme="light|dark">. color-scheme inherits, so this
@@ -103,6 +105,9 @@
   /* Focus */
   --t-color-focus: var(--t-iris-8);
 
+  /* Overlay: the backdrop behind modal content */
+  --t-color-overlay: var(--t-black-a9);
+
   /* Shape */
   --t-radius-sm: 6px;
   --t-radius-md: 8px;
@@ -124,6 +129,7 @@
 
   /* Depth */
   --t-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.1);
+  --t-shadow-lg: 0 10px 38px -10px rgb(0 0 0 / 0.35), 0 10px 20px -15px rgb(0 0 0 / 0.2);
 
   /* Motion */
   --t-ease-out: cubic-bezier(0.2, 0, 0, 1);

@@ -118,6 +118,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
   - prop types are written out in `types.ts`: Vue's `defineProps` can't derive runtime props from cva's `VariantProps`;
   - content goes through slots (named slots where React takes node props), and inputs use `defineModel`;
   - components that render their own structure around the content take `as` but not `asChild`.
+- Overlay components portal to `document.body`, outside the remote's mount element: their root sets its own font and text colour (nothing to inherit there) and sits at `z-50`, above the app frame's sticky header. Parts that only wrap behaviour (root, trigger, close) carry no classes and pass through to the Radix/Reka part.
 - Layout components hold no state (collapsing and the like is a caller-controlled prop) and are intrinsically responsive (flex-wrap, auto-fit, `min(100%, …)`), with no viewport breakpoints except the page-level app frame's one `max-md:`. A root restyles its parts only through direct-child `data-slot` selectors.
 - The shell runs its own Tailwind (`apps/shell/src/index.css`): theme + utilities **without Preflight** (remotes render inside its page), plus `@repo/tokens/theme.css`. It loads after `@repo/ui/styles.css`. The todo MFE doesn't run Tailwind: only classes used inside `packages/ui/src` exist there.
 

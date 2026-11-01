@@ -56,3 +56,25 @@ export { TScrollArea } from './components/TScrollArea'
 export type { TScrollAreaProps } from './components/TScrollArea'
 export { TAspectRatio } from './components/TAspectRatio'
 export type { TAspectRatioProps } from './components/TAspectRatio'
+export {
+  TDialog,
+  TDialogBody,
+  TDialogClose,
+  TDialogContent,
+  TDialogDescription,
+  TDialogFooter,
+  TDialogHeader,
+  TDialogTitle,
+  TDialogTrigger,
+} from './components/TDialog'
+export type {
+  TDialogBodyProps,
+  TDialogCloseProps,
+  TDialogContentProps,
+  TDialogDescriptionProps,
+  TDialogFooterProps,
+  TDialogHeaderProps,
+  TDialogProps,
+  TDialogTitleProps,
+  TDialogTriggerProps,
+} from './components/TDialog'

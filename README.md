@@ -222,6 +222,7 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 | react-router | 8.5.0 | | @module-federation/vite | 1.23.6 |
 | @types/react(-dom) | 19.3.0 | | @r2wc/react-to-web-component | 2.1.1 |
 | @types/node | 22.20.5 | | tailwindcss / @tailwindcss/vite | 4.3.3 |
+| @radix-ui/react-dialog | 1.3.1 | | @radix-ui/react-label | 2.1.17 |
 | @radix-ui/react-slot | 1.5.0 | | class-variance-authority | 0.7.1 |
 | @radix-ui/react-switch | 1.4.1 | | reka-ui | 2.11.0 |
 | clsx | 2.1.1 | | tailwind-merge | 3.7.0 |

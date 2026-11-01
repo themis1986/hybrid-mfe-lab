@@ -5,6 +5,7 @@ import ButtonDemo from './demos/ButtonDemo.vue'
 import CardDemo from './demos/CardDemo.vue'
 import ClusterDemo from './demos/ClusterDemo.vue'
 import ContainerDemo from './demos/ContainerDemo.vue'
+import DialogDemo from './demos/DialogDemo.vue'
 import DividerDemo from './demos/DividerDemo.vue'
 import FieldDemo from './demos/FieldDemo.vue'
 import GridDemo from './demos/GridDemo.vue'
@@ -21,7 +22,7 @@ import SplitDemo from './demos/SplitDemo.vue'
 import StackDemo from './demos/StackDemo.vue'
 import SwitchDemo from './demos/SwitchDemo.vue'
 
-export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'app'
+export type DocGroupId = 'actions' | 'icons' | 'primitives' | 'surfaces' | 'overlays' | 'app'
 
 export interface DocProp {
   name: string
@@ -60,6 +61,11 @@ export const DOC_GROUPS: { id: DocGroupId; label: string; description: string }[
     id: 'surfaces',
     label: 'Surfaces & structure',
     description: 'Group and title content: cards, sections, page headers and panels.',
+  },
+  {
+    id: 'overlays',
+    label: 'Overlays',
+    description: 'Content layered above the page, portalled to the end of <body>.',
   },
   {
     id: 'app',
@@ -393,6 +399,75 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
   <TInline wrap :gap="2">…</TInline>
 </TPanel>
 <TPanel tone="accent" :padding="3">…</TPanel>`,
+  },
+
+  // Overlays
+  {
+    id: 'dialog',
+    name: 'TDialog',
+    parts: [
+      'TDialogTrigger',
+      'TDialogContent',
+      'TDialogHeader',
+      'TDialogTitle',
+      'TDialogDescription',
+      'TDialogBody',
+      'TDialogFooter',
+      'TDialogClose',
+    ],
+    group: 'overlays',
+    summary:
+      'A modal dialog (Reka Dialog): focus is trapped inside, Escape or a click on the overlay closes it, and focus returns to the trigger. The content has a close button; the body scrolls when it is too tall. Always give it a TDialogTitle.',
+    props: [
+      { name: 'v-model:open', type: 'boolean', description: 'TDialog: the state (open / update:open).' },
+      { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'TDialog: initial state when no v-model:open is bound.' },
+      { name: 'modal', type: 'boolean', default: 'true', description: 'TDialog: make the rest of the page inert while open.' },
+      {
+        name: 'size',
+        type: "'sm' | 'md' | 'lg' | 'full'",
+        default: "'md'",
+        description: 'TDialogContent: maximum width, or full to fill the viewport (no margin, border or radius).',
+      },
+      { name: 'hideClose', type: 'boolean', default: 'false', description: 'TDialogContent: leave out the close button.' },
+      { name: 'closeLabel', type: 'string', default: "'Close'", description: "TDialogContent: the close button's accessible name." },
+      asOnly('div', 'TDialogContent: the content element; its close button stays inside.'),
+      {
+        name: 'as / asChild',
+        type: 'string | Component / boolean',
+        description: 'Trigger, Close, Header, Title, Description, Body, Footer (Reka Primitive).',
+      },
+    ],
+    slots: [
+      { name: 'TDialog default', description: 'The trigger and the content; receives { open, close }.' },
+      { name: 'TDialogContent default', description: 'The header, body and footer parts, or any content.' },
+    ],
+    events: [
+      { name: 'update:open', payload: 'boolean', description: 'TDialog: when it opens or closes (v-model:open).' },
+      {
+        name: 'escapeKeyDown / interactOutside',
+        payload: 'Event',
+        description: 'TDialogContent: call preventDefault() to keep it open.',
+      },
+    ],
+    demo: DialogDemo,
+    code: `<TDialog v-model:open="open">
+  <TDialogTrigger as-child>
+    <TButton label="Edit profile" />
+  </TDialogTrigger>
+  <TDialogContent>
+    <TDialogHeader>
+      <TDialogTitle>Edit profile</TDialogTitle>
+      <TDialogDescription>…</TDialogDescription>
+    </TDialogHeader>
+    <TDialogBody>…</TDialogBody>
+    <TDialogFooter>
+      <TDialogClose as-child>
+        <TButton variant="ghost" label="Cancel" />
+      </TDialogClose>
+      <TButton label="Save" @click="save" />
+    </TDialogFooter>
+  </TDialogContent>
+</TDialog>`,
   },
 
   // App-level layout

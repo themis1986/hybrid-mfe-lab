@@ -31,6 +31,8 @@
 
   --color-focus: var(--t-color-focus);
 
+  --color-overlay: var(--t-color-overlay);
+
   /* Standard Tailwind names, so tailwind-merge resolves conflicts without extra config. */
   --radius-sm: var(--t-radius-sm);
   --radius-md: var(--t-radius-md);
@@ -40,6 +42,7 @@
   --font-mono: var(--t-font-mono);
 
   --shadow-sm: var(--t-shadow-sm);
+  --shadow-lg: var(--t-shadow-lg);
 
   --ease-out: var(--t-ease-out);
 }

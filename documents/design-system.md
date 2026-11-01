@@ -72,11 +72,12 @@ graph LR
 | 1. Primitive | `--t-<hue>-<step>` | `--t-iris-9` | Only tier 2. Components never reference a primitive. |
 | 2. Semantic | `--t-color-<role>`, `--t-radius-*`, `--t-font-*`, `--t-shadow-*`, `--t-ease-*` | `--t-color-accent` | The Tailwind bridge, and therefore every component. |
 
-The semantic roles fall into four groups:
+The semantic roles fall into five groups:
 - **surfaces and text**: the page canvas, raised surfaces, foreground, muted foreground, lines;
 - **accent**: solid fill and its hover, the text colour on top of it, subtle fills, the accent line and accent text;
 - **danger**: the same solid trio, in red;
-- **focus**: the focus-ring colour.
+- **focus**: the focus-ring colour;
+- **overlay**: the translucent backdrop behind modal content (a black-alpha step, the same in both schemes).
 
 A component asks for a *role* ("accent fill"), never a *colour* ("iris 9"). Swapping the brand colour is therefore a change to tier 2 only.
 
@@ -225,6 +226,7 @@ Layout components hold children, so they are never registered as custom elements
 | Inline lengths | merged into `style` (`withStyle`) | bound as `[vars, $attrs.style]` |
 | Prop types | `VariantProps<typeof tNameVariants>` | written out in `types.ts`: `defineProps` can't derive runtime props from a computed type |
 | Inputs | controlled `value` + `onChange` | `defineModel()`, so `v-model` works |
+| Open state | `open` + `onOpenChange`, or `defaultOpen` | `v-model:open` (`defineModel('open')`), or `defaultOpen` |
 | Generated ids | — (one React root per app) | `useId()`, unique per app: each Vue app on the page sets its own `app.config.idPrefix` |
 | Structure around content | `Slottable` keeps `asChild` working | `as` only: the root changes, the inner structure stays |
 
@@ -293,5 +295,12 @@ Build details:
 - **Which classes exist depends on the host.** In an app that runs Tailwind with `@repo/tokens/theme.css` (the shell, the docs remotes), any utility works, in its own markup and in a class passed to a component. In an app that doesn't (the todo MFE), only classes used in the library's `src` exist, so a class in its own markup does nothing unless the library happens to use it.
 - **The scanner reads words, not code.** Any word in `src` that happens to be a utility name produces that utility, for example a variant key that is also a utility name. This is harmless (a few unused rules) but explains surprises in `dist/styles.css`.
 - **`transition-colors` includes `outline-color`.** A focus ring therefore fades in over the transition duration rather than appearing instantly.
+- **Overlays portal out of the app.** Radix and Reka render overlay content (the backdrop and the panel) at the end of `document.body`, outside the element a microfrontend is mounted in.
+  - It is still styled: a remote's inline `<style>` and the shell's stylesheet apply to the whole page.
+  - It is still themed: the tokens resolve on `:root`.
+  - It inherits nothing from the app's container, so the overlay's own root sets its font and text colour.
+  - It sits at `z-50`, above the app frame's sticky header (`z-10`).
+  - It goes away with the app: `root.unmount()` (React) and `app.unmount()` (Vue) remove portalled and teleported content too.
+  - Parts that only wrap behaviour (the root, a trigger, a close) carry no classes and pass their props straight to the primitive.
 - **Fonts are system stacks.** A web font would need its files served from somewhere both the shell and a federated remote can reach. `url()`s in the inlined CSS resolve against the *page*, not the remote. Decide the hosting before adding one.
 - **Colours are sRGB hex.** Radix also publishes Display-P3 versions of each scale. Adding them is a tier-1-only change inside an `@supports (color: color(display-p3 1 1 1))` block.
