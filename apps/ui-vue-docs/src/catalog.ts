@@ -178,6 +178,7 @@ export const DOC_ENTRIES: DocEntry[] = [
       { name: 'v-model', type: 'string', description: 'Passed through to the input.' },
       { name: 'description', type: 'string', description: 'Helper text under the input.' },
       { name: 'error', type: 'string', description: 'Error text; replaces the description and marks the input invalid.' },
+      { name: 'revealLabel', type: 'string', default: "'Show password'", description: 'Name of the show/hide toggle a type="password" field gets.' },
       { name: 'id', type: 'string', description: "The input's id; generated with useId() when omitted." },
       { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Input size.' },
       { name: '…attributes', type: 'input attributes', description: 'Go on the input; class and style go on the root.' },
@@ -185,7 +186,8 @@ export const DOC_ENTRIES: DocEntry[] = [
     events: [{ name: 'update:modelValue', payload: 'string', description: 'On every input (v-model).' }],
     demo: FieldDemo,
     code: `<TField v-model="email" label="Email" description="We never share it." />
-<TField v-model="username" label="Username" :error="error" />`,
+<TField v-model="username" label="Username" :error="error" />
+<TField v-model="password" label="Password" type="password" />`,
   },
   {
     id: 'switch',

@@ -7,4 +7,6 @@ export interface TFieldProps extends TInputProps {
   description?: string
   /** Error text. Marks the input as invalid and is announced (`role="alert"`). */
   error?: string
+  /** Accessible name of the show/hide toggle a `type="password"` field gets. */
+  revealLabel?: string
 }
