@@ -1017,16 +1017,19 @@ export const DOC_ENTRIES: DocEntry[] = [
       { name: 'label', type: 'string', description: 'Visible label, linked to the input. Required.' },
       { name: 'description', type: 'string', description: 'Helper text under the input.' },
       { name: 'error', type: 'string', description: 'Error text; replaces the description and marks the input invalid.' },
+      { name: 'revealLabel', type: 'string', default: "'Show password'", description: 'Name of the show/hide toggle a type="password" field gets.' },
       { name: '…input props', type: 'TInputProps', description: 'Passed to the input; id is generated when omitted.' },
     ],
     demo: (
       <TGrid minChildWidth="14rem" gap={4}>
         <TField label="Email" placeholder="you@example.com" description="We never share it." />
         <TField label="Username" defaultValue="taken" error="That username is taken." />
+        <TField label="Password" type="password" defaultValue="secret" />
       </TGrid>
     ),
     code: `<TField label="Email" description="We never share it." value={email} onChange={onChange} />
-<TField label="Username" error={error} />`,
+<TField label="Username" error={error} />
+<TField label="Password" type="password" />`,
   },
   {
     id: 'switch',
