@@ -121,6 +121,14 @@ export type {
   TAccordionProps,
   TAccordionTriggerProps,
 } from './components/TAccordion'
+export { TPopover, TPopoverClose, TPopoverContent, TPopoverFooter, TPopoverTrigger } from './components/TPopover'
+export type {
+  TPopoverCloseProps,
+  TPopoverContentProps,
+  TPopoverFooterProps,
+  TPopoverProps,
+  TPopoverTriggerProps,
+} from './components/TPopover'
 export { TTooltip } from './components/TTooltip'
 export type { TTooltipProps } from './components/TTooltip'
 export { TWidget } from './components/TWidget'
