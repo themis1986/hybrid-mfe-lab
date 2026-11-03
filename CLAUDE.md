@@ -16,6 +16,7 @@ A pnpm + Turborepo microfrontends skeleton:
   - **`packages/ui-vue`** (`@repo/ui-vue`): Vue 3 + Reka UI + Tailwind v4.
 - **`packages/tokens`** (`@repo/tokens`): the design tokens and the token → Tailwind theme, shared by both libraries and by apps that run Tailwind.
 - **`packages/map-core`** (`@repo/map-core`): framework-agnostic map logic (Mapbox GL JS) behind both libraries' `./map` entries. Its README covers the token, usage and adding a layer type; `documents/decisions/map.md` records the choices.
+- **`packages/chart-core`** (`@repo/chart-core`): framework-agnostic chart logic (Highcharts) behind both libraries' `./charts` entries. Its README covers usage, theming, modules, the license and adding a chart type; `documents/decisions/charts.md` records the choices.
 - **`packages/config`** (`@repo/config`) holds the shared tsconfig presets.
 - Every Vue app is on `@repo/ui-vue`. `@repo/ui` still builds the custom-element bridge (`@repo/ui/register`, "Option A"), but no app uses it.
 
@@ -129,7 +130,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 **Tokens (`packages/tokens`).**
 
 - CSS only, no build step: `tokens.css` and `theme.css`, exported as `@repo/tokens/tokens.css` and `@repo/tokens/theme.css`.
-- `tokens.css`: primitives `--t-<hue>-<step>` (Radix Colors scales, each a `light-dark(<light>, <dark>)` pair) and semantic `--t-color-<role>` etc. Status roles (`success`, `info`, `warning`, and `danger` as error) each have a solid, `-subtle`, `-line` and `-fg`. Components use semantic tokens only, via Tailwind utilities, and never `dark:` classes.
+- `tokens.css`: primitives `--t-<hue>-<step>` (Radix Colors scales, each a `light-dark(<light>, <dark>)` pair) and semantic `--t-color-<role>` etc. Status roles (`success`, `info`, `warning`, and `danger` as error) each have a solid, `-subtle`, `-line` and `-fg`. `--t-color-chart-1…8` is the categorical chart palette, in a fixed, colour-blind-checked order (no status hues); the chart-only hues add just the steps it uses. Components use semantic tokens only, via Tailwind utilities, and never `dark:` classes.
 - **Light/dark:** `:root { color-scheme: light dark }` follows the OS; `data-theme="light|dark"` on `<html>` forces a scheme for the whole page, remotes included.
   - Lightning CSS compiles `light-dark()` into variables set on `:root`, so the scheme is page-level only: an inner element's `color-scheme` doesn't re-theme its subtree.
   - The host owns the choice. The shell (`src/lib/theme.ts`) stores it in `localStorage`, and an inline script in `index.html` applies it before the first paint; keep their storage keys in sync. Remotes have no theme code.
@@ -181,12 +182,23 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - `.env` and `.env.*` are git-ignored except `.env.example`.
 - Each map counts as a billed Mapbox map load (twice under StrictMode in dev): the docs show one live map per library, lazily loaded so the engine downloads only with it.
 
+**Charts (`packages/chart-core`, the libraries' `./charts` entries).**
+
+- The chart components live in a separate `./charts` entry of each library, so apps without a chart never bundle the engine. Their class strings follow the usual `*.variants.ts` rule (identical in both).
+- `chart-core` imports no React or Vue, and is the only package depending on `highcharts`. Its `ChartController` is the only code that calls the engine: components build a `ChartSpec` from their props and hand it over; it diffs specs (series matched by `id`: `setData`, `series.update`, `addSeries`, `remove`; one `chart.update` for the rest; nothing when equal), re-creates only between the pie, bar and other families or on new colours, observes the container's size, and its `destroy()` is idempotent (later calls are no-ops). Never call the engine from a component.
+  - The controller renders into an element it creates inside the component's container; it turns off the engine's own reflow (its `ResizeObserver` is never disconnected) and data mutation (`allowMutatingData: false`).
+  - Handlers and formatters are bound once and read the latest ones, so new function props cost no engine call.
+- Engine imports use the pure-ESM `highcharts/es-modules/masters/…` paths. Modules register on the core they import, so chart-core's Vite `external` is `/^highcharts($|\/)/` (every path, not only the bare name): one module graph per app, one engine. Default modules: accessibility and no-data; apps import any other from the same path.
+- **Theming is CSS only:** the engine's palette injection is off (`palette.injectCSS: false`, it pins `color-scheme` to the OS) and `ensureChartStyles()` injects `<style id="t-chart-styles">` (in `@layer components`) mapping every `--highcharts-*` variable onto the semantic tokens. Series colours are `var(--t-color-chart-1…8)`. Colours stay CSS variables down to the SVG, so a theme switch needs no JavaScript. Keep colours in specs as tokens or CSS colours.
+- **License:** Highcharts is free only for personal and educational use; any company use needs a paid license (see the README). The repo is used under the personal terms. Never add a license key or the Highcharts CDN.
+- A `ChartInstance` is an interface extending the engine's chart, so emitted library types name it from `@repo/chart-core` (the engine isn't the libraries' dependency).
+
 **Libraries are consumed from `dist/`, not source.**
 
 - Apps resolve them through the package `exports` (`dist/*.js` + `dist/*.d.ts` + `dist/styles.css`). A change in a library's `src` reaches the apps only after a rebuild; `pnpm dev` keeps a watcher running for each library.
 - `build` runs `vite build`, then emits the `.d.ts` files: `tsc -p tsconfig.build.json` in ui, `vue-tsc -p tsconfig.build.json` in ui-vue.
 - In ui, `@tailwindcss/vite` compiles `src/styles/index.css` twice: imported by `index.ts` it becomes `dist/styles.css` (`build.lib.cssFileName: 'styles'`); imported with `?inline` by `register.ts` it becomes a string in `register.js`. ui-vue only builds `dist/styles.css`. `dist/index.d.ts` keeps the CSS import line; that's expected and harmless (`skipLibCheck`).
-- Each Vite config keeps the framework and every runtime dependency external (ui: `react`, `react-dom`, `@r2wc/*`, `@radix-ui/*`, `lucide-react`; ui-vue: `vue`, `reka-ui`, `@lucide/vue`; both: `@repo/map-core`, `@internationalized/date`, `class-variance-authority`, `clsx`, `tailwind-merge`; map-core: `mapbox-gl`). Add any new runtime dependency there too.
+- Each Vite config keeps the framework and every runtime dependency external (ui: `react`, `react-dom`, `@r2wc/*`, `@radix-ui/*`, `lucide-react`; ui-vue: `vue`, `reka-ui`, `@lucide/vue`; both: `@repo/map-core`, `@repo/chart-core`, `@internationalized/date`, `class-variance-authority`, `clsx`, `tailwind-merge`; map-core: `mapbox-gl`; chart-core: every `highcharts` path). Add any new runtime dependency there too.
 - `emptyOutDir: false` plus unhashed chunk names keep the watcher from deleting the `.d.ts` files.
 - `sideEffects` lists the bare-import entries (`dist/styles.css`, and ui's `dist/register.js`), so they aren't tree-shaken. Update that list if you add another side-effect entry.
 - A running `pnpm dev` doesn't pick up changes to a library's `package.json` `exports` or `vite.config.ts`, or new workspace packages: restart it.

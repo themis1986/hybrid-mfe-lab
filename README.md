@@ -24,6 +24,9 @@ Documentation:
 - [packages/map-core/README.md](packages/map-core/README.md): the map components (Mapbox GL JS) in both
   libraries: token setup, usage, markers vs layers. The choices behind them are in
   [documents/decisions/map.md](documents/decisions/map.md).
+- [packages/chart-core/README.md](packages/chart-core/README.md): the chart components (Highcharts) in both
+  libraries: usage, theming with the tokens, modules, and the license (free for personal and educational use
+  only). The choices behind them are in [documents/decisions/charts.md](documents/decisions/charts.md).
 
 ## Architecture
 
@@ -52,6 +55,8 @@ packages/ui      (@repo/ui)      T-prefixed React components (Radix + Tailwind),
 packages/ui-vue  (@repo/ui-vue)  the same components natively in Vue (Reka UI + Tailwind), styles.css
 packages/map-core (@repo/map-core) framework-agnostic map logic (Mapbox GL JS) behind both libraries'
                                   "./map" entries
+packages/chart-core (@repo/chart-core) framework-agnostic chart logic (Highcharts) behind both
+                                  libraries' "./charts" entries
 packages/config  (@repo/config)  shared tsconfig presets (base, dom, react, vue, node)
 ```
 
@@ -214,12 +219,15 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 
 ### Build details
 
-- `@repo/ui` is built with Vite library mode (ESM, entries `index`, `icons`, `map` and `register`), and `tsc` emits
-  its `.d.ts` files. `@repo/ui-vue` is built the same way (entries `index`, `icons` and `map`), with `vue-tsc`
-  emitting the `.d.ts` files. The `icons` entries are bare re-exports of the external Lucide packages, so apps'
-  builds keep only the icons they import. The `map` entries keep the map engine out of apps that show no map.
+- `@repo/ui` is built with Vite library mode (ESM, entries `index`, `icons`, `map`, `charts` and `register`), and
+  `tsc` emits its `.d.ts` files. `@repo/ui-vue` is built the same way (entries `index`, `icons`, `map` and
+  `charts`), with `vue-tsc` emitting the `.d.ts` files. The `icons` entries are bare re-exports of the external
+  Lucide packages, so apps' builds keep only the icons they import. The `map` and `charts` entries keep the map
+  and chart engines out of apps that show neither.
 - `@repo/map-core` is built the same way (one entry, `tsc` for the `.d.ts`). The map engine stays external,
   except its CSS, which is inlined as a string and injected at runtime.
+- `@repo/chart-core` is built the same way. Every `highcharts` import stays external (the engine's modules must
+  share the app's one copy); its theme is a small token stylesheet injected at runtime.
   Apps consume `dist/` through the package `exports`.
 - `@repo/tokens` has no build: each library's Tailwind compiles it into its `dist/styles.css`. Each library's
   `turbo.json` lists the tokens as a `build` input, so a token change invalidates the cached build.
@@ -276,6 +284,7 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 | lucide-react            | 1.65.0  |     | @lucide/vue                     | 1.65.0    |
 | @internationalized/date | 3.12.4  |     | pinia                           | 4.1.0     |
 | mapbox-gl               | 3.34.1  |     | @types/geojson                  | 7946.0.16 |
+| highcharts              | 13.1.1  |     |                                 |           |
 
 ### Deviations from the original brief, and why
 
@@ -288,6 +297,9 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 - **pnpm's release-age gate.** pnpm 12 by default refuses versions published less than 24 h ago
   (`minimumReleaseAge`). That's why the repo uses pnpm 12.16.0 and react-router 8.5.0 rather than the
   day-old 12.16.1 and 8.5.1. Likewise mapbox-gl 3.34.1 (added 2026-11-03), not that day's 3.34.2.
+- **Highcharts' license.** Highcharts (the brief's chart engine) is free only for personal and educational use;
+  the repo uses it under those terms. Any company use needs a paid Highcharts license: see
+  [packages/chart-core/README.md](packages/chart-core/README.md#license).
 - **Additions:** a root `pnpm preview` script, a `turbo.json` in each library, and a `data:` favicon in each
   `index.html` (avoids a console 404).
 - **No shared dependencies between host and remote yet** (`shared: {}`). Module Federation `dts` type
