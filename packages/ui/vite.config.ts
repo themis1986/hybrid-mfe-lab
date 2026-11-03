@@ -9,6 +9,7 @@ export default defineConfig({
       entry: {
         index: 'src/index.ts',
         icons: 'src/icons.ts',
+        map: 'src/map.ts',
         register: 'src/register.ts',
       },
       formats: ['es'],
@@ -22,6 +23,7 @@ export default defineConfig({
         /^react($|\/)/,
         /^react-dom($|\/)/,
         /^@internationalized\/date$/,
+        /^@repo\/map-core$/,
         /^@r2wc\//,
         /^@radix-ui\//,
         /^class-variance-authority$/,

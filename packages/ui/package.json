@@ -23,6 +23,10 @@
       "types": "./dist/icons.d.ts",
       "import": "./dist/icons.js"
     },
+    "./map": {
+      "types": "./dist/map.d.ts",
+      "import": "./dist/map.js"
+    },
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
@@ -33,6 +37,7 @@
   "dependencies": {
     "@internationalized/date": "catalog:",
     "@r2wc/react-to-web-component": "catalog:",
+    "@repo/map-core": "workspace:*",
     "@radix-ui/react-accordion": "catalog:",
     "@radix-ui/react-checkbox": "catalog:",
     "@radix-ui/react-collapsible": "catalog:",
