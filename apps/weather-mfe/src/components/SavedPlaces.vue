@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TIcon } from '@repo/ui-vue'
+import { TButton, TIcon } from '@repo/ui-vue'
 import { Star, X } from '@repo/ui-vue/icons'
 import { useWeatherState } from '../hooks/useWeatherState'
 import { formatCoordinates, samePlace } from '../lib/place'
@@ -20,10 +20,11 @@ const { selected, saved, select, toggleSaved } = useWeatherState()
       :key="`${place.latitude},${place.longitude}`"
       class="flex items-center rounded-full border border-line bg-surface text-sm has-aria-[current=true]:border-accent-line has-aria-[current=true]:bg-accent-subtle"
     >
-      <button
-        type="button"
+      <TButton
+        variant="ghost"
+        size="sm"
         :aria-current="samePlace(place, selected)"
-        class="flex cursor-pointer items-center gap-1.5 rounded-full border-0 bg-transparent py-1.5 ps-3 pe-1 font-sans text-sm text-fg"
+        class="gap-1.5 rounded-full ps-3 pe-1 font-normal text-fg active:translate-y-0"
         @click="select(place)"
       >
         <TIcon
@@ -32,15 +33,16 @@ const { selected, saved, select, toggleSaved } = useWeatherState()
           class="size-3 fill-current text-(--t-amber-9)"
         />
         {{ place.name ?? formatCoordinates(place) }}
-      </button>
-      <button
-        type="button"
+      </TButton>
+      <TButton
+        variant="ghost"
+        size="sm"
         :aria-label="`Remove ${place.name ?? formatCoordinates(place)}`"
-        class="flex cursor-pointer items-center rounded-full border-0 bg-transparent py-1.5 ps-1 pe-2 text-fg-muted hover:text-fg"
+        class="rounded-full ps-1.5 pe-2 text-fg-muted hover:text-fg active:translate-y-0"
         @click="toggleSaved(place)"
       >
         <TIcon :icon="X" size="sm" class="size-3" />
-      </button>
+      </TButton>
     </li>
   </ul>
 </template>
