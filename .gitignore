@@ -11,9 +11,11 @@ dist/
 # Module Federation temp files
 .__mf__temp/
 
-# Local env files (e.g. apps/shell/.env.local with VITE_TODO_REMOTE_URL)
-.env.local
-.env.*.local
+# Local env files (e.g. apps/shell/.env.local with VITE_MOCK_ACCOUNTS, apps/*-docs/.env.local with
+# VITE_MAPBOX_TOKEN). Only the documented examples are committed.
+.env
+.env.*
+!.env.example
 
 # Logs
 *.log
