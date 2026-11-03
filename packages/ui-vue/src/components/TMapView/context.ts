@@ -1,10 +1,7 @@
 import type { LayerManager, MapInstance, Marker } from '@repo/map-core'
-import {
-  getCurrentInstance,
-  inject,
-  type InjectionKey,
-  type ShallowRef,
-} from 'vue'
+import { inject, type InjectionKey, type ShallowRef } from 'vue'
+
+export { useListeners } from '../../lib/listeners'
 
 export interface MapContextValue {
   map: MapInstance
@@ -28,13 +25,4 @@ export function useMapContext(component: string): MapContextValue {
 /** The map of the enclosing TMapView: the escape hatch for anything the components don't cover. */
 export function useMap(): MapInstance {
   return useMapContext('useMap').map
-}
-
-/**
- * Whether the parent listens to an event (`hasListener('onFeatureClick')`): a clickable layer shows a
- * pointer cursor, and unhandled map errors are logged.
- */
-export function useListeners() {
-  const instance = getCurrentInstance()
-  return (name: string) => Boolean(instance?.vnode.props?.[name])
 }

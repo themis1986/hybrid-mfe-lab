@@ -34,6 +34,8 @@ catalog:
   '@vitejs/devtools-vite': ^0.7.6
   class-variance-authority: ^0.7.1
   clsx: ^2.1.1
+  # Proprietary license (free for personal and educational use only): see packages/chart-core/README.md.
+  highcharts: ^13.1.1
   # lucide-react and @lucide/vue are released together: keep both ranges equal, so the icon sets match.
   lucide-react: ^1.64.0
   # Proprietary license (Mapbox Terms of Service), needs an access token: see packages/map-core/README.md.

@@ -10,6 +10,7 @@ export default defineConfig({
         index: 'src/index.ts',
         icons: 'src/icons.ts',
         map: 'src/map.ts',
+        charts: 'src/charts.ts',
       },
       formats: ['es'],
       // The CSS imported by src/index.ts becomes dist/styles.css (exported as '@repo/ui-vue/styles.css').
@@ -22,6 +23,7 @@ export default defineConfig({
         /^vue$/,
         /^reka-ui($|\/)/,
         /^@internationalized\/date$/,
+        /^@repo\/chart-core$/,
         /^@repo\/map-core$/,
         /^@lucide\/vue($|\/)/,
         /^class-variance-authority$/,

@@ -1,5 +1,7 @@
 import type { LayerManager, MapInstance, Marker } from '@repo/map-core'
-import { createContext, use, useLayoutEffect, useRef, useState } from 'react'
+import { createContext, use, useState } from 'react'
+
+export { useLatest } from '../../lib/latest'
 
 export interface MapContextValue {
   map: MapInstance
@@ -21,15 +23,6 @@ export function useMapContext(component: string): MapContextValue {
 /** The map of the enclosing TMapView: the escape hatch for anything the components don't cover. */
 export function useMap(): MapInstance {
   return useMapContext('useMap').map
-}
-
-/** The latest value, for engine listeners bound once that must call the caller's current callbacks. */
-export function useLatest<T>(value: T) {
-  const ref = useRef(value)
-  useLayoutEffect(() => {
-    ref.current = value
-  })
-  return ref
 }
 
 /** A stable object identifying this component instance to the layer manager. */

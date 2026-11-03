@@ -7,7 +7,8 @@
  *
  * The colour scales are Radix Colors (MIT, https://www.radix-ui.com/colors): Iris (accent),
  * Slate (its natural neutral), and the status hues Red (danger), Green (success), Blue (info) and
- * Amber (warning). Every step keeps the same job in light and dark mode
+ * Amber (warning), plus single steps of seven more hues for the chart palette. Every step keeps the same
+ * job in light and dark mode
  * (1-2 backgrounds, 3-5 component fills, 6-8 borders, 9-10 solid fills, 11-12 text), so switching
  * themes only swaps tier 1; the semantic aliases in tier 2 stay the same.
  *
@@ -98,6 +99,16 @@
   --t-amber-11: light-dark(#ab6400, #ffca16);
   --t-amber-12: light-dark(#4f3422, #ffe7b3);
 
+  /* Chart hues: only the steps the chart palette uses (see --t-color-chart-* below). */
+  --t-orange-8: light-dark(#ec9455, #a35829);
+  --t-orange-10: light-dark(#ef5f00, #ff801f);
+  --t-cyan-9: light-dark(#00a2c7, #00a2c7);
+  --t-crimson-9: light-dark(#e93d82, #e93d82);
+  --t-indigo-9: light-dark(#3e63dd, #3e63dd);
+  --t-jade-9: light-dark(#29a383, #29a383);
+  --t-plum-9: light-dark(#ab4aba, #ab4aba);
+  --t-grass-9: light-dark(#46a758, #46a758);
+
   --t-white: #ffffff;
   /* Radix blackA9: a translucent black, the same in both schemes */
   --t-black-a9: #00000072;
@@ -160,6 +171,19 @@
   --t-color-warning-subtle: var(--t-amber-3);
   --t-color-warning-line: var(--t-amber-7);
   --t-color-warning-fg: var(--t-amber-11);
+
+  /* Chart series, in this fixed order (categorical: identity, not rank). Each clears 3:1 on the canvas and
+     each neighbouring pair stays distinct under protan/deutan simulation, in both schemes; the first three
+     are also distinct from one another. Status hues are left out: their colours mean something else.
+     Orange needs a different step per scheme to stay in the readable band. */
+  --t-color-chart-1: var(--t-iris-9);
+  --t-color-chart-2: light-dark(var(--t-orange-10), var(--t-orange-8));
+  --t-color-chart-3: var(--t-cyan-9);
+  --t-color-chart-4: var(--t-crimson-9);
+  --t-color-chart-5: var(--t-indigo-9);
+  --t-color-chart-6: var(--t-jade-9);
+  --t-color-chart-7: var(--t-plum-9);
+  --t-color-chart-8: var(--t-grass-9);
 
   /* Focus */
   --t-color-focus: var(--t-iris-8);

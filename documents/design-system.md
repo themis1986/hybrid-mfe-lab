@@ -38,6 +38,7 @@ packages/ui/src/       @repo/ui: React + Radix
   index.ts             entry ".":          the React components (and the stylesheet, for the build)
   icons.ts             entry "./icons":    the icon set, re-exported from lucide-react
   map.ts               entry "./map":      the map components, on @repo/map-core (see packages/map-core/README.md)
+  charts.ts            entry "./charts":   the chart components, on @repo/chart-core (see packages/chart-core/README.md)
   register.ts          entry "./register": the stylesheet, injected + each component as a <t-*> custom element
   env.d.ts             Vite's types, for the .css and ?inline imports
 
@@ -51,6 +52,7 @@ packages/ui-vue/src/   @repo/ui-vue: the same components natively in Vue, on Rek
   index.ts             entry ".": the Vue components (and the stylesheet, for the build)
   icons.ts             entry "./icons": the icon set, re-exported from @lucide/vue
   map.ts               entry "./map": the map components, on @repo/map-core
+  charts.ts            entry "./charts": the chart components, on @repo/chart-core
 ```
 
 Each component exists once per framework, and both implementations share the same class strings, so they look the same.
@@ -103,6 +105,12 @@ The colour scales are [Radix Colors](https://www.radix-ui.com/colors) (MIT), ven
 | Slate              | neutrals               | Radix's natural pairing for Iris: a cool grey with a hint of the same hue.                                                        |
 | Red                | danger                 | Built on the same 12-step model, so its steps line up with the other two.                                                         |
 | Green, Blue, Amber | success, info, warning | The conventional status hues, on the same model. Amber's solid (step 9) is a light yellow, so warning text and icons use step 11. |
+
+Charts need more distinct hues than that. `--t-color-chart-1…8` is a categorical palette in a fixed order: iris (the accent), orange, cyan, crimson, indigo, jade, plum and grass, using only the Radix steps it needs (step 9, and orange's 10 in light and 8 in dark).
+
+- Every colour clears 3:1 on the canvas in both schemes, and neighbours stay distinct under colour-blindness simulation.
+- Status hues are left out, so a series never reads as a status.
+- Charts use these tokens through `@repo/chart-core` (see its README).
 
 What makes the system work is that **every step has a fixed job**, the same in every scale and in both themes ([Radix: understanding the scale](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale)):
 
@@ -309,7 +317,7 @@ Build details:
 
 - `@tailwindcss/vite` runs in each library's `vite.config.ts`. It compiles `.css` and `.css?inline` alike; it skips only `?raw`, `?url` and `?worker`.
 - In `vite build --watch`, Tailwind registers every scanned source file as a watch dependency. A new class in a `.tsx` file therefore rebuilds both `dist/styles.css` and the string inside `dist/register.js`.
-- `package.json` exports `./styles.css` (and `./icons`, `./map`), and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
+- `package.json` exports `./styles.css` (and `./icons`, `./map`, `./charts`), and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
 - Tailwind is a **devDependency** of each library. The runtime helpers (`@radix-ui/*` or `reka-ui`, the Lucide package, `class-variance-authority`, `clsx`, `tailwind-merge`) are `dependencies` and are kept external in the library build, so each app bundles them, like the framework itself.
 
 ## 8. Adding a component
