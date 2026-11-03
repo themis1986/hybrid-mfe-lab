@@ -1,6 +1,7 @@
 import { TODO_BASE_PATH } from '../remotes/TodoMfeHost'
 import { UI_REACT_DOCS_BASE_PATH } from '../remotes/UiReactDocsHost'
 import { UI_VUE_DOCS_BASE_PATH } from '../remotes/UiVueDocsHost'
+import { WEATHER_BASE_PATH } from '../remotes/WeatherMfeHost'
 import { canAccess } from './access'
 import type { User } from './users'
 
@@ -9,7 +10,7 @@ import type { User } from './users'
 export type NavGroup = 'apps' | 'developer'
 export const TECHS = ['vue', 'react'] as const
 export type Tech = (typeof TECHS)[number]
-export type AppId = 'todo' | 'ui-react-docs' | 'ui-vue-docs'
+export type AppId = 'todo' | 'weather' | 'ui-react-docs' | 'ui-vue-docs'
 
 export interface NavItem {
   id: AppId
@@ -32,6 +33,15 @@ export const NAV_ITEMS: NavItem[] = [
     to: TODO_BASE_PATH,
     description:
       'The todo microfrontend: a Vue 3 app loaded at runtime through Module Federation.',
+    group: 'apps',
+    tech: 'vue',
+  },
+  {
+    id: 'weather',
+    label: 'Weather',
+    to: WEATHER_BASE_PATH,
+    description:
+      'The weather microfrontend: a Vue 3 app with a clickable map and a live forecast.',
     group: 'apps',
     tech: 'vue',
   },
