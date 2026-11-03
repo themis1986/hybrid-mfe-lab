@@ -21,6 +21,8 @@ Documentation:
   first brought the design system to Vue, and the reasoning behind moving to two libraries.
 - [documents/authentication.md](documents/authentication.md): how the shell signs users in and decides which
   remotes each may open.
+- [apps/weather-mfe/README.md](apps/weather-mfe/README.md): the weather remote: what it does, its data sources
+  and their terms, and what to plan next.
 - [packages/map-core/README.md](packages/map-core/README.md): the map components (Mapbox GL JS) in both
   libraries: token setup, usage, markers vs layers. The choices behind them are in
   [documents/decisions/map.md](documents/decisions/map.md).
@@ -47,6 +49,8 @@ Documentation:
 │                                     + Pinia, one store per mount    │
 │ :5175  apps/ui-vue-docs     Vue 3   @repo/ui-vue, stylesheet inline │
 │ :5176  apps/ui-react-docs   React   @repo/ui, stylesheet inline     │
+│ :5177  apps/weather-mfe     Vue 3   @repo/ui-vue, stylesheet inline │
+│                                     + Pinia, TanStack Query         │
 └─────────────────────────────────────────────────────────────────────┘
 
 packages/tokens  (@repo/tokens)  design tokens + the token → Tailwind theme (CSS only)
@@ -84,6 +88,8 @@ pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell
 | Vue UI docs MFE remote entry   | http://localhost:5175/remoteEntry.js |
 | React UI docs MFE standalone   | http://localhost:5176                |
 | React UI docs MFE remote entry | http://localhost:5176/remoteEntry.js |
+| Weather MFE standalone         | http://localhost:5177                |
+| Weather MFE remote entry       | http://localhost:5177/remoteEntry.js |
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
 
@@ -93,9 +99,9 @@ format and holds a starting set. Vite inlines the value into the shell's bundle,
 out of git, not out of the browser: use dev-only passwords. Without it, sign-in fails with a message saying
 what is missing.
 
-The docs remotes' map demos need a public Mapbox token: copy `apps/ui-react-docs/.env.example` and
-`apps/ui-vue-docs/.env.example` to `.env.local` and set `VITE_MAPBOX_TOKEN`. Without it, the demos show a
-message instead of a map. See [packages/map-core/README.md](packages/map-core/README.md#token-license-and-cost)
+The map needs a public Mapbox token, per remote: copy `apps/ui-react-docs/.env.example`,
+`apps/ui-vue-docs/.env.example` and `apps/weather-mfe/.env.example` to `.env.local` and set
+`VITE_MAPBOX_TOKEN`. Without it, each shows a message instead of a map. See [packages/map-core/README.md](packages/map-core/README.md#token-license-and-cost)
 for the license and billing terms.
 
 Other root scripts:
@@ -115,8 +121,9 @@ server, so no `build --watch` + `preview` workaround is needed. `pnpm preview` i
 
 The shell reads one variable per remote when it **builds**: `VITE_TODO_REMOTE_URL` (default
 `http://localhost:5174/remoteEntry.js`), `VITE_UI_VUE_DOCS_REMOTE_URL` (default
-`http://localhost:5175/remoteEntry.js`) and `VITE_UI_REACT_DOCS_REMOTE_URL` (default
-`http://localhost:5176/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
+`http://localhost:5175/remoteEntry.js`), `VITE_UI_REACT_DOCS_REMOTE_URL` (default
+`http://localhost:5176/remoteEntry.js`) and `VITE_WEATHER_REMOTE_URL` (default
+`http://localhost:5177/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
 
 ```sh
 VITE_TODO_REMOTE_URL=https://cdn.example.com/todo/remoteEntry.js pnpm build
@@ -284,7 +291,7 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 | lucide-react            | 1.65.0  |     | @lucide/vue                     | 1.65.0    |
 | @internationalized/date | 3.12.4  |     | pinia                           | 4.1.0     |
 | mapbox-gl               | 3.34.1  |     | @types/geojson                  | 7946.0.16 |
-| highcharts              | 13.1.1  |     |                                 |           |
+| highcharts              | 13.1.1  |     | @tanstack/vue-query             | 5.105.2   |
 
 ### Deviations from the original brief, and why
 

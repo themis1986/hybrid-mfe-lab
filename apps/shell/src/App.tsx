@@ -11,6 +11,7 @@ import {
   UiReactDocsHost,
 } from './remotes/UiReactDocsHost'
 import { UI_VUE_DOCS_BASE_PATH, UiVueDocsHost } from './remotes/UiVueDocsHost'
+import { WEATHER_BASE_PATH, WeatherMfeHost } from './remotes/WeatherMfeHost'
 
 export function App() {
   return (
@@ -36,7 +37,15 @@ export function App() {
               </RequireApp>
             }
           />
-          {/* The docs microfrontends lay out their own pages. */}
+          {/* The weather and docs microfrontends lay out their own pages. */}
+          <Route
+            path={`${WEATHER_BASE_PATH}/*`}
+            element={
+              <RequireApp id="weather">
+                <WeatherMfeHost />
+              </RequireApp>
+            }
+          />
           <Route
             path={`${UI_REACT_DOCS_BASE_PATH}/*`}
             element={

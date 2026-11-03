@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => {
     env.VITE_UI_VUE_DOCS_REMOTE_URL || 'http://localhost:5175/remoteEntry.js'
   const uiReactDocsRemoteUrl =
     env.VITE_UI_REACT_DOCS_REMOTE_URL || 'http://localhost:5176/remoteEntry.js'
+  const weatherRemoteUrl =
+    env.VITE_WEATHER_REMOTE_URL || 'http://localhost:5177/remoteEntry.js'
 
   return {
     devtools: { apply: 'serve' },
@@ -33,6 +35,7 @@ export default defineConfig(({ mode }) => {
             name: 'uiReactDocs',
             entry: uiReactDocsRemoteUrl,
           },
+          weather: { type: 'module', name: 'weather', entry: weatherRemoteUrl },
         },
         // Nothing shared yet (see README).
         shared: {},

@@ -20,16 +20,17 @@ For setup and commands, see the [README](../README.md).
 
 ## 1. The pieces and how they depend on each other
 
-| Package                                      | Role                                                                                                                                   | Tech                       |
-| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `apps/shell` (`@repo/shell`)                 | Host app: owns the URL, the layout, the navigation, sign-in and which remotes each user may open.                                      | React 19, React Router 8   |
-| `apps/todo-mfe` (`@repo/todo-mfe`)           | Remote app: built and served on its own, loaded by the shell at runtime. Built on `@repo/ui-vue`, with its state in Pinia.             | Vue 3, Vue Router 5, Pinia |
-| `apps/ui-vue-docs` (`@repo/ui-vue-docs`)     | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`.                                               | Vue 3, Vue Router 5        |
-| `apps/ui-react-docs` (`@repo/ui-react-docs`) | Remote app written in React: the React library's documentation, built on `@repo/ui`.                                                   | React 19                   |
-| `packages/tokens` (`@repo/tokens`)           | Design tokens and the token → Tailwind theme. CSS only, no build.                                                                      | CSS, Tailwind v4           |
-| `packages/ui` (`@repo/ui`)                   | `T`-prefixed React components, usable from React directly, and from any framework as `t-*` custom elements (an entry no app uses now). | React, Radix, Tailwind v4  |
-| `packages/ui-vue` (`@repo/ui-vue`)           | The same components natively in Vue, with the same look.                                                                               | Vue, Reka UI, Tailwind v4  |
-| `packages/config` (`@repo/config`)           | Shared tsconfig presets.                                                                                                               | TypeScript 6               |
+| Package                                      | Role                                                                                                                                   | Tech                                       |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `apps/shell` (`@repo/shell`)                 | Host app: owns the URL, the layout, the navigation, sign-in and which remotes each user may open.                                      | React 19, React Router 8                   |
+| `apps/todo-mfe` (`@repo/todo-mfe`)           | Remote app: built and served on its own, loaded by the shell at runtime. Built on `@repo/ui-vue`, with its state in Pinia.             | Vue 3, Vue Router 5, Pinia                 |
+| `apps/weather-mfe` (`@repo/weather-mfe`)     | Remote app, like the todo MFE, with a live map and forecast. Its server data goes through TanStack Query, its client state in Pinia.   | Vue 3, Vue Router 5, Pinia, TanStack Query |
+| `apps/ui-vue-docs` (`@repo/ui-vue-docs`)     | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`.                                               | Vue 3, Vue Router 5                        |
+| `apps/ui-react-docs` (`@repo/ui-react-docs`) | Remote app written in React: the React library's documentation, built on `@repo/ui`.                                                   | React 19                                   |
+| `packages/tokens` (`@repo/tokens`)           | Design tokens and the token → Tailwind theme. CSS only, no build.                                                                      | CSS, Tailwind v4                           |
+| `packages/ui` (`@repo/ui`)                   | `T`-prefixed React components, usable from React directly, and from any framework as `t-*` custom elements (an entry no app uses now). | React, Radix, Tailwind v4                  |
+| `packages/ui-vue` (`@repo/ui-vue`)           | The same components natively in Vue, with the same look.                                                                               | Vue, Reka UI, Tailwind v4                  |
+| `packages/config` (`@repo/config`)           | Shared tsconfig presets.                                                                                                               | TypeScript 6                               |
 
 There are two kinds of dependency, and keeping them apart is the key to the architecture.
 
@@ -38,6 +39,7 @@ graph LR
   subgraph "Build time (pnpm workspace links)"
     shell["@repo/shell"] -- "workspace:*" --> ui["@repo/ui"]
     mfe["@repo/todo-mfe"] -- "workspace:*" --> uivue["@repo/ui-vue"]
+    weather["@repo/weather-mfe"] -- "workspace:*" --> uivue
     docs["@repo/ui-vue-docs"] -- "workspace:*" --> uivue
     rdocs["@repo/ui-react-docs"] -- "workspace:*" --> ui
     ui -- "CSS at build time" --> tokens["@repo/tokens"]
@@ -45,6 +47,7 @@ graph LR
     shell -. tsconfig .-> config["@repo/config"]
   end
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> mfe
+  shell == "runtime: HTTP fetch of remoteEntry.js" ==> weather
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> docs
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> rdocs
 ```
@@ -84,6 +87,7 @@ So `pnpm dev` resolves to this sequence:
                   ├──► @repo/ui-react-docs#dev (vite on :5176)
                   └──► @repo/shell#dev         (vite on :5173)
 @repo/ui-vue#build ──► @repo/ui-vue#dev        (vite build --watch)
+                  ├──► @repo/weather-mfe#dev   (vite on :5177)
                   └──► @repo/ui-vue-docs#dev   (vite on :5175)
 ```
 
@@ -125,7 +129,7 @@ React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `
 | shell (React)                       | `import { … } from '@repo/ui'`                                                                    | The plain React components, rendered by the shell's own React.                                                                          |
 | shell (React)                       | `import '@repo/ui/styles.css'` (once, in `main.tsx`)                                              | The stylesheet, bundled into the shell's CSS.                                                                                           |
 | shell (React)                       | `@import '@repo/tokens/theme.css'` (in its own `src/index.css`)                                   | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens.                                        |
-| todo-mfe, ui-vue-docs (Vue)         | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted.                                    |
+| todo-mfe, weather-mfe, ui-vue-docs  | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted.                                    |
 | ui-react-docs (React)               | `import { … } from '@repo/ui'`, and `@repo/ui/styles.css` inside its own `src/styles.css`         | The React components, rendered by the remote's own React; the stylesheet is injected inline by `mount.tsx` while the app is mounted.    |
 | a Vue host of the bridge (none now) | `import '@repo/ui/register'`                                                                      | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
 

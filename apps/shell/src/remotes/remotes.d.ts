@@ -19,3 +19,10 @@ declare module 'uiVueDocs/mount' {
     props: { basePath: string },
   ): () => void
 }
+
+declare module 'weather/mount' {
+  export function mount(
+    el: HTMLElement,
+    props: { basePath: string },
+  ): () => void
+}
