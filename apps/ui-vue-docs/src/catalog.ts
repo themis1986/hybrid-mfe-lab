@@ -50,6 +50,7 @@ import TreeSelectorDemo from './demos/TreeSelectorDemo.vue'
 import UploadDemo from './demos/UploadDemo.vue'
 import VideoDemo from './demos/VideoDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
+import { CHART_ENTRIES } from './charts'
 import { MAP_ENTRIES } from './maps'
 
 export type DocGroupId =
@@ -63,6 +64,7 @@ export type DocGroupId =
   | 'overlays'
   | 'media'
   | 'maps'
+  | 'charts'
   | 'app'
 
 export interface DocProp {
@@ -148,6 +150,12 @@ export const DOC_GROUPS: {
     label: 'Maps',
     description:
       "Mapbox GL JS maps, markers and layers, imported from '@repo/ui-vue/map'. Each map needs a public Mapbox token.",
+  },
+  {
+    id: 'charts',
+    label: 'Charts',
+    description:
+      "Highcharts charts, imported from '@repo/ui-vue/charts'. Highcharts is free for personal and educational use only; other use needs a Highcharts license.",
   },
   {
     id: 'app',
@@ -3091,4 +3099,5 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
 <TUpload v-model="files" label="Photos" accept="image/*" multiple :max-size="10_000_000" :upload="upload" @reject="log" />`,
   },
   ...MAP_ENTRIES,
+  ...CHART_ENTRIES,
 ]

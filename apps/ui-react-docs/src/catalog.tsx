@@ -110,6 +110,7 @@ import {
   sampleImage,
   sampleVideoSources,
 } from './samples'
+import { CHART_ENTRIES } from './charts'
 import { MAP_ENTRIES } from './maps'
 
 export type DocGroupId =
@@ -123,6 +124,7 @@ export type DocGroupId =
   | 'overlays'
   | 'media'
   | 'maps'
+  | 'charts'
   | 'app'
 
 export interface DocProp {
@@ -206,6 +208,12 @@ export const DOC_GROUPS: {
     label: 'Maps',
     description:
       "Mapbox GL JS maps, markers and layers, imported from '@repo/ui/map'. Each map needs a public Mapbox token.",
+  },
+  {
+    id: 'charts',
+    label: 'Charts',
+    description:
+      "Highcharts charts, imported from '@repo/ui/charts'. Highcharts is free for personal and educational use only; other use needs a Highcharts license.",
   },
   {
     id: 'app',
@@ -4599,4 +4607,5 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
 <TUpload value={files} onValueChange={setFiles} label="Photos" accept="image/*" multiple maxSize={10_000_000} upload={upload} />`,
   },
   ...MAP_ENTRIES,
+  ...CHART_ENTRIES,
 ]
