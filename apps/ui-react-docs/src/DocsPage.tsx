@@ -98,9 +98,11 @@ function Entry({ entry }: { entry: DocEntry }) {
       <TCardBody>
         <TStack gap={4}>
           <p className="m-0 text-sm text-fg-muted">{entry.summary}</p>
-          <div className="rounded-md border border-dashed border-line p-4">
-            {entry.demo}
-          </div>
+          {entry.demo != null && (
+            <div className="rounded-md border border-dashed border-line p-4">
+              {entry.demo}
+            </div>
+          )}
           <Code label={`${entry.name} usage`}>{entry.code}</Code>
           <PropsTable name={entry.name} props={entry.props} />
         </TStack>

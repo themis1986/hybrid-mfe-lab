@@ -21,6 +21,9 @@ Documentation:
   first brought the design system to Vue, and the reasoning behind moving to two libraries.
 - [documents/authentication.md](documents/authentication.md): how the shell signs users in and decides which
   remotes each may open.
+- [packages/map-core/README.md](packages/map-core/README.md): the map components (Mapbox GL JS) in both
+  libraries: token setup, usage, markers vs layers. The choices behind them are in
+  [documents/decisions/map.md](documents/decisions/map.md).
 
 ## Architecture
 
@@ -47,7 +50,9 @@ packages/tokens  (@repo/tokens)  design tokens + the token → Tailwind theme (C
 packages/ui      (@repo/ui)      T-prefixed React components (Radix + Tailwind), styles.css, and a
                                   "register" entry that defines them as t-* custom elements (unused)
 packages/ui-vue  (@repo/ui-vue)  the same components natively in Vue (Reka UI + Tailwind), styles.css
-packages/config  (@repo/config)  shared tsconfig presets (base, react, vue, node)
+packages/map-core (@repo/map-core) framework-agnostic map logic (Mapbox GL JS) behind both libraries'
+                                  "./map" entries
+packages/config  (@repo/config)  shared tsconfig presets (base, dom, react, vue, node)
 ```
 
 - The shell imports no remote code, Vue or React. It only knows the `mount` contract (typed in `apps/shell/src/remotes/remotes.d.ts`).
@@ -82,6 +87,11 @@ The shell opens on a login page. The mock accounts, and the apps each one may op
 format and holds a starting set. Vite inlines the value into the shell's bundle, so it keeps the accounts
 out of git, not out of the browser: use dev-only passwords. Without it, sign-in fails with a message saying
 what is missing.
+
+The docs remotes' map demos need a public Mapbox token: copy `apps/ui-react-docs/.env.example` and
+`apps/ui-vue-docs/.env.example` to `.env.local` and set `VITE_MAPBOX_TOKEN`. Without it, the demos show a
+message instead of a map. See [packages/map-core/README.md](packages/map-core/README.md#token-license-and-cost)
+for the license and billing terms.
 
 Other root scripts:
 
@@ -204,10 +214,12 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 
 ### Build details
 
-- `@repo/ui` is built with Vite library mode (ESM, entries `index`, `icons` and `register`), and `tsc` emits its
-  `.d.ts` files. `@repo/ui-vue` is built the same way (entries `index` and `icons`), with `vue-tsc` emitting the
-  `.d.ts` files. The `icons` entries are bare re-exports of the external Lucide packages, so apps' builds keep only
-  the icons they import.
+- `@repo/ui` is built with Vite library mode (ESM, entries `index`, `icons`, `map` and `register`), and `tsc` emits
+  its `.d.ts` files. `@repo/ui-vue` is built the same way (entries `index`, `icons` and `map`), with `vue-tsc`
+  emitting the `.d.ts` files. The `icons` entries are bare re-exports of the external Lucide packages, so apps'
+  builds keep only the icons they import. The `map` entries keep the map engine out of apps that show no map.
+- `@repo/map-core` is built the same way (one entry, `tsc` for the `.d.ts`). The map engine stays external,
+  except its CSS, which is inlined as a string and injected at runtime.
   Apps consume `dist/` through the package `exports`.
 - `@repo/tokens` has no build: each library's Tailwind compiles it into its `dist/styles.css`. Each library's
   `turbo.json` lists the tokens as a `build` input, so a token change invalidates the cached build.
@@ -247,22 +259,23 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 
 Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-workspace.yaml`; installed versions:
 
-| Package                 | Version |     | Package                         | Version |
-| ----------------------- | ------- | --- | ------------------------------- | ------- |
-| pnpm                    | 12.16.0 |     | vue                             | 3.5.44  |
-| turbo                   | 2.11.10 |     | vue-router                      | 5.4.0   |
-| vite                    | 8.3.5   |     | vue-tsc                         | 3.3.13  |
-| typescript              | 6.0.3   |     | @vitejs/plugin-vue              | 6.0.10  |
-| react / react-dom       | 19.3.1  |     | @vitejs/plugin-react            | 6.1.2   |
-| react-router            | 8.5.0   |     | @module-federation/vite         | 1.23.6  |
-| @types/react(-dom)      | 19.3.0  |     | @r2wc/react-to-web-component    | 2.1.1   |
-| @types/node             | 22.20.5 |     | tailwindcss / @tailwindcss/vite | 4.3.3   |
-| @radix-ui/react-dialog  | 1.3.1   |     | @radix-ui/react-label           | 2.1.17  |
-| @radix-ui/react-slot    | 1.5.0   |     | class-variance-authority        | 0.7.1   |
-| @radix-ui/react-switch  | 1.4.1   |     | reka-ui                         | 2.11.0  |
-| clsx                    | 2.1.1   |     | tailwind-merge                  | 3.7.0   |
-| lucide-react            | 1.65.0  |     | @lucide/vue                     | 1.65.0  |
-| @internationalized/date | 3.12.4  |     | pinia                           | 4.1.0   |
+| Package                 | Version |     | Package                         | Version   |
+| ----------------------- | ------- | --- | ------------------------------- | --------- |
+| pnpm                    | 12.16.0 |     | vue                             | 3.5.44    |
+| turbo                   | 2.11.10 |     | vue-router                      | 5.4.0     |
+| vite                    | 8.3.5   |     | vue-tsc                         | 3.3.13    |
+| typescript              | 6.0.3   |     | @vitejs/plugin-vue              | 6.0.10    |
+| react / react-dom       | 19.3.1  |     | @vitejs/plugin-react            | 6.1.2     |
+| react-router            | 8.5.0   |     | @module-federation/vite         | 1.23.6    |
+| @types/react(-dom)      | 19.3.0  |     | @r2wc/react-to-web-component    | 2.1.1     |
+| @types/node             | 22.20.5 |     | tailwindcss / @tailwindcss/vite | 4.3.3     |
+| @radix-ui/react-dialog  | 1.3.1   |     | @radix-ui/react-label           | 2.1.17    |
+| @radix-ui/react-slot    | 1.5.0   |     | class-variance-authority        | 0.7.1     |
+| @radix-ui/react-switch  | 1.4.1   |     | reka-ui                         | 2.11.0    |
+| clsx                    | 2.1.1   |     | tailwind-merge                  | 3.7.0     |
+| lucide-react            | 1.65.0  |     | @lucide/vue                     | 1.65.0    |
+| @internationalized/date | 3.12.4  |     | pinia                           | 4.1.0     |
+| mapbox-gl               | 3.34.1  |     | @types/geojson                  | 7946.0.16 |
 
 ### Deviations from the original brief, and why
 
@@ -274,7 +287,7 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
   back to `../../tsconfig.base.json` fails to resolve. `@repo/config` therefore has to be self-contained.
 - **pnpm's release-age gate.** pnpm 12 by default refuses versions published less than 24 h ago
   (`minimumReleaseAge`). That's why the repo uses pnpm 12.16.0 and react-router 8.5.0 rather than the
-  day-old 12.16.1 and 8.5.1.
+  day-old 12.16.1 and 8.5.1. Likewise mapbox-gl 3.34.1 (added 2026-11-03), not that day's 3.34.2.
 - **Additions:** a root `pnpm preview` script, a `turbo.json` in each library, and a `data:` favicon in each
   `index.html` (avoids a console 404).
 - **No shared dependencies between host and remote yet** (`shared: {}`). Module Federation `dts` type

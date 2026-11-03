@@ -110,6 +110,7 @@ import {
   sampleImage,
   sampleVideoSources,
 } from './samples'
+import { MAP_ENTRIES } from './maps'
 
 export type DocGroupId =
   | 'actions'
@@ -121,6 +122,7 @@ export type DocGroupId =
   | 'disclosure'
   | 'overlays'
   | 'media'
+  | 'maps'
   | 'app'
 
 export interface DocProp {
@@ -138,7 +140,8 @@ export interface DocEntry {
   group: DocGroupId
   summary: string
   props: DocProp[]
-  demo: ReactNode
+  /** A live example; left out where one per group is enough. */
+  demo?: ReactNode
   code: string
 }
 
@@ -197,6 +200,12 @@ export const DOC_GROUPS: {
     label: 'Media',
     description:
       'Images, video, audio and embedded pages, with loading and error states.',
+  },
+  {
+    id: 'maps',
+    label: 'Maps',
+    description:
+      "Mapbox GL JS maps, markers and layers, imported from '@repo/ui/map'. Each map needs a public Mapbox token.",
   },
   {
     id: 'app',
@@ -4589,4 +4598,5 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
 
 <TUpload value={files} onValueChange={setFiles} label="Photos" accept="image/*" multiple maxSize={10_000_000} upload={upload} />`,
   },
+  ...MAP_ENTRIES,
 ]

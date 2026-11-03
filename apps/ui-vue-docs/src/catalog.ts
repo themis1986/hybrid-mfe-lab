@@ -50,6 +50,7 @@ import TreeSelectorDemo from './demos/TreeSelectorDemo.vue'
 import UploadDemo from './demos/UploadDemo.vue'
 import VideoDemo from './demos/VideoDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
+import { MAP_ENTRIES } from './maps'
 
 export type DocGroupId =
   | 'actions'
@@ -61,6 +62,7 @@ export type DocGroupId =
   | 'disclosure'
   | 'overlays'
   | 'media'
+  | 'maps'
   | 'app'
 
 export interface DocProp {
@@ -80,7 +82,8 @@ export interface DocEntry {
   props: DocProp[]
   slots?: { name: string; description: string }[]
   events?: { name: string; payload: string; description: string }[]
-  demo: Component
+  /** A live example; left out where one per group is enough. */
+  demo?: Component
   code: string
 }
 
@@ -139,6 +142,12 @@ export const DOC_GROUPS: {
     label: 'Media',
     description:
       'Images, video, audio and embedded pages, with loading and error states.',
+  },
+  {
+    id: 'maps',
+    label: 'Maps',
+    description:
+      "Mapbox GL JS maps, markers and layers, imported from '@repo/ui-vue/map'. Each map needs a public Mapbox token.",
   },
   {
     id: 'app',
@@ -3081,4 +3090,5 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
 
 <TUpload v-model="files" label="Photos" accept="image/*" multiple :max-size="10_000_000" :upload="upload" @reject="log" />`,
   },
+  ...MAP_ENTRIES,
 ]

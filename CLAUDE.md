@@ -15,6 +15,7 @@ A pnpm + Turborepo microfrontends skeleton:
   - **`packages/ui`** (`@repo/ui`): React + Radix + Tailwind v4;
   - **`packages/ui-vue`** (`@repo/ui-vue`): Vue 3 + Reka UI + Tailwind v4.
 - **`packages/tokens`** (`@repo/tokens`): the design tokens and the token → Tailwind theme, shared by both libraries and by apps that run Tailwind.
+- **`packages/map-core`** (`@repo/map-core`): framework-agnostic map logic (Mapbox GL JS) behind both libraries' `./map` entries. Its README covers the token, usage and adding a layer type; `documents/decisions/map.md` records the choices.
 - **`packages/config`** (`@repo/config`) holds the shared tsconfig presets.
 - Every Vue app is on `@repo/ui-vue`. `@repo/ui` still builds the custom-element bridge (`@repo/ui/register`, "Option A"), but no app uses it.
 
@@ -46,6 +47,8 @@ Requirements: Node ≥ 22.22 and pnpm 12. The repo pins `packageManager: pnpm@12
 ```sh
 pnpm install
 cp apps/shell/.env.example apps/shell/.env.local   # once: the shell's mock accounts
+cp apps/ui-react-docs/.env.example apps/ui-react-docs/.env.local   # optional: a Mapbox token for the map demos
+cp apps/ui-vue-docs/.env.example apps/ui-vue-docs/.env.local       #   (same; without it they show a message)
 pnpm dev         # turbo: ui + ui-vue `vite build --watch`, todo-mfe (:5174), ui-vue-docs (:5175), ui-react-docs (:5176), shell (:5173)
 pnpm build       # turbo; builds the libraries first (^build)
 pnpm typecheck   # tsc in shell/ui, vue-tsc in ui-vue and the Vue apps; needs the libraries built first (turbo handles it)
@@ -167,12 +170,23 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Layout components hold no state (collapsing and the like is a caller-controlled prop) and are intrinsically responsive (flex-wrap, auto-fit, `min(100%, …)`), with no viewport breakpoints except the page-level app frame's one `max-md:`. A root restyles its parts only through direct-child `data-slot` selectors.
 - The shell runs its own Tailwind (`apps/shell/src/index.css`): theme + utilities **without Preflight** (remotes render inside its page), plus `@repo/tokens/theme.css`. It loads after `@repo/ui/styles.css`.
 
+**Maps (`packages/map-core`, the libraries' `./map` entries).**
+
+- The map components live in a separate `./map` entry of each library, so apps without a map never bundle the engine. Their class strings follow the usual `*.variants.ts` rule (identical in both).
+- `map-core` imports no React or Vue. Its `LayerManager` is the only code that adds, updates or removes sources and layers: components register with it, it applies them when the style is ready, re-applies them after `setStyle`, and turns prop changes into `setData`/`setPaintProperty`/… calls. Never call the engine's `addSource`/`addLayer`/`removeLayer` from a component.
+  - Each registration carries an owner object (one per component instance): a duplicate id is ignored with a warning and can't remove the original. After `destroy()` every call is a no-op, because React cleans up a parent before its children.
+  - Engine calls stay in `map-core` (it's the only package depending on `mapbox-gl`), so a MapLibre swap stays local.
+- `map-core` uses the default `mapbox-gl` entry, not `mapbox-gl/esm`: the ESM build's `new Worker(new URL(…, import.meta.url))` breaks under Vite's pre-bundling and across a remote's origin. Its Vite `external` is the exact `/^mapbox-gl$/`, so `mapbox-gl/dist/mapbox-gl.css?inline` is inlined and injected at runtime (in `@layer components`, so token utilities can restyle popups). Hosts load no map CSS.
+- **The token is never read in a library**: Vite's library mode replaces `import.meta.env.*` at the library's build. Each app reads `VITE_MAPBOX_TOKEN` from its own `.env.local` (a remote's own value counts, also when hosted) and passes it as a prop; without one the map view shows a message. The variable is in the root `turbo.json` `build.env`. Never log, print or commit a token; check for the file with `test -f`, never `cat`.
+- `.env` and `.env.*` are git-ignored except `.env.example`.
+- Each map counts as a billed Mapbox map load (twice under StrictMode in dev): the docs show one live map per library, lazily loaded so the engine downloads only with it.
+
 **Libraries are consumed from `dist/`, not source.**
 
 - Apps resolve them through the package `exports` (`dist/*.js` + `dist/*.d.ts` + `dist/styles.css`). A change in a library's `src` reaches the apps only after a rebuild; `pnpm dev` keeps a watcher running for each library.
 - `build` runs `vite build`, then emits the `.d.ts` files: `tsc -p tsconfig.build.json` in ui, `vue-tsc -p tsconfig.build.json` in ui-vue.
 - In ui, `@tailwindcss/vite` compiles `src/styles/index.css` twice: imported by `index.ts` it becomes `dist/styles.css` (`build.lib.cssFileName: 'styles'`); imported with `?inline` by `register.ts` it becomes a string in `register.js`. ui-vue only builds `dist/styles.css`. `dist/index.d.ts` keeps the CSS import line; that's expected and harmless (`skipLibCheck`).
-- Each Vite config keeps the framework and every runtime dependency external (ui: `react`, `react-dom`, `@r2wc/*`, `@radix-ui/*`, `lucide-react`; ui-vue: `vue`, `reka-ui`, `@lucide/vue`; both: `@internationalized/date`, `class-variance-authority`, `clsx`, `tailwind-merge`). Add any new runtime dependency there too.
+- Each Vite config keeps the framework and every runtime dependency external (ui: `react`, `react-dom`, `@r2wc/*`, `@radix-ui/*`, `lucide-react`; ui-vue: `vue`, `reka-ui`, `@lucide/vue`; both: `@repo/map-core`, `@internationalized/date`, `class-variance-authority`, `clsx`, `tailwind-merge`; map-core: `mapbox-gl`). Add any new runtime dependency there too.
 - `emptyOutDir: false` plus unhashed chunk names keep the watcher from deleting the `.d.ts` files.
 - `sideEffects` lists the bare-import entries (`dist/styles.css`, and ui's `dist/register.js`), so they aren't tree-shaken. Update that list if you add another side-effect entry.
 - A running `pnpm dev` doesn't pick up changes to a library's `package.json` `exports` or `vite.config.ts`, or new workspace packages: restart it.

@@ -37,6 +37,7 @@ packages/ui/src/       @repo/ui: React + Radix
   components/T<Name>/  one folder per component: T<Name>.tsx, T<Name>.variants.ts, types.ts, index.ts
   index.ts             entry ".":          the React components (and the stylesheet, for the build)
   icons.ts             entry "./icons":    the icon set, re-exported from lucide-react
+  map.ts               entry "./map":      the map components, on @repo/map-core (see packages/map-core/README.md)
   register.ts          entry "./register": the stylesheet, injected + each component as a <t-*> custom element
   env.d.ts             Vite's types, for the .css and ?inline imports
 
@@ -49,6 +50,7 @@ packages/ui-vue/src/   @repo/ui-vue: the same components natively in Vue, on Rek
   components/T<Name>/  T<Name>.vue (+ part SFCs), T<Name>.variants.ts (identical to ui's), types.ts, index.ts
   index.ts             entry ".": the Vue components (and the stylesheet, for the build)
   icons.ts             entry "./icons": the icon set, re-exported from @lucide/vue
+  map.ts               entry "./map": the map components, on @repo/map-core
 ```
 
 Each component exists once per framework, and both implementations share the same class strings, so they look the same.
@@ -307,7 +309,7 @@ Build details:
 
 - `@tailwindcss/vite` runs in each library's `vite.config.ts`. It compiles `.css` and `.css?inline` alike; it skips only `?raw`, `?url` and `?worker`.
 - In `vite build --watch`, Tailwind registers every scanned source file as a watch dependency. A new class in a `.tsx` file therefore rebuilds both `dist/styles.css` and the string inside `dist/register.js`.
-- `package.json` exports `./styles.css` (and `./icons`), and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
+- `package.json` exports `./styles.css` (and `./icons`, `./map`), and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
 - Tailwind is a **devDependency** of each library. The runtime helpers (`@radix-ui/*` or `reka-ui`, the Lucide package, `class-variance-authority`, `clsx`, `tailwind-merge`) are `dependencies` and are kept external in the library build, so each app bundles them, like the framework itself.
 
 ## 8. Adding a component

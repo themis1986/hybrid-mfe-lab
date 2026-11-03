@@ -18,6 +18,10 @@
       "types": "./dist/icons.d.ts",
       "import": "./dist/icons.js"
     },
+    "./map": {
+      "types": "./dist/map.d.ts",
+      "import": "./dist/map.js"
+    },
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
@@ -28,6 +32,7 @@
   "dependencies": {
     "@internationalized/date": "catalog:",
     "@lucide/vue": "catalog:",
+    "@repo/map-core": "workspace:*",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "reka-ui": "catalog:",

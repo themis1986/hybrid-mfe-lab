@@ -26,7 +26,10 @@ defineProps<{ entry: DocEntry }>()
     <TCardBody>
       <TStack :gap="4">
         <p class="m-0 text-sm text-fg-muted">{{ entry.summary }}</p>
-        <div class="rounded-md border border-dashed border-line p-4">
+        <div
+          v-if="entry.demo"
+          class="rounded-md border border-dashed border-line p-4"
+        >
           <component :is="entry.demo" />
         </div>
         <CodeBlock :code="entry.code" :label="`${entry.name} usage`" />
