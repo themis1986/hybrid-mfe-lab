@@ -27,6 +27,10 @@
       "types": "./dist/map.d.ts",
       "import": "./dist/map.js"
     },
+    "./charts": {
+      "types": "./dist/charts.d.ts",
+      "import": "./dist/charts.js"
+    },
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
@@ -37,6 +41,7 @@
   "dependencies": {
     "@internationalized/date": "catalog:",
     "@r2wc/react-to-web-component": "catalog:",
+    "@repo/chart-core": "workspace:*",
     "@repo/map-core": "workspace:*",
     "@radix-ui/react-accordion": "catalog:",
     "@radix-ui/react-checkbox": "catalog:",
