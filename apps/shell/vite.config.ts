@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => {
     env.VITE_UI_REACT_DOCS_REMOTE_URL || 'http://localhost:5176/remoteEntry.js'
   const weatherRemoteUrl =
     env.VITE_WEATHER_REMOTE_URL || 'http://localhost:5177/remoteEntry.js'
+  const kanbanRemoteUrl =
+    env.VITE_KANBAN_REMOTE_URL || 'http://localhost:5178/remoteEntry.js'
 
   return {
     devtools: { apply: 'serve' },
@@ -36,6 +38,7 @@ export default defineConfig(({ mode }) => {
             entry: uiReactDocsRemoteUrl,
           },
           weather: { type: 'module', name: 'weather', entry: weatherRemoteUrl },
+          kanban: { type: 'module', name: 'kanban', entry: kanbanRemoteUrl },
         },
         // Nothing shared yet (see README).
         shared: {},

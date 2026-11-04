@@ -1,4 +1,4 @@
-import { TStack } from '@repo/ui'
+import { TIcon, TStack } from '@repo/ui'
 import { NavLink } from 'react-router'
 import { useSession } from '../lib/auth'
 import { getAccessibleItems, NAV_GROUPS } from '../lib/navigation'
@@ -27,6 +27,7 @@ export function Sidebar() {
                       to={item.to}
                       className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-fg no-underline transition-colors duration-150 hover:bg-accent-subtle aria-[current=page]:bg-accent-subtle aria-[current=page]:font-medium aria-[current=page]:text-accent-fg"
                     >
+                      <TIcon icon={item.icon} size="sm" className="shrink-0" />
                       <span className="min-w-0 flex-1 truncate">
                         {item.label}
                       </span>

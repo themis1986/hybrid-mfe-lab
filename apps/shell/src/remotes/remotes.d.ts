@@ -26,3 +26,10 @@ declare module 'weather/mount' {
     props: { basePath: string },
   ): () => void
 }
+
+declare module 'kanban/mount' {
+  export function mount(
+    el: HTMLElement,
+    props: { basePath: string },
+  ): () => void
+}
