@@ -140,6 +140,21 @@ Single packages: `pnpm --filter @repo/todo-mfe dev`, `pnpm --filter @repo/ui bui
 Module Federation's dev mode works with Vite 8: the remote is served straight by its Vite dev
 server, so no `build --watch` + `preview` workaround is needed. `pnpm preview` is the production-like check.
 
+### Opening it from another device
+
+`pnpm dev` and `pnpm preview` listen on every network interface, so a device on the same network opens the shell
+or a standalone remote at the machine's address: `http://<machine-ip>:5173`. Vite prints it on its `Network:` line.
+If the device can't connect, check that the machine's firewall allows incoming connections for Node.
+
+- **The servers have no authentication.** Anyone on the network can reach them, and read what Vite inlines into the
+  bundles: the mock accounts, the Mapbox token and the CoinGecko key. Stop them on a network you don't trust.
+- **Plain HTTP on an IP address is not a secure context.** Browser APIs limited to secure contexts are missing or
+  refused there, such as `crypto.randomUUID()`, the clipboard API and geolocation. App code must not depend on one
+  without a fallback; for ids, use `crypto.getRandomValues()`. They work as usual on `localhost`.
+- **A Mapbox token restricted by URL** must also allow the machine's address, or the maps won't load on the device.
+- **After the machine's address changes,** restart the servers: a remote's `server.origin` is read once at startup.
+- **Vite DevTools** only accepts connections from the machine itself. The apps don't depend on it.
+
 ### Remote URLs
 
 The shell reads one variable per remote when it **builds**: `VITE_TODO_REMOTE_URL` (default
@@ -155,6 +170,9 @@ VITE_TODO_REMOTE_URL=https://cdn.example.com/todo/remoteEntry.js pnpm build
 ```
 
 Turborepo includes these variables (root `turbo.json`, `build.env`) in the shell build's cache key.
+
+At runtime, an entry on `localhost` uses the host the page was opened through (`apps/shell/src/remotes/sameHostRemotes.ts`),
+so the same server or build works from `localhost` and from another device. An entry on any other host stays as set.
 
 ## How it works
 
@@ -278,7 +296,8 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 1. Create `apps/<name>` with its own `package.json` (`@repo/<name>`) and scripts `dev`, `build`, `preview`
    and `typecheck`. Extend the matching `@repo/config` tsconfig preset.
 2. Add `@module-federation/vite` with a unique `name`, `filename: 'remoteEntry.js'`, `exposes: { './mount': … }`,
-   and a fixed port with `server.origin` set to that port.
+   and a fixed port. Use `networkServer(port)` from `@repo/config/vite-server.mjs` for `server` and `preview`, and
+   `networkOrigin(port)` for `server.origin`.
 3. Implement the same `mount(el, { basePath }) => unmount` contract. A Vue remote uses `@repo/ui-vue`,
    puts its styles in one `src/styles.css` injected inline from `mount.ts` (and removed on unmount), and sets
    `app.config.idPrefix`. A React remote does the same with `@repo/ui`: one inline stylesheet, and

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, nextTick, ref } from 'vue'
+import { createId } from '../helpers/id.helpers'
 import { validateTitle } from '../helpers/validation.helpers'
 import type { Todo } from '../types'
 
@@ -31,7 +32,7 @@ export const useTodoStore = defineStore('todos', () => {
   function add(title: string): Todo | undefined {
     if (validateTitle(title)) return undefined
     const todo: Todo = {
-      id: crypto.randomUUID(),
+      id: createId(),
       title: title.trim(),
       done: false,
       createdAt: Date.now(),

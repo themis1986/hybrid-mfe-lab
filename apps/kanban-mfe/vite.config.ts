@@ -1,4 +1,5 @@
 import { federation } from '@module-federation/vite'
+import { networkOrigin, networkServer } from '@repo/config/vite-server.mjs'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
@@ -21,10 +22,9 @@ export default defineConfig({
     }),
   ],
   server: {
-    port,
-    strictPort: true,
+    ...networkServer(port),
     // Makes dev-server asset URLs absolute so they resolve when loaded by the shell.
-    origin: `http://localhost:${port}`,
+    origin: networkOrigin(port),
   },
-  preview: { port, strictPort: true },
+  preview: networkServer(port),
 })

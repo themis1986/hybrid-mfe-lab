@@ -42,13 +42,14 @@ export function add(a: number, b: number): number
 
 ## 2. The `.d.ts` files in this repo at a glance
 
-| File                                                                                   | Written by        | Describes                                       | Why it is needed                                                                   |
-| -------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `apps/shell/src/remotes/remotes.d.ts`                                                  | Hand              | The federated module the shell loads at runtime | The module does not exist on disk, so the compiler cannot find it.                 |
-| `apps/shell/src/env.d.ts`, `apps/todo-mfe/src/env.d.ts` and `packages/ui/src/env.d.ts` | Hand              | Vite's browser-side types                       | `types` is empty in the base config, so Vite's types must be pulled in explicitly. |
-| `packages/ui/dist/*.d.ts`                                                              | `tsc` (generated) | The built `@repo/ui` package                    | The apps import the built JavaScript, which carries no types.                      |
+| File                                                                                   | Written by        | Describes                                         | Why it is needed                                                                    |
+| -------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `apps/shell/src/remotes/remotes.d.ts`                                                  | Hand              | The federated module the shell loads at runtime   | The module does not exist on disk, so the compiler cannot find it.                  |
+| `apps/shell/src/env.d.ts`, `apps/todo-mfe/src/env.d.ts` and `packages/ui/src/env.d.ts` | Hand              | Vite's browser-side types                         | `types` is empty in the base config, so Vite's types must be pulled in explicitly.  |
+| `packages/config/vite-server.d.mts`                                                    | Hand              | The server helpers every `vite.config.ts` imports | The helpers are plain JavaScript, because Vite loads them while reading its config. |
+| `packages/ui/dist/*.d.ts`                                                              | `tsc` (generated) | The built `@repo/ui` package                      | The apps import the built JavaScript, which carries no types.                       |
 
-The first two kinds you maintain. The third is rebuilt automatically.
+The hand-written ones you maintain. The generated ones are rebuilt automatically.
 
 ## 3. `remotes.d.ts`: types for code that arrives at runtime
 

@@ -120,14 +120,14 @@ federation({
 })
 ```
 
-| Option                   | Meaning                                                                                                                                                                                                                   |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`                   | The host's own identity.                                                                                                                                                                                                  |
-| `remotes`                | The address book: which remotes this app can load, and where their catalogs are.                                                                                                                                          |
-| `remotes.todo` (the key) | The nickname used in code. It is the first half of the import specifier: `import('todo/mount')` means "remote `todo`, exposed module `./mount`".                                                                          |
-| `name: 'todo'`           | The remote's own `name`. It must match the `name` in the remote's config.                                                                                                                                                 |
-| `entry`                  | The URL of the catalog. It comes from `VITE_TODO_REMOTE_URL`, or defaults to `http://localhost:5174/remoteEntry.js`.                                                                                                      |
-| `type: 'module'`         | How to load the catalog. `'module'` loads it as a standard ES module with `import()`, which is what a Vite-built remote produces. The alternative, `'var'`, is for older webpack-style remotes loaded as classic scripts. |
+| Option                   | Meaning                                                                                                                                                                                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                   | The host's own identity.                                                                                                                                                                                                                     |
+| `remotes`                | The address book: which remotes this app can load, and where their catalogs are.                                                                                                                                                             |
+| `remotes.todo` (the key) | The nickname used in code. It is the first half of the import specifier: `import('todo/mount')` means "remote `todo`, exposed module `./mount`".                                                                                             |
+| `name: 'todo'`           | The remote's own `name`. It must match the `name` in the remote's config.                                                                                                                                                                    |
+| `entry`                  | The URL of the catalog. It comes from `VITE_TODO_REMOTE_URL`, or defaults to `http://localhost:5174/remoteEntry.js`. At runtime, a `localhost` entry uses the host the page was opened through, so other devices on the network can load it. |
+| `type: 'module'`         | How to load the catalog. `'module'` loads it as a standard ES module with `import()`, which is what a Vite-built remote produces. The alternative, `'var'`, is for older webpack-style remotes loaded as classic scripts.                    |
 
 Two things to notice:
 
@@ -227,7 +227,7 @@ The plugin can generate TypeScript declarations for exposed modules and download
 
 ### `server.origin` (remote, dev only)
 
-In dev, the MFE's code refers to its other files with root-relative URLs such as `/src/foo.js`. When that code is loaded from the shell's page on `:5173`, the browser would look for those files on `:5173` and fail. Setting `server.origin: 'http://localhost:5174'` in the remote's Vite config makes the URLs absolute, so they point back at the MFE's server. In a production build, chunks are resolved relative to the remote entry's URL, so this isn't needed.
+In dev, the MFE's code imports its other files with root-relative URLs such as `/src/foo.js`. An import resolves against the URL of the module doing the importing, so those reach the MFE's server even from the shell's page. An imported asset is different: its URL ends up in the page, where `/src/logo.png` would mean `:5173`. Setting `server.origin` in the remote's Vite config makes those URLs absolute, so they point back at the MFE's server. The value is the machine's network address (`networkOrigin(port)`), which works from `localhost` and from other devices. In a production build, chunks are resolved relative to the remote entry's URL, so this isn't needed.
 
 ### `strictPort: true` (both apps)
 

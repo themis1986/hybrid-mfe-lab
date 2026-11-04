@@ -1,4 +1,5 @@
 import { federation } from '@module-federation/vite'
+import { networkServer } from '@repo/config/vite-server.mjs'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -46,12 +47,13 @@ export default defineConfig(({ mode }) => {
         // Nothing shared yet (see README).
         shared: {},
         dts: false,
+        runtimePlugins: ['./src/remotes/sameHostRemotes.ts'],
       }),
       react(),
       tailwindcss(),
       vueDevTools(),
     ],
-    server: { port, strictPort: true },
-    preview: { port, strictPort: true },
+    server: networkServer(port),
+    preview: networkServer(port),
   }
 })

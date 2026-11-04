@@ -70,6 +70,8 @@ pnpm --filter @repo/todo-mfe dev   # any single package/task
 
 The ports are `strictPort`: if one is already taken, the server exits instead of moving to another port. Stopping one persistent turbo task stops the whole `pnpm dev`/`pnpm preview` run.
 
+The servers also answer on the machine's network address (`http://<machine-ip>:5173`), for other devices. To test that path on one machine, make `localhost` unreachable in the browser (Chrome: `--host-resolver-rules="MAP localhost 127.0.0.2"`): otherwise a stray `localhost` URL still loads and hides the bug.
+
 ## Architecture: how the pieces connect
 
 **Runtime composition (shell → remotes).**
@@ -242,8 +244,15 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 
 - `shared: {}` everywhere, so each remote bundles its own framework (Vue, or React for a React remote). This is a known, accepted duplication; sharing is a planned optimization. If React becomes a shared singleton, every `root.unmount()` run from the shell (a React remote's unmount, the custom element's) would run during the shell's commit and must be deferred.
 - Remotes must use `type: 'module'` in the shell's `remotes`.
-- Each remote sets `server.origin` so its dev-server URLs resolve when loaded from the shell.
+- Each remote sets `server.origin` so its dev-server asset URLs resolve when loaded from the shell. Its code needs no origin: root-relative imports resolve against the module's own URL.
 - The shell reads each remote's URL from a `VITE_*_REMOTE_URL` variable at **build time** (defaults: `http://localhost:5174/remoteEntry.js`, `:5175/…`, `:5176/…`, `:5177/…`, `:5178/…`, `:5179/…`). Each variable is listed in the root `turbo.json` `build.env`, so it is part of the cache key.
+
+**Network access (other devices).**
+
+- Every app's `server` and `preview` come from `networkServer(port)` in `packages/config/vite-server.mjs` (`host: true`, plus CORS for localhost and the private IPv4 ranges), and a remote's `server.origin` from `networkOrigin(port)`, its network address at startup. Never use `cors: true` or `allowedHosts: true`: any website could then read the dev servers. It is plain `.mjs` with a hand-written `.d.mts`, because Vite loads it while reading each config.
+- The shell's runtime plugin (`src/remotes/sameHostRemotes.ts`, in federation `runtimePlugins`) replaces a `localhost` remote entry's host with the page's, so the URLs stay `localhost` at build time and one server or build works from any device. Entries on other hosts are left alone.
+- The plugin's warm-up of the remote entries (`import(url).catch()` in dev, `modulepreload` tags in a build) bypasses the runtime and still names `localhost`. On another device those requests fail and nothing waits on them, so they are harmless.
+- Plain HTTP on an IP address is not a secure context: `crypto.randomUUID()`, the clipboard API and geolocation are missing or refused. App code uses `crypto.getRandomValues()` for ids, and needs a fallback for the rest.
 
 ## Toolchain constraints (non-obvious, don't "fix" these)
 
