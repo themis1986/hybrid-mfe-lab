@@ -27,6 +27,7 @@ import InlineDemo from './demos/InlineDemo.vue'
 import InputDemo from './demos/InputDemo.vue'
 import PageHeaderDemo from './demos/PageHeaderDemo.vue'
 import PanelDemo from './demos/PanelDemo.vue'
+import PaginationDemo from './demos/PaginationDemo.vue'
 import PopoverDemo from './demos/PopoverDemo.vue'
 import ProgressDemo from './demos/ProgressDemo.vue'
 import RadioGroupDemo from './demos/RadioGroupDemo.vue'
@@ -1080,6 +1081,90 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: SliderDemo,
     code: `<TSlider v-model="volume" thumb-label="Volume" />
 <TSlider v-model="price" :step="5" :thumb-label="['Minimum', 'Maximum']" />`,
+  },
+  {
+    id: 'pagination',
+    name: 'TPagination',
+    group: 'actions',
+    summary:
+      'Page navigation with numbered buttons, previous and next, and ellipses for long ranges (Reka Pagination).',
+    props: [
+      {
+        name: 'v-model:page',
+        type: 'number',
+        description:
+          'The current page, from 1; defaultPage when uncontrolled. A page past the end shows as the last one and nothing is reported, so clamp your own data when the total shrinks.',
+      },
+      {
+        name: 'total',
+        type: 'number',
+        description: 'Number of items in the whole list, not of pages.',
+      },
+      {
+        name: 'itemsPerPage',
+        type: 'number',
+        description: 'Items on one page.',
+      },
+      {
+        name: 'siblingCount',
+        type: 'number',
+        default: '1',
+        description: 'Pages shown on each side of the current one.',
+      },
+      {
+        name: 'showEdges',
+        type: 'boolean',
+        default: 'true',
+        description:
+          'Always show the first and last page, with an ellipsis for any gap. Turn it off with :show-edges="false".',
+      },
+      {
+        name: 'showFirstLast',
+        type: 'boolean',
+        default: 'false',
+        description: 'Adds buttons that jump to the first and last page.',
+      },
+      {
+        name: 'size',
+        type: "'sm' | 'md' | 'lg'",
+        default: "'md'",
+        description: 'Height of the buttons.',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        description: 'Disables every button.',
+      },
+      {
+        name: 'labels',
+        type: '{ first, previous, next, last, page }',
+        description:
+          'Accessible names of the buttons, for translating them; page is a function of the page number.',
+      },
+      {
+        name: 'aria-label',
+        type: 'string',
+        default: "'Pagination'",
+        description:
+          'Name of the navigation landmark. Give each one its own when a page has several.',
+      },
+      {
+        name: 'as',
+        type: 'AsTag | Component',
+        default: "'nav'",
+        description: 'The element or component to render.',
+      },
+    ],
+    events: [
+      {
+        name: 'update:page',
+        payload: 'number',
+        description: 'When the user picks another page (v-model:page).',
+      },
+    ],
+    demo: PaginationDemo,
+    code: `<TPagination v-model:page="page" :total="240" :items-per-page="20" />
+<TPagination :default-page="12" :total="480" :items-per-page="20" show-first-last />`,
   },
 
   // Dates & time
