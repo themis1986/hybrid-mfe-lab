@@ -11,6 +11,7 @@ export default defineConfig({
         icons: 'src/icons.ts',
         map: 'src/map.ts',
         charts: 'src/charts.ts',
+        table: 'src/table.ts',
       },
       formats: ['es'],
       // The CSS imported by src/index.ts becomes dist/styles.css (exported as '@repo/ui-vue/styles.css').
@@ -25,6 +26,8 @@ export default defineConfig({
         /^@internationalized\/date$/,
         /^@repo\/chart-core$/,
         /^@repo\/map-core$/,
+        /^@repo\/table-core$/,
+        /^@tanstack\/[^/]+($|\/)/,
         /^@lucide\/vue($|\/)/,
         /^class-variance-authority$/,
         /^clsx$/,

@@ -129,6 +129,8 @@
   /* Surfaces and text. Radix: white app background in light mode, step 1 of the neutral in dark mode. */
   --t-color-canvas: light-dark(var(--t-white), var(--t-slate-1));
   --t-color-surface: var(--t-slate-2);
+  /* A surface under the pointer: a table row, which zebra striping may already paint as surface. */
+  --t-color-surface-hover: var(--t-slate-3);
   --t-color-fg: var(--t-slate-12);
   --t-color-fg-muted: var(--t-slate-11);
   --t-color-line: var(--t-slate-6);
