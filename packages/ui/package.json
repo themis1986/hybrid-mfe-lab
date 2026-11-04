@@ -31,6 +31,10 @@
       "types": "./dist/charts.d.ts",
       "import": "./dist/charts.js"
     },
+    "./table": {
+      "types": "./dist/table.d.ts",
+      "import": "./dist/table.js"
+    },
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
@@ -43,6 +47,9 @@
     "@r2wc/react-to-web-component": "catalog:",
     "@repo/chart-core": "workspace:*",
     "@repo/map-core": "workspace:*",
+    "@repo/table-core": "workspace:*",
+    "@tanstack/react-table": "catalog:",
+    "@tanstack/react-virtual": "catalog:",
     "@radix-ui/react-accordion": "catalog:",
     "@radix-ui/react-checkbox": "catalog:",
     "@radix-ui/react-collapsible": "catalog:",

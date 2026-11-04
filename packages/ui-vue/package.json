@@ -26,6 +26,10 @@
       "types": "./dist/charts.d.ts",
       "import": "./dist/charts.js"
     },
+    "./table": {
+      "types": "./dist/table.d.ts",
+      "import": "./dist/table.js"
+    },
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
@@ -38,6 +42,9 @@
     "@lucide/vue": "catalog:",
     "@repo/chart-core": "workspace:*",
     "@repo/map-core": "workspace:*",
+    "@repo/table-core": "workspace:*",
+    "@tanstack/vue-table": "catalog:",
+    "@tanstack/vue-virtual": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "reka-ui": "catalog:",

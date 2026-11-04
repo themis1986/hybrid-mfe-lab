@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "dev": {
+      // Start the watcher only after the initial build (which also emits the .d.ts files).
+      "dependsOn": ["build"]
+    }
+  }
+}

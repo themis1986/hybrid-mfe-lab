@@ -9,6 +9,7 @@
 
   --color-canvas: var(--t-color-canvas);
   --color-surface: var(--t-color-surface);
+  --color-surface-hover: var(--t-color-surface-hover);
   --color-fg: var(--t-color-fg);
   --color-fg-muted: var(--t-color-fg-muted);
   --color-line: var(--t-color-line);
