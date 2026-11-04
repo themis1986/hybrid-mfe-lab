@@ -17,6 +17,7 @@ import DatePickerDemo from './demos/DatePickerDemo.vue'
 import DateRangeFieldDemo from './demos/DateRangeFieldDemo.vue'
 import DialogDemo from './demos/DialogDemo.vue'
 import DividerDemo from './demos/DividerDemo.vue'
+import DropdownMenuDemo from './demos/DropdownMenuDemo.vue'
 import FieldDemo from './demos/FieldDemo.vue'
 import FrameDemo from './demos/FrameDemo.vue'
 import GridDemo from './demos/GridDemo.vue'
@@ -2281,6 +2282,85 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
 </TDialog>`,
   },
 
+  {
+    id: 'dropdown-menu',
+    name: 'TDropdownMenu',
+    parts: [
+      'TDropdownMenuTrigger',
+      'TDropdownMenuContent',
+      'TDropdownMenuItem',
+      'TDropdownMenuGroup',
+      'TDropdownMenuLabel',
+      'TDropdownMenuSeparator',
+    ],
+    group: 'overlays',
+    summary:
+      'A list of actions that opens from a button, with menu roles and arrow-key navigation (Reka Dropdown Menu). For a panel of fields, use TPopover.',
+    props: [
+      {
+        name: 'v-model:open',
+        type: 'boolean',
+        description: 'Open or closed; defaultOpen when uncontrolled.',
+      },
+      {
+        name: 'modal',
+        type: 'boolean',
+        default: 'false',
+        description: 'Traps focus and blocks the page behind it.',
+      },
+      {
+        name: 'TDropdownMenuTrigger',
+        type: 'as-child',
+        description: 'Wrap the button that opens it.',
+      },
+      {
+        name: 'TDropdownMenuContent side / align / sideOffset',
+        type: "'bottom' / 'start' / 4",
+        description:
+          'Placement next to the trigger; it flips when there is no room.',
+      },
+      {
+        name: 'TDropdownMenuItem tone',
+        type: "'neutral' | 'danger'",
+        default: "'neutral'",
+        description: 'danger for a destructive action.',
+      },
+      {
+        name: 'TDropdownMenuItem disabled',
+        type: 'boolean',
+        description: 'Skipped by the arrow keys and not selectable.',
+      },
+      {
+        name: 'TDropdownMenuLabel / TDropdownMenuSeparator',
+        type: 'slot / none',
+        description: 'A muted heading, and a line between groups of items.',
+      },
+    ],
+    events: [
+      {
+        name: 'update:open',
+        payload: 'boolean',
+        description: 'When it opens or closes (v-model:open).',
+      },
+      {
+        name: 'TDropdownMenuItem select',
+        payload: 'Event',
+        description:
+          'Runs the action, then closes the menu. event.preventDefault() keeps it open.',
+      },
+    ],
+    demo: DropdownMenuDemo,
+    code: `<TDropdownMenu>
+  <TDropdownMenuTrigger as-child><TButton variant="outline" label="Actions" /></TDropdownMenuTrigger>
+  <TDropdownMenuContent>
+    <TDropdownMenuLabel>Deployment</TDropdownMenuLabel>
+    <TDropdownMenuItem @select="restart">Restart</TDropdownMenuItem>
+    <TDropdownMenuItem disabled>Promote</TDropdownMenuItem>
+    <TDropdownMenuSeparator />
+    <TDropdownMenuItem tone="danger" @select="remove">Delete</TDropdownMenuItem>
+  </TDropdownMenuContent>
+</TDropdownMenu>`,
+  },
   {
     id: 'popover',
     name: 'TPopover',

@@ -1,5 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
+  "concurrency": "20",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -9,6 +10,7 @@
         "VITE_UI_VUE_DOCS_REMOTE_URL",
         "VITE_UI_REACT_DOCS_REMOTE_URL",
         "VITE_WEATHER_REMOTE_URL",
+        "VITE_KANBAN_REMOTE_URL",
         "VITE_MOCK_ACCOUNTS",
         "VITE_MAPBOX_TOKEN"
       ],

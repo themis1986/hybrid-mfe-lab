@@ -23,6 +23,9 @@ Documentation:
   remotes each may open.
 - [apps/weather-mfe/README.md](apps/weather-mfe/README.md): the weather remote: what it does, its data sources
   and their terms, and what to plan next.
+- [apps/kanban-mfe/README.md](apps/kanban-mfe/README.md): the kanban remote: what it does, how it's built, how to
+  extend it and what to plan next. The choices behind it, mainly drag and drop, are in
+  [documents/decisions/kanban.md](documents/decisions/kanban.md).
 - [packages/map-core/README.md](packages/map-core/README.md): the map components (Mapbox GL JS) in both
   libraries: token setup, usage, markers vs layers. The choices behind them are in
   [documents/decisions/map.md](documents/decisions/map.md).
@@ -51,6 +54,8 @@ Documentation:
 │ :5176  apps/ui-react-docs   React   @repo/ui, stylesheet inline     │
 │ :5177  apps/weather-mfe     Vue 3   @repo/ui-vue, stylesheet inline │
 │                                     + Pinia, TanStack Query         │
+│ :5178  apps/kanban-mfe      React   @repo/ui, stylesheet inline     │
+│                                     + one store per mount           │
 └─────────────────────────────────────────────────────────────────────┘
 
 packages/tokens  (@repo/tokens)  design tokens + the token → Tailwind theme (CSS only)
@@ -90,6 +95,8 @@ pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell
 | React UI docs MFE remote entry | http://localhost:5176/remoteEntry.js |
 | Weather MFE standalone         | http://localhost:5177                |
 | Weather MFE remote entry       | http://localhost:5177/remoteEntry.js |
+| Kanban MFE standalone          | http://localhost:5178                |
+| Kanban MFE remote entry        | http://localhost:5178/remoteEntry.js |
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
 
@@ -122,8 +129,9 @@ server, so no `build --watch` + `preview` workaround is needed. `pnpm preview` i
 The shell reads one variable per remote when it **builds**: `VITE_TODO_REMOTE_URL` (default
 `http://localhost:5174/remoteEntry.js`), `VITE_UI_VUE_DOCS_REMOTE_URL` (default
 `http://localhost:5175/remoteEntry.js`), `VITE_UI_REACT_DOCS_REMOTE_URL` (default
-`http://localhost:5176/remoteEntry.js`) and `VITE_WEATHER_REMOTE_URL` (default
-`http://localhost:5177/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
+`http://localhost:5176/remoteEntry.js`), `VITE_WEATHER_REMOTE_URL` (default
+`http://localhost:5177/remoteEntry.js`) and `VITE_KANBAN_REMOTE_URL` (default
+`http://localhost:5178/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
 
 ```sh
 VITE_TODO_REMOTE_URL=https://cdn.example.com/todo/remoteEntry.js pnpm build
@@ -264,7 +272,7 @@ To add a component, follow the checklist in [documents/design-system.md](documen
    - declare its module in `apps/shell/src/remotes/remotes.d.ts`;
    - add a host file built with `createRemoteHost`, and its splat route in `App.tsx`, wrapped in
      `<RequireApp id="…">` so only users with access can open it;
-   - add its entry to the sidebar menu config (`apps/shell/src/lib/navigation.ts`), with a new `AppId`;
+   - add its entry to the sidebar menu config (`apps/shell/src/lib/navigation.ts`), with a new `AppId` and an icon;
    - grant it to the accounts that should see it (`VITE_MOCK_ACCOUNTS` in `apps/shell/.env.local`, and the
      starting set in `apps/shell/.env.example`). A user with an `all` grant, or a `tech` grant for its
      framework, sees it without changes.
@@ -272,7 +280,7 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 
 ## Versions
 
-Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-workspace.yaml`; installed versions:
+Checked on npm on 2026-10-28, and the two `@dnd-kit` rows on 2026-11-04. Ranges live in the pnpm `catalog:` in `pnpm-workspace.yaml`; installed versions:
 
 | Package                 | Version |     | Package                         | Version   |
 | ----------------------- | ------- | --- | ------------------------------- | --------- |
@@ -292,6 +300,7 @@ Checked on npm on 2026-10-28. Ranges live in the pnpm `catalog:` in `pnpm-worksp
 | @internationalized/date | 3.12.4  |     | pinia                           | 4.1.0     |
 | mapbox-gl               | 3.34.1  |     | @types/geojson                  | 7946.0.16 |
 | highcharts              | 13.1.1  |     | @tanstack/vue-query             | 5.105.2   |
+| @dnd-kit/react          | 0.5.3   |     | @dnd-kit/dom, @dnd-kit/abstract | 0.5.3     |
 
 ### Deviations from the original brief, and why
 

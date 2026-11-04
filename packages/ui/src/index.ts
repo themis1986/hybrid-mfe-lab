@@ -195,6 +195,24 @@ export type {
   TAccordionTriggerProps,
 } from './components/TAccordion'
 export {
+  TDropdownMenu,
+  TDropdownMenuContent,
+  TDropdownMenuGroup,
+  TDropdownMenuItem,
+  TDropdownMenuLabel,
+  TDropdownMenuSeparator,
+  TDropdownMenuTrigger,
+} from './components/TDropdownMenu'
+export type {
+  TDropdownMenuContentProps,
+  TDropdownMenuGroupProps,
+  TDropdownMenuItemProps,
+  TDropdownMenuLabelProps,
+  TDropdownMenuProps,
+  TDropdownMenuSeparatorProps,
+  TDropdownMenuTriggerProps,
+} from './components/TDropdownMenu'
+export {
   TPopover,
   TPopoverClose,
   TPopoverContent,

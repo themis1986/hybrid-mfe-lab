@@ -51,6 +51,12 @@ import {
   toast,
   TPageHeader,
   TPanel,
+  TDropdownMenu,
+  TDropdownMenuContent,
+  TDropdownMenuItem,
+  TDropdownMenuLabel,
+  TDropdownMenuSeparator,
+  TDropdownMenuTrigger,
   TPopover,
   TPopoverClose,
   TPopoverContent,
@@ -1040,6 +1046,35 @@ const blankRule = () => ({
   quietHours: false,
   note: '',
 })
+
+function DropdownMenuDemo() {
+  const [action, setAction] = useState('none yet')
+
+  return (
+    <TCluster>
+      <TDropdownMenu>
+        <TDropdownMenuTrigger asChild>
+          <TButton variant="outline" label="Actions" />
+        </TDropdownMenuTrigger>
+        <TDropdownMenuContent>
+          <TDropdownMenuLabel>Deployment</TDropdownMenuLabel>
+          <TDropdownMenuItem onSelect={() => setAction('Restart')}>
+            Restart
+          </TDropdownMenuItem>
+          <TDropdownMenuItem onSelect={() => setAction('Roll back')}>
+            Roll back
+          </TDropdownMenuItem>
+          <TDropdownMenuItem disabled>Promote</TDropdownMenuItem>
+          <TDropdownMenuSeparator />
+          <TDropdownMenuItem tone="danger" onSelect={() => setAction('Delete')}>
+            Delete
+          </TDropdownMenuItem>
+        </TDropdownMenuContent>
+      </TDropdownMenu>
+      <span className="text-sm text-fg-muted">Last action: {action}</span>
+    </TCluster>
+  )
+}
 
 function PopoverDemo() {
   const [open, setOpen] = useState(false)
@@ -3592,6 +3627,78 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
 </TDialog>`,
   },
 
+  {
+    id: 'dropdown-menu',
+    name: 'TDropdownMenu',
+    parts: [
+      'TDropdownMenuTrigger',
+      'TDropdownMenuContent',
+      'TDropdownMenuItem',
+      'TDropdownMenuGroup',
+      'TDropdownMenuLabel',
+      'TDropdownMenuSeparator',
+    ],
+    group: 'overlays',
+    summary:
+      'A list of actions that opens from a button, with menu roles and arrow-key navigation (Radix Dropdown Menu). For a panel of fields, use TPopover.',
+    props: [
+      {
+        name: 'open / defaultOpen / onOpenChange',
+        type: 'boolean / boolean / (open) => void',
+        description: 'Open or closed, controlled or uncontrolled.',
+      },
+      {
+        name: 'modal',
+        type: 'boolean',
+        default: 'false',
+        description: 'Traps focus and blocks the page behind it.',
+      },
+      {
+        name: 'TDropdownMenuTrigger',
+        type: 'asChild',
+        description: 'Wrap the button that opens it.',
+      },
+      {
+        name: 'TDropdownMenuContent side / align / sideOffset',
+        type: "'bottom' / 'start' / 4",
+        description:
+          'Placement next to the trigger; it flips when there is no room.',
+      },
+      {
+        name: 'TDropdownMenuItem onSelect',
+        type: '(event) => void',
+        description:
+          'Runs the action, then closes the menu. event.preventDefault() keeps it open.',
+      },
+      {
+        name: 'TDropdownMenuItem tone',
+        type: "'neutral' | 'danger'",
+        default: "'neutral'",
+        description: 'danger for a destructive action.',
+      },
+      {
+        name: 'TDropdownMenuItem disabled',
+        type: 'boolean',
+        description: 'Skipped by the arrow keys and not selectable.',
+      },
+      {
+        name: 'TDropdownMenuLabel / TDropdownMenuSeparator',
+        type: 'children / none',
+        description: 'A muted heading, and a line between groups of items.',
+      },
+    ],
+    demo: <DropdownMenuDemo />,
+    code: `<TDropdownMenu>
+  <TDropdownMenuTrigger asChild><TButton variant="outline" label="Actions" /></TDropdownMenuTrigger>
+  <TDropdownMenuContent>
+    <TDropdownMenuLabel>Deployment</TDropdownMenuLabel>
+    <TDropdownMenuItem onSelect={restart}>Restart</TDropdownMenuItem>
+    <TDropdownMenuItem disabled>Promote</TDropdownMenuItem>
+    <TDropdownMenuSeparator />
+    <TDropdownMenuItem tone="danger" onSelect={remove}>Delete</TDropdownMenuItem>
+  </TDropdownMenuContent>
+</TDropdownMenu>`,
+  },
   {
     id: 'popover',
     name: 'TPopover',

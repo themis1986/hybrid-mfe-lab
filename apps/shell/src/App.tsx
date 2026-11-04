@@ -5,6 +5,7 @@ import { RequireApp } from './components/RequireApp'
 import { RequireAuth } from './components/RequireAuth'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
+import { KANBAN_BASE_PATH, KanbanMfeHost } from './remotes/KanbanMfeHost'
 import { TODO_BASE_PATH, TodoMfeHost } from './remotes/TodoMfeHost'
 import {
   UI_REACT_DOCS_BASE_PATH,
@@ -37,12 +38,20 @@ export function App() {
               </RequireApp>
             }
           />
-          {/* The weather and docs microfrontends lay out their own pages. */}
+          {/* The weather, kanban and docs microfrontends lay out their own pages. */}
           <Route
             path={`${WEATHER_BASE_PATH}/*`}
             element={
               <RequireApp id="weather">
                 <WeatherMfeHost />
+              </RequireApp>
+            }
+          />
+          <Route
+            path={`${KANBAN_BASE_PATH}/*`}
+            element={
+              <RequireApp id="kanban">
+                <KanbanMfeHost />
               </RequireApp>
             }
           />
