@@ -1,10 +1,12 @@
 import {
   BookOpen,
   CloudSun,
+  Coins,
   ListTodo,
   type LucideIcon,
   SquareKanban,
 } from '@repo/ui/icons'
+import { CRYPTO_BASE_PATH } from '../remotes/CryptoMfeHost'
 import { KANBAN_BASE_PATH } from '../remotes/KanbanMfeHost'
 import { TODO_BASE_PATH } from '../remotes/TodoMfeHost'
 import { UI_REACT_DOCS_BASE_PATH } from '../remotes/UiReactDocsHost'
@@ -19,7 +21,7 @@ export type NavGroup = 'apps' | 'developer'
 export const TECHS = ['vue', 'react'] as const
 export type Tech = (typeof TECHS)[number]
 export type AppId =
-  'todo' | 'weather' | 'kanban' | 'ui-react-docs' | 'ui-vue-docs'
+  'todo' | 'weather' | 'kanban' | 'crypto' | 'ui-react-docs' | 'ui-vue-docs'
 
 export interface NavItem {
   id: AppId
@@ -66,6 +68,16 @@ export const NAV_ITEMS: NavItem[] = [
     icon: SquareKanban,
     group: 'apps',
     tech: 'react',
+  },
+  {
+    id: 'crypto',
+    label: 'Crypto market',
+    to: CRYPTO_BASE_PATH,
+    description:
+      'The crypto microfrontend: a Vue 3 market dashboard with live prices, charts and a watchlist.',
+    icon: Coins,
+    group: 'apps',
+    tech: 'vue',
   },
   {
     id: 'ui-react-docs',

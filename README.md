@@ -26,6 +26,9 @@ Documentation:
 - [apps/kanban-mfe/README.md](apps/kanban-mfe/README.md): the kanban remote: what it does, how it's built, how to
   extend it and what to plan next. The choices behind it, mainly drag and drop, are in
   [documents/decisions/kanban.md](documents/decisions/kanban.md).
+- [apps/crypto-mfe/README.md](apps/crypto-mfe/README.md): the crypto remote: what it does, its data sources and their
+  terms, how it's built, how to extend it and what to plan next. The choices behind it are in
+  [documents/decisions/crypto.md](documents/decisions/crypto.md).
 - [packages/map-core/README.md](packages/map-core/README.md): the map components (Mapbox GL JS) in both
   libraries: token setup, usage, markers vs layers. The choices behind them are in
   [documents/decisions/map.md](documents/decisions/map.md).
@@ -59,6 +62,8 @@ Documentation:
 │                                     + Pinia, TanStack Query         │
 │ :5178  apps/kanban-mfe      React   @repo/ui, stylesheet inline     │
 │                                     + one store per mount           │
+│ :5179  apps/crypto-mfe      Vue 3   @repo/ui-vue, stylesheet inline │
+│                                     + Pinia, TanStack Query         │
 └─────────────────────────────────────────────────────────────────────┘
 
 packages/tokens  (@repo/tokens)  design tokens + the token → Tailwind theme (CSS only)
@@ -102,6 +107,8 @@ pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell
 | Weather MFE remote entry       | http://localhost:5177/remoteEntry.js |
 | Kanban MFE standalone          | http://localhost:5178                |
 | Kanban MFE remote entry        | http://localhost:5178/remoteEntry.js |
+| Crypto MFE standalone          | http://localhost:5179                |
+| Crypto MFE remote entry        | http://localhost:5179/remoteEntry.js |
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
 
@@ -115,6 +122,10 @@ The map needs a public Mapbox token, per remote: copy `apps/ui-react-docs/.env.e
 `apps/ui-vue-docs/.env.example` and `apps/weather-mfe/.env.example` to `.env.local` and set
 `VITE_MAPBOX_TOKEN`. Without it, each shows a message instead of a map. See [packages/map-core/README.md](packages/map-core/README.md#token-license-and-cost)
 for the license and billing terms.
+
+The crypto remote runs on a keyless API with a tight rate limit. A free key gives it more room: copy
+`apps/crypto-mfe/.env.example` to `.env.local` and set `VITE_COINGECKO_API_KEY`. See
+[apps/crypto-mfe/README.md](apps/crypto-mfe/README.md#setup).
 
 Other root scripts:
 
@@ -135,8 +146,9 @@ The shell reads one variable per remote when it **builds**: `VITE_TODO_REMOTE_UR
 `http://localhost:5174/remoteEntry.js`), `VITE_UI_VUE_DOCS_REMOTE_URL` (default
 `http://localhost:5175/remoteEntry.js`), `VITE_UI_REACT_DOCS_REMOTE_URL` (default
 `http://localhost:5176/remoteEntry.js`), `VITE_WEATHER_REMOTE_URL` (default
-`http://localhost:5177/remoteEntry.js`) and `VITE_KANBAN_REMOTE_URL` (default
-`http://localhost:5178/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
+`http://localhost:5177/remoteEntry.js`), `VITE_KANBAN_REMOTE_URL` (default
+`http://localhost:5178/remoteEntry.js`) and `VITE_CRYPTO_REMOTE_URL` (default
+`http://localhost:5179/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
 
 ```sh
 VITE_TODO_REMOTE_URL=https://cdn.example.com/todo/remoteEntry.js pnpm build

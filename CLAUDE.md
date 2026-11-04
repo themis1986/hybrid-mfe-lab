@@ -6,10 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A pnpm + Turborepo microfrontends skeleton:
 
-- **`apps/shell`** (`@repo/shell`, React 19 + React Router 8) is the host. At runtime it loads five remotes through Module Federation (`@module-federation/vite`):
+- **`apps/shell`** (`@repo/shell`, React 19 + React Router 8) is the host. At runtime it loads six remotes through Module Federation (`@module-federation/vite`):
   - **`apps/todo-mfe`** (`@repo/todo-mfe`, Vue 3 + Vue Router 5);
   - **`apps/weather-mfe`** (`@repo/weather-mfe`, Vue 3 + Vue Router 5, Pinia, TanStack Query), a working weather app; its README covers its data sources and roadmap;
   - **`apps/kanban-mfe`** (`@repo/kanban-mfe`, React 19, `@dnd-kit/react`), a working Kanban board; its README covers its architecture, how to extend it and its roadmap, and `documents/decisions/kanban.md` records the choices;
+  - **`apps/crypto-mfe`** (`@repo/crypto-mfe`, Vue 3 + Vue Router 5, Pinia, TanStack Query), a working crypto market dashboard; its README covers its data sources, how to extend it and its roadmap, and `documents/decisions/crypto.md` records the choices;
   - **`apps/ui-vue-docs`** (`@repo/ui-vue-docs`, Vue 3 + Vue Router 5), the Vue library's documentation;
   - **`apps/ui-react-docs`** (`@repo/ui-react-docs`, React 19), the React library's documentation.
     The shell itself renders only the frame (header, menu, theme choice, user menu), the login page and the home page. It owns sign-in and decides which remotes each user may open.
@@ -23,7 +24,7 @@ A pnpm + Turborepo microfrontends skeleton:
 - **`packages/config`** (`@repo/config`) holds the shared tsconfig presets.
 - Every Vue app is on `@repo/ui-vue`. `@repo/ui` still builds the custom-element bridge (`@repo/ui/register`, "Option A"), but no app uses it.
 
-The content is placeholder, apart from the todo, weather and kanban MFEs, working apps that keep their state in memory only. The repo exists to prove the wiring.
+The content is placeholder, apart from the todo, weather, kanban and crypto MFEs, working apps that keep their state in memory only. The repo exists to prove the wiring.
 
 - README.md: setup, the version table and the rationale for each deviation.
 - `documents/how-it-works.md`: the full build-time and runtime walkthrough.
@@ -38,7 +39,7 @@ Current scope limits:
 
 - a minimal design system (tokens, Tailwind styles, placeholder components) only: no Storybook, icon set or web fonts;
 - no persistence or backend: app state lives in memory;
-- no state management beyond Pinia in a Vue remote, TanStack Query for server data in the weather remote, and a plain store on `useSyncExternalStore` in the kanban remote; no real identity provider (the shell's login uses mock accounts), testing framework, linting, CI or Docker.
+- no state management beyond Pinia in a Vue remote, TanStack Query for server data in the weather and crypto remotes, and a plain store on `useSyncExternalStore` in the kanban remote; no real identity provider (the shell's login uses mock accounts), testing framework, linting, CI or Docker.
 
 Don't add these unless asked.
 
@@ -54,7 +55,8 @@ cp apps/shell/.env.example apps/shell/.env.local   # once: the shell's mock acco
 cp apps/ui-react-docs/.env.example apps/ui-react-docs/.env.local   # optional: a Mapbox token for the map demos
 cp apps/ui-vue-docs/.env.example apps/ui-vue-docs/.env.local       #   (same; without it they show a message)
 cp apps/weather-mfe/.env.example apps/weather-mfe/.env.local       #   (same, for the weather app's map)
-pnpm dev         # turbo: ui + ui-vue `vite build --watch`, todo-mfe (:5174), ui-vue-docs (:5175), ui-react-docs (:5176), weather-mfe (:5177), kanban-mfe (:5178), shell (:5173)
+cp apps/crypto-mfe/.env.example apps/crypto-mfe/.env.local         # optional: a CoinGecko key; without one it uses the keyless API
+pnpm dev         # turbo: ui + ui-vue `vite build --watch`, todo-mfe (:5174), ui-vue-docs (:5175), ui-react-docs (:5176), weather-mfe (:5177), kanban-mfe (:5178), crypto-mfe (:5179), shell (:5173)
 pnpm build       # turbo; builds the libraries first (^build)
 pnpm typecheck   # tsc in shell/ui, vue-tsc in ui-vue and the Vue apps; needs the libraries built first (turbo handles it)
 pnpm preview     # production builds served by `vite preview` on the same ports
@@ -64,7 +66,7 @@ pnpm --filter @repo/todo-mfe dev   # any single package/task
 **No tests or linter.** To verify, run the apps:
 
 - the shell at http://localhost:5173 (its own routes and each remote's route);
-- each remote standalone: http://localhost:5174, :5175, :5176, :5177 and :5178.
+- each remote standalone: http://localhost:5174, :5175, :5176, :5177, :5178 and :5179.
 
 The ports are `strictPort`: if one is already taken, the server exits instead of moving to another port. Stopping one persistent turbo task stops the whole `pnpm dev`/`pnpm preview` run.
 
@@ -112,8 +114,13 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - Logic lives in composables in `src/hooks/`. Components render and call them; they hold no business logic.
 - App state is a Pinia setup store in `src/stores/`. Components never use a store directly: a hook hands them a readonly view of its state plus its actions. The store itself returns its state writable, as Pinia's devtools and plugins require.
 - `mount.ts` creates the Pinia instance (`app.use(createPinia())`) inside `mount`, never at module scope: the federated module stays cached between mounts, so module-level state would carry over into the next mount.
-- Server data in TanStack Query (the weather remote), client state in Pinia. The same per-mount rule applies to its `QueryClient`: created inside `mount`, passed to `VueQueryPlugin`, and `queryClient.clear()` on unmount. Fetch functions go in `src/api/`, and queries in hooks.
+- Server data in TanStack Query (the weather and crypto remotes), client state in Pinia. The same per-mount rule applies to its `QueryClient`: created inside `mount`, passed to `VueQueryPlugin`, and `queryClient.clear()` on unmount. Fetch functions go in `src/api/`, and queries in hooks.
 - Shared types go in `src/types.ts`, pages in `src/pages/`, the rest of the components in `src/components/`.
+- The crypto remote adds, because its provider's limit is tight (about 5 calls a minute without a key):
+  - query keys only from `src/api/keys.ts`, and queries built with `queryOptions()` in hooks;
+  - API responses mapped onto `src/types.ts` inside `src/api/`, whose failures are `ApiError`s read by `src/lib/retry.ts` and `useQueryPhase`;
+  - a `QueryClient` with no refetch on focus and long retry delays. CoinGecko's 429 has no CORS header, so a browser reports it as a network error, and that case is treated as a possible rate limit;
+  - a budget to check before adding a `refetchInterval` (see its README). Test against stubbed responses: a few quick live calls use up the allowance.
 
 **Inside a React remote with state (the kanban remote).**
 
@@ -236,7 +243,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - `shared: {}` everywhere, so each remote bundles its own framework (Vue, or React for a React remote). This is a known, accepted duplication; sharing is a planned optimization. If React becomes a shared singleton, every `root.unmount()` run from the shell (a React remote's unmount, the custom element's) would run during the shell's commit and must be deferred.
 - Remotes must use `type: 'module'` in the shell's `remotes`.
 - Each remote sets `server.origin` so its dev-server URLs resolve when loaded from the shell.
-- The shell reads each remote's URL from a `VITE_*_REMOTE_URL` variable at **build time** (defaults: `http://localhost:5174/remoteEntry.js`, `:5175/…`, `:5176/…`, `:5177/…`, `:5178/…`). Each variable is listed in the root `turbo.json` `build.env`, so it is part of the cache key.
+- The shell reads each remote's URL from a `VITE_*_REMOTE_URL` variable at **build time** (defaults: `http://localhost:5174/remoteEntry.js`, `:5175/…`, `:5176/…`, `:5177/…`, `:5178/…`, `:5179/…`). Each variable is listed in the root `turbo.json` `build.env`, so it is part of the cache key.
 
 ## Toolchain constraints (non-obvious, don't "fix" these)
 

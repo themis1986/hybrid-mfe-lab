@@ -11,8 +11,10 @@
         "VITE_UI_REACT_DOCS_REMOTE_URL",
         "VITE_WEATHER_REMOTE_URL",
         "VITE_KANBAN_REMOTE_URL",
+        "VITE_CRYPTO_REMOTE_URL",
         "VITE_MOCK_ACCOUNTS",
-        "VITE_MAPBOX_TOKEN"
+        "VITE_MAPBOX_TOKEN",
+        "VITE_COINGECKO_API_KEY"
       ],
       "outputs": ["dist/**"]
     },

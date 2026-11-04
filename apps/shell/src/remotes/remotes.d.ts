@@ -33,3 +33,10 @@ declare module 'kanban/mount' {
     props: { basePath: string },
   ): () => void
 }
+
+declare module 'crypto/mount' {
+  export function mount(
+    el: HTMLElement,
+    props: { basePath: string },
+  ): () => void
+}

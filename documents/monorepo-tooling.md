@@ -23,14 +23,14 @@ For what the apps do at runtime, see [how-it-works.md](how-it-works.md). For set
 
 This repo is a **monorepo**: several packages in one git repository that depend on each other.
 
-| Package                                                                                          | Role                                                                   |
-| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `apps/shell`                                                                                     | The host app.                                                          |
-| `apps/todo-mfe`, `apps/weather-mfe`, `apps/kanban-mfe`, `apps/ui-vue-docs`, `apps/ui-react-docs` | Remote apps that the shell loads at runtime.                           |
-| `packages/tokens`                                                                                | Design tokens shared by both component libraries (CSS only, no build). |
-| `packages/ui`                                                                                    | React components (the shell and the React docs remote).                |
-| `packages/ui-vue`                                                                                | The same components natively in Vue (the Vue remotes).                 |
-| `packages/config`                                                                                | Shared TypeScript presets.                                             |
+| Package                                                                                                             | Role                                                                   |
+| ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `apps/shell`                                                                                                        | The host app.                                                          |
+| `apps/todo-mfe`, `apps/weather-mfe`, `apps/kanban-mfe`, `apps/crypto-mfe`, `apps/ui-vue-docs`, `apps/ui-react-docs` | Remote apps that the shell loads at runtime.                           |
+| `packages/tokens`                                                                                                   | Design tokens shared by both component libraries (CSS only, no build). |
+| `packages/ui`                                                                                                       | React components (the shell and the React docs remote).                |
+| `packages/ui-vue`                                                                                                   | The same components natively in Vue (the Vue remotes).                 |
+| `packages/config`                                                                                                   | Shared TypeScript presets.                                             |
 
 Three tools cooperate to make that work, and each has a separate job:
 
@@ -90,6 +90,7 @@ This is the only link between `pnpm run dev` and Turbo. pnpm does not know Turbo
 | `@repo/ui-react-docs`      | `vite`               | Dev server on `:5176`.                                      |
 | `@repo/weather-mfe`        | `vite`               | Dev server on `:5177`.                                      |
 | `@repo/kanban-mfe`         | `vite`               | Dev server on `:5178`.                                      |
+| `@repo/crypto-mfe`         | `vite`               | Dev server on `:5179`.                                      |
 | `@repo/shell`              | `vite`               | Dev server on `:5173`.                                      |
 
 The output you see is prefixed with `package:task` (for example `@repo/ui:build:`), which is Turbo labelling interleaved logs from several processes.
@@ -192,6 +193,7 @@ Turbo only needs to be told about these relationships. It already knows the depe
                   └──► @repo/shell#dev         (vite on :5173)
 @repo/ui-vue#build ──► @repo/ui-vue#dev        (vite build --watch)
                   ├──► @repo/weather-mfe#dev   (vite on :5177)
+                  ├──► @repo/crypto-mfe#dev    (vite on :5179)
                   └──► @repo/ui-vue-docs#dev   (vite on :5175)
 ```
 

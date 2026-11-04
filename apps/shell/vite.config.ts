@@ -19,6 +19,8 @@ export default defineConfig(({ mode }) => {
     env.VITE_WEATHER_REMOTE_URL || 'http://localhost:5177/remoteEntry.js'
   const kanbanRemoteUrl =
     env.VITE_KANBAN_REMOTE_URL || 'http://localhost:5178/remoteEntry.js'
+  const cryptoRemoteUrl =
+    env.VITE_CRYPTO_REMOTE_URL || 'http://localhost:5179/remoteEntry.js'
 
   return {
     devtools: { apply: 'serve' },
@@ -39,6 +41,7 @@ export default defineConfig(({ mode }) => {
           },
           weather: { type: 'module', name: 'weather', entry: weatherRemoteUrl },
           kanban: { type: 'module', name: 'kanban', entry: kanbanRemoteUrl },
+          crypto: { type: 'module', name: 'crypto', entry: cryptoRemoteUrl },
         },
         // Nothing shared yet (see README).
         shared: {},

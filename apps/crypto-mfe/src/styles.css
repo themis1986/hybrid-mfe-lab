@@ -1,0 +1,14 @@
+/*
+ * Everything this microfrontend needs, as one stylesheet: the component library's (tokens + component
+ * utilities) and this app's own Tailwind utilities on the same theme. mount.ts injects it inline.
+ */
+@layer theme, base, components, utilities;
+
+@import '@repo/ui-vue/styles.css';
+
+/* No Preflight: this app renders inside the host's page. */
+@import 'tailwindcss/theme.css' layer(theme);
+/* Only scan this app's src/ for class names. */
+@import 'tailwindcss/utilities.css' layer(utilities) source('.');
+
+@import '@repo/tokens/theme.css';
