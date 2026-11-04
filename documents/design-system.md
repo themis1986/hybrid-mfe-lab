@@ -39,6 +39,7 @@ packages/ui/src/       @repo/ui: React + Radix
   icons.ts             entry "./icons":    the icon set, re-exported from lucide-react
   map.ts               entry "./map":      the map components, on @repo/map-core (see packages/map-core/README.md)
   charts.ts            entry "./charts":   the chart components, on @repo/chart-core (see packages/chart-core/README.md)
+  table.ts             entry "./table":    the data table, on @repo/table-core (see packages/table-core/README.md)
   register.ts          entry "./register": the stylesheet, injected + each component as a <t-*> custom element
   env.d.ts             Vite's types, for the .css and ?inline imports
 
@@ -53,6 +54,7 @@ packages/ui-vue/src/   @repo/ui-vue: the same components natively in Vue, on Rek
   icons.ts             entry "./icons": the icon set, re-exported from @lucide/vue
   map.ts               entry "./map": the map components, on @repo/map-core
   charts.ts            entry "./charts": the chart components, on @repo/chart-core
+  table.ts             entry "./table": the data table, on @repo/table-core
 ```
 
 Each component exists once per framework, and both implementations share the same class strings, so they look the same.
@@ -317,7 +319,7 @@ Build details:
 
 - `@tailwindcss/vite` runs in each library's `vite.config.ts`. It compiles `.css` and `.css?inline` alike; it skips only `?raw`, `?url` and `?worker`.
 - In `vite build --watch`, Tailwind registers every scanned source file as a watch dependency. A new class in a `.tsx` file therefore rebuilds both `dist/styles.css` and the string inside `dist/register.js`.
-- `package.json` exports `./styles.css` (and `./icons`, `./map`, `./charts`), and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
+- `package.json` exports `./styles.css` (and `./icons`, `./map`, `./charts`, `./table`), and lists `./dist/styles.css` in `sideEffects` so a bundler never drops the bare import.
 - Tailwind is a **devDependency** of each library. The runtime helpers (`@radix-ui/*` or `reka-ui`, the Lucide package, `class-variance-authority`, `clsx`, `tailwind-merge`) are `dependencies` and are kept external in the library build, so each app bundles them, like the framework itself.
 
 ## 8. Adding a component
@@ -334,6 +336,8 @@ Build details:
 7. **Check** `pnpm build` and `pnpm typecheck`, then look at the component in both docs pages, in both colour schemes.
 
 ## 9. Things worth knowing
+
+- **Dense surfaces use data attributes, not variants per element.** A data table renders hundreds of cells per frame, so its class strings are static and state shows through `data-*` attributes and a named group on the root (`group-data-[…]/name:`), rather than a `cva` call or `cn` per cell. Don't use Tailwind's `in-*` for an override: it adds no specificity, so an app's own copy of the utility, loaded later, wins. Anything that must follow a row's background inherits it, so the row's backgrounds stay opaque tokens: pinned cells hide what scrolls beneath them.
 
 - **Never override a shorthand with a longhand in one class string.** `p-3 pe-10` works inside the library's stylesheet, but an app that runs Tailwind (the shell, every remote) loads its own stylesheet after the library's. If the app's markup also uses `p-3`, its `.p-3` comes later and wins over the library's `.pe-10`. Write longhands only (`py-3 ps-3 pe-10`, `my-0 ms-auto`). An override behind a variant (`data-*:`, `empty:`, `*:`) is safe, since it is more specific.
 - **Shared animations live in `@repo/tokens/theme.css`.** Keyframes and their `--animate-*` names sit in the `@theme` block next to the colours, so both libraries and every Tailwind app share them, and a keyframes block is emitted only where its `animate-*` utility is used. Content that opens and closes animates its height between 0 and `--t-collapsible-height`; each component maps its primitive's measured height (`--radix-…-content-height`, `--reka-…-content-height`) onto that variable. The primitives wait for `animationend` before unmounting, so closing animates too.

@@ -32,6 +32,9 @@ Documentation:
 - [packages/chart-core/README.md](packages/chart-core/README.md): the chart components (Highcharts) in both
   libraries: usage, theming with the tokens, modules, and the license (free for personal and educational use
   only). The choices behind them are in [documents/decisions/charts.md](documents/decisions/charts.md).
+- [packages/table-core/README.md](packages/table-core/README.md): the data table (TanStack Table and Virtual) in both
+  libraries: usage, state, server mode and limits. The choices behind it are in
+  [documents/decisions/table.md](documents/decisions/table.md).
 
 ## Architecture
 
@@ -66,6 +69,8 @@ packages/map-core (@repo/map-core) framework-agnostic map logic (Mapbox GL JS) b
                                   "./map" entries
 packages/chart-core (@repo/chart-core) framework-agnostic chart logic (Highcharts) behind both
                                   libraries' "./charts" entries
+packages/table-core (@repo/table-core) framework-agnostic data table logic (TanStack Table) behind both
+                                  libraries' "./table" entries
 packages/config  (@repo/config)  shared tsconfig presets (base, dom, react, vue, node)
 ```
 
@@ -234,16 +239,18 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 
 ### Build details
 
-- `@repo/ui` is built with Vite library mode (ESM, entries `index`, `icons`, `map`, `charts` and `register`), and
-  `tsc` emits its `.d.ts` files. `@repo/ui-vue` is built the same way (entries `index`, `icons`, `map` and
-  `charts`), with `vue-tsc` emitting the `.d.ts` files. The `icons` entries are bare re-exports of the external
-  Lucide packages, so apps' builds keep only the icons they import. The `map` and `charts` entries keep the map
-  and chart engines out of apps that show neither.
+- `@repo/ui` is built with Vite library mode (ESM, entries `index`, `icons`, `map`, `charts`, `table` and
+  `register`), and `tsc` emits its `.d.ts` files. `@repo/ui-vue` is built the same way (entries `index`, `icons`,
+  `map`, `charts` and `table`), with `vue-tsc` emitting the `.d.ts` files. The `icons` entries are bare re-exports
+  of the external Lucide packages, so apps' builds keep only the icons they import. The `map`, `charts` and `table`
+  entries keep those engines out of apps that show none of them.
 - `@repo/map-core` is built the same way (one entry, `tsc` for the `.d.ts`). The map engine stays external,
   except its CSS, which is inlined as a string and injected at runtime.
 - `@repo/chart-core` is built the same way. Every `highcharts` import stays external (the engine's modules must
   share the app's one copy); its theme is a small token stylesheet injected at runtime.
   Apps consume `dist/` through the package `exports`.
+- `@repo/table-core` is built the same way. The engine stays external, so an app holds one copy, resolved with its
+  framework adapter's.
 - `@repo/tokens` has no build: each library's Tailwind compiles it into its `dist/styles.css`. Each library's
   `turbo.json` lists the tokens as a `build` input, so a token change invalidates the cached build.
 - `@tailwindcss/vite` compiles `src/styles/index.css` twice: imported by `index.ts`, it becomes `dist/styles.css`
@@ -301,6 +308,9 @@ Checked on npm on 2026-10-28, and the two `@dnd-kit` rows on 2026-11-04. Ranges 
 | mapbox-gl               | 3.34.1  |     | @types/geojson                  | 7946.0.16 |
 | highcharts              | 13.1.1  |     | @tanstack/vue-query             | 5.105.2   |
 | @dnd-kit/react          | 0.5.3   |     | @dnd-kit/dom, @dnd-kit/abstract | 0.5.3     |
+| @tanstack/react-table   | 9.3.1   |     | @tanstack/vue-table             | 9.3.1     |
+| @tanstack/table-core    | 9.3.1   |     |                                 |           |
+| @tanstack/react-virtual | 3.14.26 |     | @tanstack/vue-virtual           | 3.13.52   |
 
 ### Deviations from the original brief, and why
 

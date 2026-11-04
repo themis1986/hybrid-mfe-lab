@@ -39,6 +39,9 @@ import SelectDemo from './demos/SelectDemo.vue'
 import SidebarLayoutDemo from './demos/SidebarLayoutDemo.vue'
 import SliderDemo from './demos/SliderDemo.vue'
 import SpacerDemo from './demos/SpacerDemo.vue'
+import AvatarDemo from './demos/AvatarDemo.vue'
+import BadgeDemo from './demos/BadgeDemo.vue'
+import SkeletonDemo from './demos/SkeletonDemo.vue'
 import SpinnerDemo from './demos/SpinnerDemo.vue'
 import SplitDemo from './demos/SplitDemo.vue'
 import StackDemo from './demos/StackDemo.vue'
@@ -53,6 +56,7 @@ import UploadDemo from './demos/UploadDemo.vue'
 import VideoDemo from './demos/VideoDemo.vue'
 import WidgetDemo from './demos/WidgetDemo.vue'
 import { CHART_ENTRIES } from './charts'
+import { TABLE_ENTRIES } from './tables'
 import { MAP_ENTRIES } from './maps'
 
 export type DocGroupId =
@@ -67,6 +71,7 @@ export type DocGroupId =
   | 'media'
   | 'maps'
   | 'charts'
+  | 'tables'
   | 'app'
 
 export interface DocProp {
@@ -158,6 +163,12 @@ export const DOC_GROUPS: {
     label: 'Charts',
     description:
       "Highcharts charts, imported from '@repo/ui-vue/charts'. Highcharts is free for personal and educational use only; other use needs a Highcharts license.",
+  },
+  {
+    id: 'tables',
+    label: 'Tables',
+    description:
+      "A data table on TanStack Table and TanStack Virtual, imported from '@repo/ui-vue/table'.",
   },
   {
     id: 'app',
@@ -1516,6 +1527,74 @@ alarm.success('Profile saved')
 alarm.error('Upload failed', { description: 'The file is larger than 10 MB.', position: 'top-center' })
 
 <TAlarm v-model:open="offline" variant="warning" title="You are offline" :duration="Infinity" />`,
+  },
+  {
+    id: 'skeleton',
+    name: 'TSkeleton',
+    group: 'feedback',
+    summary:
+      'A placeholder for content that is loading, sized through its class. Decorative: announce the loading state elsewhere.',
+    props: [
+      {
+        name: 'shape',
+        type: "'text' | 'block' | 'circle'",
+        default: "'text'",
+        description: 'A line of text, a block filling its parent, or a circle.',
+      },
+    ],
+    demo: SkeletonDemo,
+    code: `<TSkeleton class="w-2/3" />`,
+  },
+  {
+    id: 'badge',
+    name: 'TBadge',
+    group: 'feedback',
+    summary:
+      'A short status or category label. The tone only reinforces the text, so the text must say it all.',
+    props: [
+      {
+        name: 'tone',
+        type: "'neutral' | 'accent' | 'success' | 'info' | 'warning' | 'danger'",
+        default: "'neutral'",
+        description: 'The colour.',
+      },
+      {
+        name: 'size',
+        type: "'sm' | 'md'",
+        default: "'sm'",
+        description: 'Height and text size.',
+      },
+      {
+        name: 'label',
+        type: 'string',
+        description: 'Text content, when there is no other content.',
+      },
+    ],
+    demo: BadgeDemo,
+    code: `<TBadge tone="success">Active</TBadge>`,
+  },
+  {
+    id: 'avatar',
+    name: 'TAvatar',
+    group: 'feedback',
+    summary:
+      'A picture of a person or thing, falling back to initials without an image or when it fails to load.',
+    props: [
+      {
+        name: 'name',
+        type: 'string',
+        description: 'The accessible name, and the initials without an image.',
+      },
+      { name: 'src', type: 'string', description: 'The image.' },
+      {
+        name: 'size',
+        type: "'sm' | 'md' | 'lg'",
+        default: "'md'",
+        description: '24, 32 or 40px.',
+      },
+    ],
+    demo: AvatarDemo,
+    code: `<TAvatar name="Ada Lovelace" :src="photo" />`,
   },
   {
     id: 'spinner',
@@ -3265,4 +3344,5 @@ import { Search, TriangleAlert } from '@repo/ui-vue/icons'
   },
   ...MAP_ENTRIES,
   ...CHART_ENTRIES,
+  ...TABLE_ENTRIES,
 ]

@@ -76,6 +76,9 @@ import {
   TSidebarLayoutSidebar,
   TSlider,
   TSpacer,
+  TAvatar,
+  TBadge,
+  TSkeleton,
   TSpinner,
   TSplit,
   TStack,
@@ -118,6 +121,7 @@ import {
   sampleVideoSources,
 } from './samples'
 import { CHART_ENTRIES } from './charts'
+import { TABLE_ENTRIES } from './tables'
 import { MAP_ENTRIES } from './maps'
 
 export type DocGroupId =
@@ -132,6 +136,7 @@ export type DocGroupId =
   | 'media'
   | 'maps'
   | 'charts'
+  | 'tables'
   | 'app'
 
 export interface DocProp {
@@ -221,6 +226,12 @@ export const DOC_GROUPS: {
     label: 'Charts',
     description:
       "Highcharts charts, imported from '@repo/ui/charts'. Highcharts is free for personal and educational use only; other use needs a Highcharts license.",
+  },
+  {
+    id: 'tables',
+    label: 'Tables',
+    description:
+      "A data table on TanStack Table and TanStack Virtual, imported from '@repo/ui/table'.",
   },
   {
     id: 'app',
@@ -2853,6 +2864,118 @@ alarm.error('Upload failed', { description: 'The file is larger than 10 MB.', po
 <TAlarm open={offline} onOpenChange={setOffline} variant="warning" title="You are offline" duration={Infinity} />`,
   },
   {
+    id: 'skeleton',
+    name: 'TSkeleton',
+    group: 'feedback',
+    summary:
+      'A placeholder for content that is loading, sized through its class. Decorative: announce the loading state elsewhere.',
+    props: [
+      {
+        name: 'shape',
+        type: "'text' | 'block' | 'circle'",
+        default: "'text'",
+        description: 'A line of text, a block filling its parent, or a circle.',
+      },
+      {
+        name: '…span props',
+        type: "ComponentProps<'span'>",
+        description: 'Passed to the root.',
+      },
+    ],
+    demo: (
+      <TCluster gap={4} align="center">
+        <TSkeleton shape="circle" />
+        <TStack gap={2} className="w-48">
+          <TSkeleton />
+          <TSkeleton className="w-2/3" />
+        </TStack>
+        <div className="h-16 w-32">
+          <TSkeleton shape="block" />
+        </div>
+      </TCluster>
+    ),
+    code: `<TSkeleton className="w-2/3" />`,
+  },
+  {
+    id: 'badge',
+    name: 'TBadge',
+    group: 'feedback',
+    summary:
+      'A short status or category label. The tone only reinforces the text, so the text must say it all.',
+    props: [
+      {
+        name: 'tone',
+        type: "'neutral' | 'accent' | 'success' | 'info' | 'warning' | 'danger'",
+        default: "'neutral'",
+        description: 'The colour.',
+      },
+      {
+        name: 'size',
+        type: "'sm' | 'md'",
+        default: "'sm'",
+        description: 'Height and text size.',
+      },
+      {
+        name: 'label',
+        type: 'string',
+        description: 'Text content, when there is no other content.',
+      },
+      {
+        name: '…span props',
+        type: "ComponentProps<'span'>",
+        description: 'Passed to the root.',
+      },
+    ],
+    demo: (
+      <TCluster gap={2} align="center">
+        <TBadge>Draft</TBadge>
+        <TBadge tone="accent">New</TBadge>
+        <TBadge tone="success">Active</TBadge>
+        <TBadge tone="info">Syncing</TBadge>
+        <TBadge tone="warning">Away</TBadge>
+        <TBadge tone="danger" size="md">
+          Failed
+        </TBadge>
+      </TCluster>
+    ),
+    code: `<TBadge tone="success">Active</TBadge>`,
+  },
+  {
+    id: 'avatar',
+    name: 'TAvatar',
+    group: 'feedback',
+    summary:
+      'A picture of a person or thing, falling back to initials without an image or when it fails to load.',
+    props: [
+      {
+        name: 'name',
+        type: 'string',
+        description: 'The accessible name, and the initials without an image.',
+      },
+      { name: 'src', type: 'string', description: 'The image.' },
+      {
+        name: 'size',
+        type: "'sm' | 'md' | 'lg'",
+        default: "'md'",
+        description: '24, 32 or 40px.',
+      },
+      {
+        name: '…span props',
+        type: "ComponentProps<'span'>",
+        description: 'Passed to the root.',
+      },
+    ],
+    demo: (
+      <TCluster gap={3} align="center">
+        <TAvatar name="Ada Lovelace" size="sm" />
+        <TAvatar name="Grace Hopper" />
+        <TAvatar name="Radia Perlman" size="lg" />
+        <TAvatar name="Image that fails" src="/missing.png" />
+      </TCluster>
+    ),
+    code: `<TAvatar name="Ada Lovelace" src={photo} />`,
+  },
+  {
     id: 'spinner',
     name: 'TSpinner',
     group: 'feedback',
@@ -4847,4 +4970,5 @@ import { Search, TriangleAlert } from '@repo/ui/icons'
   },
   ...MAP_ENTRIES,
   ...CHART_ENTRIES,
+  ...TABLE_ENTRIES,
 ]
