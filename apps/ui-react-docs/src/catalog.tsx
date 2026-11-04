@@ -50,6 +50,7 @@ import {
   TInput,
   toast,
   TPageHeader,
+  TPagination,
   TPanel,
   TDropdownMenu,
   TDropdownMenuContent,
@@ -786,6 +787,66 @@ function TextDemo() {
       />
       <TText label="Disabled" disabled defaultValue="Read-only text" />
     </TGrid>
+  )
+}
+
+function PaginationDemo() {
+  const [page, setPage] = useState(5)
+  const [total, setTotal] = useState(240)
+
+  return (
+    <TStack gap={5}>
+      <div className="flex flex-col gap-2 text-sm">
+        <span>
+          Page {page} of {total} items
+        </span>
+        <TPagination
+          page={page}
+          onPageChange={setPage}
+          total={total}
+          itemsPerPage={20}
+          aria-label="Results"
+        />
+        <TCluster>
+          <TButton
+            variant="outline"
+            size="sm"
+            label="Keep 40 items"
+            onClick={() => setTotal(40)}
+          />
+          <TButton
+            variant="outline"
+            size="sm"
+            label="Restore 240 items"
+            onClick={() => setTotal(240)}
+          />
+        </TCluster>
+      </div>
+      <TPagination
+        defaultPage={12}
+        total={480}
+        itemsPerPage={20}
+        showFirstLast
+        aria-label="With first and last buttons"
+      />
+      <TPagination
+        defaultPage={6}
+        total={240}
+        itemsPerPage={20}
+        showEdges={false}
+        siblingCount={2}
+        aria-label="Without edges"
+      />
+      <TPagination total={100} itemsPerPage={20} size="sm" aria-label="Small" />
+      <TPagination total={100} itemsPerPage={20} size="lg" aria-label="Large" />
+      <TPagination
+        defaultPage={2}
+        total={100}
+        itemsPerPage={20}
+        disabled
+        aria-label="Disabled"
+      />
+    </TStack>
   )
 }
 
@@ -2438,6 +2499,77 @@ export const DOC_ENTRIES: DocEntry[] = [
     demo: <SliderDemo />,
     code: `<TSlider value={volume} onValueChange={setVolume} thumbLabel="Volume" />
 <TSlider defaultValue={[20, 80]} step={5} thumbLabel={['Minimum', 'Maximum']} />`,
+  },
+  {
+    id: 'pagination',
+    name: 'TPagination',
+    group: 'actions',
+    summary:
+      "Page navigation with numbered buttons, previous and next, and ellipses for long ranges. Radix has no pagination primitive, so it reproduces the structure of the Vue library's Reka version.",
+    props: [
+      {
+        name: 'page / defaultPage / onPageChange',
+        type: 'number / number / (page) => void',
+        description:
+          'The current page, from 1, controlled or uncontrolled. A page past the end shows as the last one and nothing is reported, so clamp your own data when the total shrinks.',
+      },
+      {
+        name: 'total',
+        type: 'number',
+        description: 'Number of items in the whole list, not of pages.',
+      },
+      {
+        name: 'itemsPerPage',
+        type: 'number',
+        description: 'Items on one page.',
+      },
+      {
+        name: 'siblingCount',
+        type: 'number',
+        default: '1',
+        description: 'Pages shown on each side of the current one.',
+      },
+      {
+        name: 'showEdges',
+        type: 'boolean',
+        default: 'true',
+        description:
+          'Always show the first and last page, with an ellipsis for any gap.',
+      },
+      {
+        name: 'showFirstLast',
+        type: 'boolean',
+        default: 'false',
+        description: 'Adds buttons that jump to the first and last page.',
+      },
+      {
+        name: 'size',
+        type: "'sm' | 'md' | 'lg'",
+        default: "'md'",
+        description: 'Height of the buttons.',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        description: 'Disables every button.',
+      },
+      {
+        name: 'labels',
+        type: '{ first, previous, next, last, page }',
+        description:
+          'Accessible names of the buttons, for translating them; page is a function of the page number.',
+      },
+      {
+        name: 'aria-label',
+        type: 'string',
+        default: "'Pagination'",
+        description:
+          'Name of the navigation landmark. Give each one its own when a page has several.',
+      },
+    ],
+    demo: <PaginationDemo />,
+    code: `<TPagination page={page} onPageChange={setPage} total={240} itemsPerPage={20} />
+<TPagination defaultPage={12} total={480} itemsPerPage={20} showFirstLast />`,
   },
 
   // Dates & time
