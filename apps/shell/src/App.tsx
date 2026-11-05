@@ -5,6 +5,7 @@ import { RequireApp } from './components/RequireApp'
 import { RequireAuth } from './components/RequireAuth'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
+import { BUDGET_BASE_PATH, BudgetMfeHost } from './remotes/BudgetMfeHost'
 import { CRYPTO_BASE_PATH, CryptoMfeHost } from './remotes/CryptoMfeHost'
 import { KANBAN_BASE_PATH, KanbanMfeHost } from './remotes/KanbanMfeHost'
 import { TODO_BASE_PATH, TodoMfeHost } from './remotes/TodoMfeHost'
@@ -39,7 +40,7 @@ export function App() {
               </RequireApp>
             }
           />
-          {/* The weather, kanban, crypto and docs microfrontends lay out their own pages. */}
+          {/* The weather, kanban, crypto, budget and docs microfrontends lay out their own pages. */}
           <Route
             path={`${WEATHER_BASE_PATH}/*`}
             element={
@@ -61,6 +62,14 @@ export function App() {
             element={
               <RequireApp id="crypto">
                 <CryptoMfeHost />
+              </RequireApp>
+            }
+          />
+          <Route
+            path={`${BUDGET_BASE_PATH}/*`}
+            element={
+              <RequireApp id="budget">
+                <BudgetMfeHost />
               </RequireApp>
             }
           />

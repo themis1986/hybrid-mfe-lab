@@ -42,6 +42,7 @@ import {
   TDialogTrigger,
   TDivider,
   TField,
+  TFormField,
   TFrame,
   TGrid,
   TIcon,
@@ -2021,6 +2022,100 @@ export const DOC_ENTRIES: DocEntry[] = [
     code: `<TField label="Email" description="We never share it." value={email} onChange={onChange} />
 <TField label="Username" error={error} />
 <TField label="Password" type="password" />`,
+  },
+  {
+    id: 'form-field',
+    name: 'TFormField',
+    group: 'actions',
+    summary:
+      'A label and a hint around any control (a select, a date picker, a radio group…), as TField has for an input. The control is a render function that receives the ids to wire.',
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        description: 'Visible label, linked to the control. Required.',
+      },
+      {
+        name: 'description',
+        type: 'string',
+        description: 'Helper text under the control.',
+      },
+      {
+        name: 'error',
+        type: 'string',
+        description:
+          'Error text; replaces the description and is announced. Pass `invalid` to the control.',
+      },
+      {
+        name: 'id',
+        type: 'string',
+        description: "The control's id; generated when omitted.",
+      },
+      {
+        name: 'children',
+        type: '(control: { id, labelId, describedBy, invalid }) => ReactNode',
+        description:
+          'Renders the control. Give it `id` (or `aria-labelledby={labelId}` where a label can\'t point at it), `aria-describedby={describedBy}` and `invalid`.',
+      },
+    ],
+    demo: (
+      <TGrid minChildWidth="14rem" gap={4}>
+        <TFormField label="Country" description="Where the account is held.">
+          {({ id, describedBy, invalid }) => (
+            <TSelect
+              id={id}
+              aria-describedby={describedBy}
+              invalid={invalid}
+              placeholder="Choose a country"
+              options={[
+                { value: 'gr', label: 'Greece' },
+                { value: 'pt', label: 'Portugal' },
+              ]}
+            />
+          )}
+        </TFormField>
+        <TFormField label="Start date" error="Pick a date after today.">
+          {({ id, labelId, describedBy, invalid }) => (
+            <TDatePicker
+              id={id}
+              aria-labelledby={labelId}
+              aria-describedby={describedBy}
+              invalid={invalid}
+            />
+          )}
+        </TFormField>
+        <TFormField label="Billing">
+          {({ id, labelId, describedBy }) => (
+            <TRadioGroup
+              id={id}
+              aria-labelledby={labelId}
+              aria-describedby={describedBy}
+              defaultValue="monthly"
+              orientation="horizontal"
+            >
+              <label className="inline-flex items-center gap-2 text-sm">
+                <TRadioGroupItem value="monthly" />
+                Monthly
+              </label>
+              <label className="inline-flex items-center gap-2 text-sm">
+                <TRadioGroupItem value="yearly" />
+                Yearly
+              </label>
+            </TRadioGroup>
+          )}
+        </TFormField>
+      </TGrid>
+    ),
+    code: `<TFormField label="Country" error={error}>
+  {({ id, describedBy, invalid }) => (
+    <TSelect id={id} aria-describedby={describedBy} invalid={invalid} options={options} />
+  )}
+</TFormField>
+<TFormField label="Start date">
+  {({ id, labelId, describedBy, invalid }) => (
+    <TDatePicker id={id} aria-labelledby={labelId} aria-describedby={describedBy} invalid={invalid} />
+  )}
+</TFormField>`,
   },
   {
     id: 'switch',

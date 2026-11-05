@@ -5,7 +5,9 @@ import {
   ListTodo,
   type LucideIcon,
   SquareKanban,
+  Wallet,
 } from '@repo/ui/icons'
+import { BUDGET_BASE_PATH } from '../remotes/BudgetMfeHost'
 import { CRYPTO_BASE_PATH } from '../remotes/CryptoMfeHost'
 import { KANBAN_BASE_PATH } from '../remotes/KanbanMfeHost'
 import { TODO_BASE_PATH } from '../remotes/TodoMfeHost'
@@ -21,7 +23,13 @@ export type NavGroup = 'apps' | 'developer'
 export const TECHS = ['vue', 'react'] as const
 export type Tech = (typeof TECHS)[number]
 export type AppId =
-  'todo' | 'weather' | 'kanban' | 'crypto' | 'ui-react-docs' | 'ui-vue-docs'
+  | 'todo'
+  | 'weather'
+  | 'kanban'
+  | 'crypto'
+  | 'budget'
+  | 'ui-react-docs'
+  | 'ui-vue-docs'
 
 export interface NavItem {
   id: AppId
@@ -78,6 +86,16 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Coins,
     group: 'apps',
     tech: 'vue',
+  },
+  {
+    id: 'budget',
+    label: 'Budget',
+    to: BUDGET_BASE_PATH,
+    description:
+      'The budget microfrontend: a React 19 expense tracker with budgets, charts and CSV import and export.',
+    icon: Wallet,
+    group: 'apps',
+    tech: 'react',
   },
   {
     id: 'ui-react-docs',

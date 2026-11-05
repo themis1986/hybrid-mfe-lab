@@ -29,6 +29,7 @@ For setup and commands, see the [README](../README.md).
 | `apps/ui-vue-docs` (`@repo/ui-vue-docs`)     | Remote app, like the todo MFE: the Vue library's documentation, built on `@repo/ui-vue`.                                               | Vue 3, Vue Router 5                        |
 | `apps/ui-react-docs` (`@repo/ui-react-docs`) | Remote app written in React: the React library's documentation, built on `@repo/ui`.                                                   | React 19                                   |
 | `apps/kanban-mfe` (`@repo/kanban-mfe`)       | Remote app written in React: a working Kanban board on `@repo/ui`, with its state in a small store of its own.                         | React 19, dnd-kit                          |
+| `apps/budget-mfe` (`@repo/budget-mfe`)       | Remote app written in React, with pages: a working budget tracker on `@repo/ui`, its state in Redux Toolkit and its rules in Zod.      | React 19, React Router 8, Redux Toolkit, Zod |
 | `packages/tokens` (`@repo/tokens`)           | Design tokens and the token → Tailwind theme. CSS only, no build.                                                                      | CSS, Tailwind v4                           |
 | `packages/ui` (`@repo/ui`)                   | `T`-prefixed React components, usable from React directly, and from any framework as `t-*` custom elements (an entry no app uses now). | React, Radix, Tailwind v4                  |
 | `packages/ui-vue` (`@repo/ui-vue`)           | The same components natively in Vue, with the same look.                                                                               | Vue, Reka UI, Tailwind v4                  |
@@ -46,6 +47,7 @@ graph LR
     docs["@repo/ui-vue-docs"] -- "workspace:*" --> uivue
     rdocs["@repo/ui-react-docs"] -- "workspace:*" --> ui
     kanban["@repo/kanban-mfe"] -- "workspace:*" --> ui
+    budget["@repo/budget-mfe"] -- "workspace:*" --> ui
     ui -- "CSS at build time" --> tokens["@repo/tokens"]
     uivue -- "CSS at build time" --> tokens
     shell -. tsconfig .-> config["@repo/config"]
@@ -56,6 +58,7 @@ graph LR
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> docs
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> rdocs
   shell == "runtime: HTTP fetch of remoteEntry.js" ==> kanban
+  shell == "runtime: HTTP fetch of remoteEntry.js" ==> budget
 ```
 
 - **Build-time dependencies** are declared in `package.json`. pnpm links them through `node_modules`, and the bundler compiles them into the consumer's bundle. The apps depend on a component library this way, and the libraries (and the apps running Tailwind) on `@repo/tokens`. Every package also extends a `@repo/config` preset.
@@ -92,6 +95,7 @@ So `pnpm dev` resolves to this sequence:
                   ├──► @repo/todo-mfe#dev      (vite on :5174)
                   ├──► @repo/ui-react-docs#dev (vite on :5176)
                   ├──► @repo/kanban-mfe#dev    (vite on :5178)
+                  ├──► @repo/budget-mfe#dev    (vite on :5180)
                   └──► @repo/shell#dev         (vite on :5173)
 @repo/ui-vue#build ──► @repo/ui-vue#dev        (vite build --watch)
                   ├──► @repo/weather-mfe#dev   (vite on :5177)
@@ -138,7 +142,7 @@ React, react-dom and the other runtime dependencies (`@r2wc/*`, `@radix-ui/*`, `
 | shell (React)                                  | `import '@repo/ui/styles.css'` (once, in `main.tsx`)                                              | The stylesheet, bundled into the shell's CSS.                                                                                           |
 | shell (React)                                  | `@import '@repo/tokens/theme.css'` (in its own `src/index.css`)                                   | The token theme for the shell's own Tailwind build, so its utilities resolve to the same tokens.                                        |
 | todo-mfe, weather-mfe, crypto-mfe, ui-vue-docs | `import { … } from '@repo/ui-vue'`, and `@repo/ui-vue/styles.css` inside its own `src/styles.css` | The native Vue components; the stylesheet is injected inline by `mount.ts` while the app is mounted.                                    |
-| ui-react-docs, kanban-mfe (React)              | `import { … } from '@repo/ui'`, and `@repo/ui/styles.css` inside its own `src/styles.css`         | The React components, rendered by the remote's own React; the stylesheet is injected inline by `mount.tsx` while the app is mounted.    |
+| ui-react-docs, kanban-mfe, budget-mfe (React)  | `import { … } from '@repo/ui'`, and `@repo/ui/styles.css` inside its own `src/styles.css`         | The React components, rendered by the remote's own React; the stylesheet is injected inline by `mount.tsx` while the app is mounted.    |
 | a Vue host of the bridge (none now)            | `import '@repo/ui/register'`                                                                      | Side effects: the stylesheet is injected as `<style id="t-ui-styles">`, then the `t-*` custom elements are registered with the browser. |
 
 `"sideEffects": ["./dist/register.js", "./dist/styles.css"]` tells bundlers that these bare imports must not be tree-shaken away, even though they export nothing.
