@@ -22,3 +22,22 @@ export function useDialogs() {
     [dialog, dispatch],
   )
 }
+
+/**
+ * Only the actions, which never change: for callers that must stay stable, such as the table's columns
+ * (a new columns array rebuilds the table engine's columns).
+ */
+export function useDialogActions() {
+  const dispatch = useAppDispatch()
+  return useMemo(
+    () => ({
+      openDialog: (next: DialogState) => {
+        dispatch(dialogOpened(next))
+      },
+      closeDialog: () => {
+        dispatch(dialogClosed())
+      },
+    }),
+    [dispatch],
+  )
+}
