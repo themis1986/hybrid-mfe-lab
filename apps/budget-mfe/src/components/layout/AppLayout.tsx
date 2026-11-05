@@ -1,4 +1,4 @@
-import { TButton, TPageHeader, TSkeleton } from '@repo/ui'
+import { TButton, TPageHeader } from '@repo/ui'
 import { CircleAlert } from '@repo/ui/icons'
 import { useRef } from 'react'
 import { Outlet, useNavigate } from 'react-router'
@@ -9,6 +9,7 @@ import { useShortcuts } from '../../hooks/useShortcuts'
 import { useUndoToast } from '../../hooks/useUndoToast'
 import { PATHS } from '../../paths'
 import { Message } from '../feedback/Message'
+import { PageSkeleton } from '../feedback/PageSkeleton'
 import { DialogHost } from './DialogHost'
 import { HeaderActions } from './HeaderActions'
 import { MainNav } from './MainNav'
@@ -33,15 +34,7 @@ function Content({
       </Message>
     )
   }
-  if (status === 'loading') {
-    // The skeleton is decorative; the status text is what assistive technology announces.
-    return (
-      <div role="status">
-        <span className="sr-only">Loading the budget data</span>
-        <TSkeleton shape="block" className="h-64" />
-      </div>
-    )
-  }
+  if (status === 'loading') return <PageSkeleton />
   return <Outlet />
 }
 

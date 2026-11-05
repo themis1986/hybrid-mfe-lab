@@ -29,6 +29,9 @@ Documentation:
 - [apps/crypto-mfe/README.md](apps/crypto-mfe/README.md): the crypto remote: what it does, its data sources and their
   terms, how it's built, how to extend it and what to plan next. The choices behind it are in
   [documents/decisions/crypto.md](documents/decisions/crypto.md).
+- [apps/budget-mfe/README.md](apps/budget-mfe/README.md): the budget remote: what it does, how it's built (Redux
+  Toolkit, Zod, React Router), its CSV format, how to extend it and what to plan next. The choices behind it are in
+  [documents/decisions/budget.md](documents/decisions/budget.md).
 - [packages/map-core/README.md](packages/map-core/README.md): the map components (Mapbox GL JS) in both
   libraries: token setup, usage, markers vs layers. The choices behind them are in
   [documents/decisions/map.md](documents/decisions/map.md).
@@ -64,6 +67,8 @@ Documentation:
 │                                     + one store per mount           │
 │ :5179  apps/crypto-mfe      Vue 3   @repo/ui-vue, stylesheet inline │
 │                                     + Pinia, TanStack Query         │
+│ :5180  apps/budget-mfe      React   @repo/ui, stylesheet inline     │
+│                                     + Redux Toolkit, Zod, a router  │
 └─────────────────────────────────────────────────────────────────────┘
 
 packages/tokens  (@repo/tokens)  design tokens + the token → Tailwind theme (CSS only)
@@ -109,6 +114,8 @@ pnpm dev         # ui + ui-vue (vite build --watch) + the remotes' and the shell
 | Kanban MFE remote entry        | http://localhost:5178/remoteEntry.js |
 | Crypto MFE standalone          | http://localhost:5179                |
 | Crypto MFE remote entry        | http://localhost:5179/remoteEntry.js |
+| Budget MFE standalone          | http://localhost:5180                |
+| Budget MFE remote entry        | http://localhost:5180/remoteEntry.js |
 
 Ports are fixed (`strictPort`), so a port that's already in use fails loudly instead of moving.
 
@@ -147,8 +154,9 @@ The shell reads one variable per remote when it **builds**: `VITE_TODO_REMOTE_UR
 `http://localhost:5175/remoteEntry.js`), `VITE_UI_REACT_DOCS_REMOTE_URL` (default
 `http://localhost:5176/remoteEntry.js`), `VITE_WEATHER_REMOTE_URL` (default
 `http://localhost:5177/remoteEntry.js`), `VITE_KANBAN_REMOTE_URL` (default
-`http://localhost:5178/remoteEntry.js`) and `VITE_CRYPTO_REMOTE_URL` (default
-`http://localhost:5179/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
+`http://localhost:5178/remoteEntry.js`), `VITE_CRYPTO_REMOTE_URL` (default
+`http://localhost:5179/remoteEntry.js`) and `VITE_BUDGET_REMOTE_URL` (default
+`http://localhost:5180/remoteEntry.js`). Set them in the environment or in `apps/shell/.env.local`:
 
 ```sh
 VITE_TODO_REMOTE_URL=https://cdn.example.com/todo/remoteEntry.js pnpm build
@@ -172,6 +180,9 @@ export function mount(el: HTMLElement, props: { basePath: string }): () => void
   `app.unmount()` doesn't remove Vue Router's `popstate` listener on `window`.
 - Each Vue remote sets `app.config.idPrefix`: `useId()` is unique only within one app, and several apps share
   the page.
+- A React remote creates its own root with an `identifierPrefix`, and its unmount calls `root.unmount()`. One with
+  pages creates its router in `mount` with `createBrowserRouter(routes, { basename: basePath })`, and its unmount
+  also calls `router.dispose()`: as with Vue Router, unmounting the app leaves the router's `popstate` listener.
 - In the shell, `createRemoteHost(load, basePath, appName)` (`apps/shell/src/remotes/RemoteMfeHost.tsx`) builds each
   remote's host component, which lazy-loads the module with `React.lazy`.
   - `<Suspense>` shows a loading state, and an error boundary shows a fallback if the remote can't be loaded.
@@ -299,7 +310,8 @@ To add a component, follow the checklist in [documents/design-system.md](documen
 
 ## Versions
 
-Checked on npm on 2026-10-28, and the two `@dnd-kit` rows on 2026-11-04. Ranges live in the pnpm `catalog:` in `pnpm-workspace.yaml`; installed versions:
+Checked on npm on 2026-10-28, the two `@dnd-kit` rows on 2026-11-04, and the Redux Toolkit, react-redux and Zod
+rows on 2026-11-05. Ranges live in the pnpm `catalog:` in `pnpm-workspace.yaml`; installed versions:
 
 | Package                 | Version |     | Package                         | Version   |
 | ----------------------- | ------- | --- | ------------------------------- | --------- |
@@ -323,6 +335,8 @@ Checked on npm on 2026-10-28, and the two `@dnd-kit` rows on 2026-11-04. Ranges 
 | @tanstack/react-table   | 9.3.1   |     | @tanstack/vue-table             | 9.3.1     |
 | @tanstack/table-core    | 9.3.1   |     |                                 |           |
 | @tanstack/react-virtual | 3.14.26 |     | @tanstack/vue-virtual           | 3.13.52   |
+| @reduxjs/toolkit        | 2.14.0  |     | react-redux                     | 9.3.1     |
+| zod                     | 4.6.7   |     |                                 |           |
 
 ### Deviations from the original brief, and why
 

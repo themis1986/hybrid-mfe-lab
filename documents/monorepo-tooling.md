@@ -26,7 +26,7 @@ This repo is a **monorepo**: several packages in one git repository that depend 
 | Package                                                                                                             | Role                                                                   |
 | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | `apps/shell`                                                                                                        | The host app.                                                          |
-| `apps/todo-mfe`, `apps/weather-mfe`, `apps/kanban-mfe`, `apps/crypto-mfe`, `apps/ui-vue-docs`, `apps/ui-react-docs` | Remote apps that the shell loads at runtime.                           |
+| `apps/todo-mfe`, `apps/weather-mfe`, `apps/kanban-mfe`, `apps/crypto-mfe`, `apps/budget-mfe`, `apps/ui-vue-docs`, `apps/ui-react-docs` | Remote apps that the shell loads at runtime.                           |
 | `packages/tokens`                                                                                                   | Design tokens shared by both component libraries (CSS only, no build). |
 | `packages/ui`                                                                                                       | React components (the shell and the React docs remote).                |
 | `packages/ui-vue`                                                                                                   | The same components natively in Vue (the Vue remotes).                 |
@@ -91,6 +91,7 @@ This is the only link between `pnpm run dev` and Turbo. pnpm does not know Turbo
 | `@repo/weather-mfe`        | `vite`               | Dev server on `:5177`.                                      |
 | `@repo/kanban-mfe`         | `vite`               | Dev server on `:5178`.                                      |
 | `@repo/crypto-mfe`         | `vite`               | Dev server on `:5179`.                                      |
+| `@repo/budget-mfe`         | `vite`               | Dev server on `:5180`.                                      |
 | `@repo/shell`              | `vite`               | Dev server on `:5173`.                                      |
 
 The output you see is prefixed with `package:task` (for example `@repo/ui:build:`), which is Turbo labelling interleaved logs from several processes.
@@ -190,6 +191,7 @@ Turbo only needs to be told about these relationships. It already knows the depe
                   ├──► @repo/todo-mfe#dev      (vite on :5174)
                   ├──► @repo/ui-react-docs#dev (vite on :5176)
                   ├──► @repo/kanban-mfe#dev    (vite on :5178)
+                  ├──► @repo/budget-mfe#dev    (vite on :5180)
                   └──► @repo/shell#dev         (vite on :5173)
 @repo/ui-vue#build ──► @repo/ui-vue#dev        (vite build --watch)
                   ├──► @repo/weather-mfe#dev   (vite on :5177)

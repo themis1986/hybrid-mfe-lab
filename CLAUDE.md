@@ -6,11 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A pnpm + Turborepo microfrontends skeleton:
 
-- **`apps/shell`** (`@repo/shell`, React 19 + React Router 8) is the host. At runtime it loads six remotes through Module Federation (`@module-federation/vite`):
+- **`apps/shell`** (`@repo/shell`, React 19 + React Router 8) is the host. At runtime it loads seven remotes through Module Federation (`@module-federation/vite`):
   - **`apps/todo-mfe`** (`@repo/todo-mfe`, Vue 3 + Vue Router 5);
   - **`apps/weather-mfe`** (`@repo/weather-mfe`, Vue 3 + Vue Router 5, Pinia, TanStack Query), a working weather app; its README covers its data sources and roadmap;
   - **`apps/kanban-mfe`** (`@repo/kanban-mfe`, React 19, `@dnd-kit/react`), a working Kanban board; its README covers its architecture, how to extend it and its roadmap, and `documents/decisions/kanban.md` records the choices;
   - **`apps/crypto-mfe`** (`@repo/crypto-mfe`, Vue 3 + Vue Router 5, Pinia, TanStack Query), a working crypto market dashboard; its README covers its data sources, how to extend it and its roadmap, and `documents/decisions/crypto.md` records the choices;
+  - **`apps/budget-mfe`** (`@repo/budget-mfe`, React 19 + React Router 8, Redux Toolkit, Zod), a working budget and expense tracker; its README covers its architecture, its CSV format, how to extend it and its roadmap, and `documents/decisions/budget.md` records the choices;
   - **`apps/ui-vue-docs`** (`@repo/ui-vue-docs`, Vue 3 + Vue Router 5), the Vue library's documentation;
   - **`apps/ui-react-docs`** (`@repo/ui-react-docs`, React 19), the React library's documentation.
     The shell itself renders only the frame (header, menu, theme choice, user menu), the login page and the home page. It owns sign-in and decides which remotes each user may open.
@@ -24,7 +25,7 @@ A pnpm + Turborepo microfrontends skeleton:
 - **`packages/config`** (`@repo/config`) holds the shared tsconfig presets.
 - Every Vue app is on `@repo/ui-vue`. `@repo/ui` still builds the custom-element bridge (`@repo/ui/register`, "Option A"), but no app uses it.
 
-The content is placeholder, apart from the todo, weather, kanban and crypto MFEs, working apps that keep their state in memory only. The repo exists to prove the wiring.
+The content is placeholder, apart from the todo, weather, kanban, crypto and budget MFEs, working apps that keep their state in memory only. The repo exists to prove the wiring.
 
 - README.md: setup, the version table and the rationale for each deviation.
 - `documents/how-it-works.md`: the full build-time and runtime walkthrough.
@@ -58,7 +59,7 @@ cp apps/ui-react-docs/.env.example apps/ui-react-docs/.env.local   # optional: a
 cp apps/ui-vue-docs/.env.example apps/ui-vue-docs/.env.local       #   (same; without it they show a message)
 cp apps/weather-mfe/.env.example apps/weather-mfe/.env.local       #   (same, for the weather app's map)
 cp apps/crypto-mfe/.env.example apps/crypto-mfe/.env.local         # optional: a CoinGecko key; without one it uses the keyless API
-pnpm dev         # turbo: ui + ui-vue `vite build --watch`, todo-mfe (:5174), ui-vue-docs (:5175), ui-react-docs (:5176), weather-mfe (:5177), kanban-mfe (:5178), crypto-mfe (:5179), shell (:5173)
+pnpm dev         # turbo: ui + ui-vue `vite build --watch`, todo-mfe (:5174), ui-vue-docs (:5175), ui-react-docs (:5176), weather-mfe (:5177), kanban-mfe (:5178), crypto-mfe (:5179), budget-mfe (:5180), shell (:5173)
 pnpm build       # turbo; builds the libraries first (^build)
 pnpm typecheck   # tsc in shell/ui, vue-tsc in ui-vue and the Vue apps; needs the libraries built first (turbo handles it)
 pnpm preview     # production builds served by `vite preview` on the same ports
@@ -68,7 +69,7 @@ pnpm --filter @repo/todo-mfe dev   # any single package/task
 **No tests or linter.** To verify, run the apps:
 
 - the shell at http://localhost:5173 (its own routes and each remote's route);
-- each remote standalone: http://localhost:5174, :5175, :5176, :5177, :5178 and :5179.
+- each remote standalone: http://localhost:5174, :5175, :5176, :5177, :5178, :5179 and :5180.
 
 The ports are `strictPort`: if one is already taken, the server exits instead of moving to another port. Stopping one persistent turbo task stops the whole `pnpm dev`/`pnpm preview` run.
 
@@ -130,6 +131,17 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - All changes are typed actions through one pure reducer. The store is a plain object with no React in it, read through `useSyncExternalStore`. `mount` creates it, never module scope, and unmount disposes it.
 - A drag library stays in `src/dnd/`, and nothing else imports it. A drag shows a draft of the order and commits one action at the drop, so it is one history entry; the library's optimistic sorting plugin is off, so only React moves the DOM nodes. `documents/decisions/kanban.md` lists the library defaults this overrides and why.
 - A toast raised from a remote is rendered by the shell's alarm host, which outlives the remote, so the remote dismisses its open toasts on unmount.
+
+**Inside the budget remote (Redux Toolkit, Zod, React Router).** The same layout (`src/hooks/`, `src/pages/`, `src/types.ts`, pure `src/lib/`), with these libraries in place of the plain store:
+
+- `mount` calls `createBudgetStore()` (`src/state/store.ts`), never module scope, and unmount calls its `dispose()`, which aborts what the store started (thunks get an abort signal in `extra`) and clears its listeners. `RootState` comes from the root reducer, `AppDispatch` from the factory.
+- Transactions (an entity adapter) and budgets share one undo history through `undoable()` (`src/state/undo.ts`): every action that changes them is one step, so a delete, an import or a clear is one action. The `ui` slice (period, filters, table view, dialogs) sits outside it.
+- Components never call `useDispatch` or `useSelector`: hooks use the typed `useAppDispatch`/`useAppSelector` (`src/state/hooks.ts`) and hand components state and actions. Derived data is `createSelector` over pure functions in `src/lib/`; the results keep their reference until their inputs change, which the table's `data` and the chart series rely on.
+- Non-serialisable values (files, the repository, toast ids) stay out of the store. The repository rides in the thunks' `extra`; an import preview stays in its hook until it is confirmed as one action.
+- `src/lib/schemas.ts` is the single source of rules and types (`src/types.ts` re-exports them). The form and a CSV row both go through one text coercion and then the same transaction schema; parse at the edges only (submit or blur, import, the seed). `src/lib/validation.ts` turns issues into one message per field: the UI never reads Zod's errors.
+- The transactions view's filters live in the `ui` slice, not in the table engine, so an export of the current view writes exactly the rows the table shows.
+- `mount` creates the router with `createBrowserRouter(routes, { basename: basePath })`, and unmount calls `router.dispose()`: unmounting the provider leaves its `popstate` listener. As with a Vue remote, a shell link to the remote's base path from one of its sub-pages doesn't move the remote's router.
+- CSV: `src/lib/csv.ts` is generic RFC 4180 (both ways); `src/lib/transactionsCsv.ts` maps it onto transactions, with the schema's columns as the header.
 
 **React UI inside Vue (custom-element bridge, unused).** No app uses it now; the entry stays in `@repo/ui` until it is removed. If a Vue host uses it again, these rules apply.
 
@@ -245,7 +257,7 @@ The ports are `strictPort`: if one is already taken, the server exits instead of
 - `shared: {}` everywhere, so each remote bundles its own framework (Vue, or React for a React remote). This is a known, accepted duplication; sharing is a planned optimization. If React becomes a shared singleton, every `root.unmount()` run from the shell (a React remote's unmount, the custom element's) would run during the shell's commit and must be deferred.
 - Remotes must use `type: 'module'` in the shell's `remotes`.
 - Each remote sets `server.origin` so its dev-server URLs resolve when loaded from the shell.
-- The shell reads each remote's URL from a `VITE_*_REMOTE_URL` variable at **build time** (defaults: `http://localhost:5174/remoteEntry.js`, `:5175/…`, `:5176/…`, `:5177/…`, `:5178/…`, `:5179/…`). Each variable is listed in the root `turbo.json` `build.env`, so it is part of the cache key.
+- The shell reads each remote's URL from a `VITE_*_REMOTE_URL` variable at **build time** (defaults: `http://localhost:5174/remoteEntry.js`, `:5175/…`, `:5176/…`, `:5177/…`, `:5178/…`, `:5179/…`, `:5180/…`). Each variable is listed in the root `turbo.json` `build.env`, so it is part of the cache key.
 
 ## Toolchain constraints (non-obvious, don't "fix" these)
 

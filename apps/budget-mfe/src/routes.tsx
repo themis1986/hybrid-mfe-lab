@@ -1,4 +1,5 @@
 import { Navigate, type RouteObject } from 'react-router'
+import { RouteError } from './components/feedback/RouteError'
 import { AppLayout } from './components/layout/AppLayout'
 import { BudgetsPage } from './pages/BudgetsPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -10,6 +11,7 @@ export const routes: RouteObject[] = [
   {
     path: '/',
     Component: AppLayout,
+    ErrorBoundary: RouteError,
     children: [
       { index: true, Component: DashboardPage },
       { path: PATHS.transactions, Component: TransactionsPage },
