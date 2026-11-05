@@ -8,6 +8,7 @@ import { useTableView } from '../../hooks/useTableView'
 import type { Transaction } from '../../types'
 import { Message } from '../feedback/Message'
 import { createColumns } from './columns'
+import { ExportMenu } from './ExportMenu'
 import { TransactionFilters } from './TransactionFilters'
 
 const getRowId = (transaction: Transaction) => transaction.id
@@ -65,7 +66,12 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
       columnsPanel
       pagination={PAGE_SIZES}
       zebra
-      renderToolbar={() => <TransactionFilters />}
+      renderToolbar={() => (
+        <>
+          <TransactionFilters />
+          <ExportMenu />
+        </>
+      )}
       renderBulkActions={({ selectedIds }) => (
         <TButton
           variant="danger"
