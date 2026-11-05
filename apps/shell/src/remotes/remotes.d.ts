@@ -40,3 +40,10 @@ declare module 'crypto/mount' {
     props: { basePath: string },
   ): () => void
 }
+
+declare module 'budget/mount' {
+  export function mount(
+    el: HTMLElement,
+    props: { basePath: string },
+  ): () => void
+}
