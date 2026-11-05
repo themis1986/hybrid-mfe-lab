@@ -41,7 +41,7 @@ export const NAV_GROUPS: { id: NavGroup; label: string }[] = [
 export const NAV_ITEMS: NavItem[] = [
   {
     id: 'todo',
-    label: 'Todo app',
+    label: 'Todo',
     to: TODO_BASE_PATH,
     description:
       'The todo microfrontend: a Vue 3 app loaded at runtime through Module Federation.',
