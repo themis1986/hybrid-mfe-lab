@@ -6,6 +6,11 @@ export { TButton } from './components/TButton'
 export type { TButtonProps } from './components/TButton'
 export { TField } from './components/TField'
 export type { TFieldProps } from './components/TField'
+export { TFormField } from './components/TFormField'
+export type {
+  TFormFieldControlProps,
+  TFormFieldProps,
+} from './components/TFormField'
 export { TInput } from './components/TInput'
 export type { TInputProps } from './components/TInput'
 export { TSwitch } from './components/TSwitch'

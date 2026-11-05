@@ -19,6 +19,7 @@ import DialogDemo from './demos/DialogDemo.vue'
 import DividerDemo from './demos/DividerDemo.vue'
 import DropdownMenuDemo from './demos/DropdownMenuDemo.vue'
 import FieldDemo from './demos/FieldDemo.vue'
+import FormFieldDemo from './demos/FormFieldDemo.vue'
 import FrameDemo from './demos/FrameDemo.vue'
 import GridDemo from './demos/GridDemo.vue'
 import IconDemo from './demos/IconDemo.vue'
@@ -565,6 +566,55 @@ export const DOC_ENTRIES: DocEntry[] = [
     code: `<TField v-model="email" label="Email" description="We never share it." />
 <TField v-model="username" label="Username" :error="error" />
 <TField v-model="password" label="Password" type="password" />`,
+  },
+  {
+    id: 'form-field',
+    name: 'TFormField',
+    group: 'actions',
+    summary:
+      'A label and a hint around any control (a select, a date picker, a radio group…), as TField has for an input. The default slot renders the control and receives the ids to wire.',
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        description: 'Visible label, linked to the control. Required.',
+      },
+      {
+        name: 'description',
+        type: 'string',
+        description: 'Helper text under the control.',
+      },
+      {
+        name: 'error',
+        type: 'string',
+        description:
+          'Error text; replaces the description and is announced. Pass `invalid` to the control.',
+      },
+      {
+        name: 'id',
+        type: 'string',
+        description: "The control's id; generated with useId() when omitted.",
+      },
+      {
+        name: '…attributes',
+        type: 'div attributes',
+        description: 'Go on the root.',
+      },
+    ],
+    slots: [
+      {
+        name: 'default',
+        description:
+          'The control. Slot props: id, labelId, describedBy, invalid. Give it `:id` (or `:aria-labelledby="labelId"` where a label can\'t point at it), `:aria-describedby` and `:invalid`.',
+      },
+    ],
+    demo: FormFieldDemo,
+    code: `<TFormField v-slot="{ id, describedBy, invalid }" label="Country" :error="error">
+  <TSelect :id="id" v-model="country" :aria-describedby="describedBy" :invalid="invalid" :options="options" />
+</TFormField>
+<TFormField v-slot="{ id, labelId, describedBy, invalid }" label="Start date">
+  <TDatePicker :id="id" :aria-labelledby="labelId" :aria-describedby="describedBy" :invalid="invalid" />
+</TFormField>`,
   },
   {
     id: 'switch',
