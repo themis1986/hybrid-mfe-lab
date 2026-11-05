@@ -21,8 +21,19 @@ export function inPeriod(date: string, period: Period): boolean {
   return date >= period.start && date <= period.end
 }
 
-/** The period of the same length just before this one, for the deltas. */
+/**
+ * The period the deltas compare with: the same span, just before. A period that starts on the 1st moves back
+ * by whole months (1 Sep–5 Nov compares with 1 Jun–5 Aug), so both hold the same paydays and rent; any other
+ * moves back by its number of days.
+ */
 export function previousPeriod(period: Period): Period {
+  if (period.start === startOfMonth(period.start)) {
+    const months = eachMonth(period.start, period.end).length
+    return {
+      start: addMonths(period.start, -months),
+      end: addMonths(period.end, -months),
+    }
+  }
   const days = daysInRange(period.start, period.end)
   return { start: addDays(period.start, -days), end: addDays(period.start, -1) }
 }
@@ -79,7 +90,38 @@ export function bucketsOf(period: Period): Bucket[] {
   }))
 }
 
-/** The bucket a date falls in, by key. */
-export function bucketKey(date: string, buckets: readonly Bucket[]): string {
-  return buckets[0] && buckets[0].key.length === 7 ? date.slice(0, 7) : date
+/** Seven-day buckets from the period's start; the last one may be shorter. */
+export function weeksOf(period: Period): Bucket[] {
+  const buckets: Bucket[] = []
+  for (let start = period.start; start <= period.end; start = addDays(start, 7)) {
+    const end = addDays(start, 6) > period.end ? period.end : addDays(start, 6)
+    buckets.push({ key: start, label: formatDayMonth(start), start, end })
+  }
+  return buckets
+}
+
+/**
+ * Finer buckets, for a trend (the balance, the sparklines): by day up to about six weeks, by week beyond, so
+ * it has enough points to read as one (a three-month period would otherwise be three monthly points).
+ */
+export function fineBucketsOf(period: Period): Bucket[] {
+  return daysInRange(period.start, period.end) <= 45
+    ? bucketsOf(period)
+    : weeksOf(period)
+}
+
+/** Finds the bucket a date falls in, by binary search over the (contiguous, ordered) buckets. */
+export function bucketFinder(buckets: readonly Bucket[]): (date: string) => number | undefined {
+  return (date) => {
+    let low = 0
+    let high = buckets.length - 1
+    while (low <= high) {
+      const middle = (low + high) >> 1
+      const bucket = buckets[middle]!
+      if (date < bucket.start) high = middle - 1
+      else if (date > bucket.end) low = middle + 1
+      else return middle
+    }
+    return undefined
+  }
 }

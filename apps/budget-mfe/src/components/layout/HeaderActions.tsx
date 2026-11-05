@@ -19,6 +19,7 @@ import {
 import { useDialogs } from '../../hooks/useDialogs'
 import { useHistory } from '../../hooks/useHistory'
 import { IconButton } from '../common/IconButton'
+import { PeriodPicker } from './PeriodPicker'
 
 /** The app-wide actions in the page header: undo and redo, add, and a menu for the rest. */
 export function HeaderActions({ ready }: { ready: boolean }) {
@@ -27,6 +28,7 @@ export function HeaderActions({ ready }: { ready: boolean }) {
 
   return (
     <>
+      <PeriodPicker />
       <div className="flex items-center gap-1">
         <TTooltip content="Undo (⌘/Ctrl Z)">
           <IconButton icon={Undo2} label="Undo" disabled={!canUndo} onClick={undo} />

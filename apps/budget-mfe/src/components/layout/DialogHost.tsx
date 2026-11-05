@@ -1,3 +1,4 @@
+import { BudgetDialog } from '../budgets/BudgetDialog'
 import { ClearDataDialog } from '../feedback/ClearDataDialog'
 import { ShortcutsDialog } from '../feedback/ShortcutsDialog'
 import { DeleteTransactionsDialog } from '../transactions/DeleteTransactionsDialog'
@@ -9,6 +10,7 @@ export function DialogHost() {
     <>
       <TransactionDialog />
       <DeleteTransactionsDialog />
+      <BudgetDialog />
       <ClearDataDialog />
       <ShortcutsDialog />
     </>
