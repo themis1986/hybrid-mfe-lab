@@ -39,7 +39,9 @@ Current scope limits:
 
 - a minimal design system (tokens, Tailwind styles, placeholder components) only: no Storybook, icon set or web fonts;
 - no persistence or backend: app state lives in memory;
-- no state management beyond Pinia in a Vue remote, TanStack Query for server data in the weather and crypto remotes, and a plain store on `useSyncExternalStore` in the kanban remote; no real identity provider (the shell's login uses mock accounts), testing framework, linting, CI or Docker.
+- no state management beyond Pinia in a Vue remote, TanStack Query for server data in the weather and crypto remotes, a plain store on `useSyncExternalStore` in the kanban remote, and Redux Toolkit (with react-redux) in the budget remote;
+- no validation library beyond Zod in the budget remote, and no form library;
+- no real identity provider (the shell's login uses mock accounts), testing framework, linting, CI or Docker.
 
 Don't add these unless asked.
 

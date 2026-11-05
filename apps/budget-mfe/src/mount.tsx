@@ -1,9 +1,14 @@
 import { TAlarmHost } from '@repo/ui'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { Provider } from 'react-redux'
 import { createBrowserRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
+import { createInMemoryRepository } from './data/inMemoryRepository'
+import { createSeedLedger } from './data/seed'
+import { today } from './lib/dates'
 import { routes } from './routes'
+import { createBudgetStore } from './state/store'
 import styles from './styles.css?inline'
 
 export interface MountProps {
@@ -22,6 +27,13 @@ export function mount(el: HTMLElement, props: MountProps): () => void {
   style.textContent = styles
   document.head.appendChild(style)
 
+  // One store per mount, never at module scope: the federated module stays cached after unmount, so a
+  // module-level store would carry the ledger into the next mount.
+  const budget = createBudgetStore({
+    repository: createInMemoryRepository(() => createSeedLedger(today())),
+  })
+  budget.load()
+
   // One router per mount, never at module scope: it listens to the window's popstate from the moment it is
   // created, and the federated module stays cached after unmount.
   const router = createBrowserRouter(routes, { basename: props.basePath })
@@ -30,7 +42,9 @@ export function mount(el: HTMLElement, props: MountProps): () => void {
   const root = createRoot(el, { identifierPrefix: 'budget-' })
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <Provider store={budget.store}>
+        <RouterProvider router={router} />
+      </Provider>
       {/* Shows the alarms when this app runs on its own; inside the shell, the shell's host does. */}
       <TAlarmHost />
     </StrictMode>,
@@ -42,6 +56,7 @@ export function mount(el: HTMLElement, props: MountProps): () => void {
     root.unmount()
     // Unmounting the provider leaves the router listening: only dispose() removes its popstate listener.
     router.dispose()
+    budget.dispose()
     style.remove()
   }
 }
