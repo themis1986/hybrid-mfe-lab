@@ -22,7 +22,7 @@ export function HomePage() {
       <TStack gap={6}>
         <TPageHeader
           title="Welcome to The L@b"
-          description="A microfrontends playground: a React shell hosting sub-applications built in Vue or React, on one design system."
+          description="A frontend web experience platform: a React shell hosting sub-applications built in Vue or React, on one design system."
         />
         {navItems.length === 0 && (
           <p className="m-0 text-sm text-fg-muted">

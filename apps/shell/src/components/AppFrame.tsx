@@ -20,7 +20,7 @@ export function AppFrame() {
         <Logo />
         <TSpacer />
         <span className="text-sm text-fg-muted max-sm:hidden">
-          Microfrontends playground
+          A frontend web experience platform
         </span>
         <ThemeSwitch />
         <GithubLink />
