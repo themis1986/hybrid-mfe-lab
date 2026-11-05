@@ -8,6 +8,12 @@ import type { Transaction, TransactionId, TransactionInput } from '../types'
 import { ledgerCleared } from './actions'
 import { loadLedger } from './thunks'
 
+/** Rows of an import that weren't added: duplicates, and rows that failed validation. */
+export interface ImportCounts {
+  skipped: number
+  invalid: number
+}
+
 /** Newest first; transactions of the same day by when they were entered. */
 export const transactionsAdapter = createEntityAdapter<Transaction>({
   sortComparer: (a, b) =>
@@ -61,12 +67,23 @@ const transactionsSlice = createSlice({
       transactionsAdapter.removeMany(state, action.payload)
     },
 
-    /** The valid rows of a CSV file, as one undo step. */
+    /** The valid rows of a CSV file, as one undo step. `meta` counts what was left out, for the report. */
     imported: {
-      reducer: transactionsAdapter.addMany,
-      prepare: (inputs: TransactionInput[]) => {
+      reducer(
+        state,
+        action: PayloadAction<Transaction[], string, ImportCounts>,
+      ) {
+        transactionsAdapter.addMany(state, action.payload)
+      },
+      prepare: (
+        inputs: TransactionInput[],
+        counts: ImportCounts = { skipped: 0, invalid: 0 },
+      ) => {
         const createdAt = new Date().toISOString()
-        return { payload: inputs.map((input) => stamp(input, createdAt)) }
+        return {
+          payload: inputs.map((input) => stamp(input, createdAt)),
+          meta: counts,
+        }
       },
     },
   },
