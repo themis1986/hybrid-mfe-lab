@@ -1,0 +1,25 @@
+# Netlify site settings: Package directory = apps/ui-react-docs, Base directory unset (repo root).
+# Netlify installs and runs the command from the base directory, and every path here is
+# relative to it, so no `cd` is needed and `publish` names the app's folder.
+[build]
+  # turbo builds the workspace packages this app depends on (the UI libraries) first
+  command = "pnpm turbo run build --filter=@repo/ui-react-docs..."
+  publish = "apps/ui-react-docs/dist"
+
+# Lets the shell (a different origin) load this app's files
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+
+# Keep the federation entry fresh, so the shell never loads a stale remote
+[[headers]]
+  for = "/remoteEntry.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Only used if the app also runs standalone with client-side routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
